@@ -139,7 +139,7 @@ Other people visiting the Space at the same time show up as translucent
 ducks, live. Peer-to-peer WebRTC via [Trystero](https://github.com/dmotz/trystero)
 (serverless signaling over public Nostr relays), so it works from a static
 Space with no backend. Each tab broadcasts its duck's pose (trunk + 14
-joints + jaw + colour + locomotion variant) at 10 Hz; up to 3 ghosts are
+joints + jaw + colour + locomotion variant) at 15 Hz; up to 3 ghosts are
 rendered, extra peers stay connected but invisible. The camcorder-style OSD
 in the top-right corner shows "N ONLINE" when peers are around.
 
@@ -179,6 +179,54 @@ UI intents in).
 - Switching variants swaps the compiled model + data + rig + ONNX sessions
   wholesale; both stay resident after the first load so toggling back and
   forth is instant.
+
+## iOS app
+
+`ios/Microduck.xcodeproj` is a native SwiftUI app that hosts the same simulator
+in one long-lived `WKWebView`. The Vite bundle, MuJoCo and ONNX Runtime WASM,
+fonts, policies, scenes, meshes and audio are copied into the `.app`; normal
+simulation is fully offline. Multiplayer ghosts and external community links
+still require a network connection.
+
+Before the first build, materialize the Git LFS assets and install JavaScript
+dependencies:
+
+```bash
+git lfs install
+git lfs pull
+cd app && npm ci
+open ../ios/Microduck.xcodeproj
+```
+
+Choose your Development Team in Xcode, then run the `Microduck` scheme on an
+iPhone running iOS 17 or later. The checked-in project can be regenerated from
+`ios/project.yml` with `cd ios && xcodegen generate`.
+
+The iOS host serves bundle files through a path-restricted `microduck://`
+scheme with explicit WASM, model, font and audio MIME types plus byte-range
+support. It forwards app lifecycle, thermal state and Low Power Mode to the
+simulator, reloads after a WebContent process termination and opens HTTPS links
+in the system browser.
+
+The native performance profiles favor sustained frame pacing over peak refresh:
+
+- normal: 60 fps, DPR 1.5, 2x offscreen MSAA;
+- thermal `fair`: 60 fps, DPR 1.25;
+- Low Power Mode or thermal `serious`: 30 fps, DPR 1, no extra MSAA or animated noise;
+- background or thermal `critical`: physics, inference, rendering and ghost broadcasts pause.
+
+`WKWebView` currently has no public ProMotion/120 Hz control, so the app targets
+a stable 60 fps ceiling. A true 120 Hz requirement would need a later native
+Metal renderer rather than a private WebKit setting.
+
+Command-line verification:
+
+```bash
+cd app && npm test && npm run build
+cd ../ios
+xcodebuild -project Microduck.xcodeproj -scheme Microduck \
+  -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
+```
 
 ## Development
 
