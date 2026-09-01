@@ -35,7 +35,7 @@ const BARREL = 0.055; // curvature strength (0 = flat, ~0.1 = heavy fishbowl)
 const ABERRATION = 0.05; // RGB fringe, fraction of the barrel shift (~1-2px at edges)
 const CORNER_DARKEN = 0.12; // shader-side corner falloff (CSS vignette adds more)
 const EDGE_FEATHER = 0.0025; // anti-aliased feather on the curved border, in uv
-const MSAA_SAMPLES = 4; // multisampling on the scene target (matches canvas AA)
+const DEFAULT_MSAA_SAMPLES = 4; // web default; native profiles can reduce it
 
 const VERT = /* glsl */ `
 varying vec2 vUv;
@@ -77,11 +77,11 @@ void main() {
 }
 `;
 
-export default function CrtDistortion() {
+export default function CrtDistortion({ samples = DEFAULT_MSAA_SAMPLES }) {
   const { size, viewport } = useThree();
 
   const { target, quadScene, quadCamera, material, geometry } = useMemo(() => {
-    const target = new THREE.WebGLRenderTarget(1, 1, { samples: MSAA_SAMPLES });
+    const target = new THREE.WebGLRenderTarget(1, 1, { samples });
     // WebXR-path flag: tone mapping + output color space apply when
     // rendering into this target (see header comment).
     target.isXRRenderTarget = true;
@@ -120,7 +120,7 @@ export default function CrtDistortion() {
     // __crtDistortion.uBarrel.value = 0.08
     if (import.meta.env.DEV) window.__crtDistortion = material.uniforms;
     return { target, quadScene, quadCamera, material, geometry };
-  }, []);
+  }, [samples]);
 
   // Track canvas size and DPR (R3F clamps dpr to [1, 2]).
   useEffect(() => {

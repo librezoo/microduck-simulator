@@ -214,7 +214,7 @@ const hudHitSx = {
 
 function NavigationButtons() {
   return (
-    <Box sx={{ position: "fixed", top: "1.25rem", left: "1.5rem", zIndex: 10, display: "flex", gap: "0.75rem" }}>
+    <Box sx={{ position: "fixed", top: "calc(1.25rem + var(--safe-top))", left: "calc(1.5rem + var(--safe-left))", zIndex: 10, display: "flex", gap: "0.75rem" }}>
       <HudPlate caption="Nav">
         <Box
           component="button"
@@ -262,8 +262,8 @@ function CommunityLinks() {
     <Box
       sx={{
         position: "fixed",
-        top: "1.25rem",
-        right: "1.5rem",
+        top: "calc(1.25rem + var(--safe-top))",
+        right: "calc(1.5rem + var(--safe-right))",
         zIndex: 10,
         display: "flex",
         gap: "0.75rem",
@@ -321,7 +321,7 @@ function Quickbar() {
     <Box
       sx={{
         position: "fixed",
-        top: "1.25rem",
+        top: "calc(1.25rem + var(--safe-top))",
         left: "50%",
         zIndex: 10,
         display: "flex",
@@ -331,7 +331,7 @@ function Quickbar() {
         maxWidth: "calc(100vw - 25rem)",
         transform: "translateX(-50%)",
         "@media (max-width: 1150px)": {
-          top: "5.25rem",
+          top: "calc(5.25rem + var(--safe-top))",
           maxWidth: "calc(100vw - 3rem)",
         },
       }}
@@ -630,8 +630,8 @@ function Telemetry() {
     <Box
       sx={{
         position: "fixed",
-        bottom: "5.25rem",
-        right: "1.5rem",
+        bottom: "calc(5.25rem + var(--safe-bottom))",
+        right: "calc(1.5rem + var(--safe-right))",
         zIndex: 10,
         pointerEvents: "none",
         fontFamily: MONO,
@@ -669,8 +669,8 @@ function OsdLoad() {
     <Box
       sx={{
         position: "fixed",
-        top: "5.2rem",
-        right: "1.5rem",
+        top: "calc(5.2rem + var(--safe-top))",
+        right: "calc(1.5rem + var(--safe-right))",
         zIndex: 10,
         fontFamily: MONO,
         fontSize: "0.68rem",
@@ -701,8 +701,8 @@ function SceneCredit() {
     <Box
       sx={{
         position: "fixed",
-        left: "1.5rem",
-        bottom: "9.55rem",
+        left: "calc(1.5rem + var(--safe-left))",
+        bottom: "calc(9.55rem + var(--safe-bottom))",
         zIndex: 10,
         fontFamily: MONO,
         fontSize: "0.56rem",
@@ -804,7 +804,7 @@ function ControlHints() {
       sx={{
         position: "fixed",
         left: "50%",
-        bottom: "1.05rem",
+        bottom: "calc(1.05rem + var(--safe-bottom))",
         zIndex: 10,
         transform: "translateX(-50%)",
         maxWidth: "calc(100vw - 3rem)",

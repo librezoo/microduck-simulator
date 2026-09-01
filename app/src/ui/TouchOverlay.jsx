@@ -37,14 +37,14 @@ export default function TouchOverlay() {
           zIndex: 9,
           touchAction: "none",
         },
-        "& #touch-zone": { left: 0, right: "50%" },
+        "& #touch-zone": { left: "var(--safe-left)", right: "50%" },
         // Keep the right hand's stick clear of the action deck and let it
         // disappear entirely in Drive, where the same screen space is free.
         "& #touch-aux-zone": {
           display: modal ? "block" : "none",
           left: "50%",
-          right: 0,
-          bottom: "16.2rem",
+          right: "var(--safe-right)",
+          bottom: "calc(16.2rem + var(--safe-bottom))",
         },
         "& #touch-stick, & #touch-aux-stick": {
           position: "absolute",
@@ -56,7 +56,10 @@ export default function TouchOverlay() {
           background: "rgba(8, 8, 12, 0.4)",
           pointerEvents: "none",
         },
-        "& #touch-stick": { left: "1.3rem" },
+        "& #touch-stick": {
+          left: "1.3rem",
+          bottom: "calc(2rem + var(--safe-bottom))",
+        },
         "& #touch-aux-stick": { right: "1.3rem" },
         "& #touch-stick .nub, & #touch-aux-stick .nub": {
           position: "absolute",
@@ -76,8 +79,8 @@ export default function TouchOverlay() {
         },
         "& #touch-btns": {
           position: "fixed",
-          right: "1rem",
-          bottom: "1rem",
+          right: "calc(1rem + var(--safe-right))",
+          bottom: "calc(1rem + var(--safe-bottom))",
           zIndex: 12,
           display: "grid",
           gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
@@ -108,6 +111,35 @@ export default function TouchOverlay() {
           "&[aria-pressed='true']": { background: ORANGE, borderColor: ORANGE, color: INK },
           "&:focus-visible": { outline: "2px dashed #fff", outlineOffset: 3 },
           "@media (prefers-reduced-motion: reduce)": { transition: "none" },
+        },
+        "@media (orientation: landscape) and (max-height: 520px)": {
+          "& #touch-zone, & #touch-aux-zone": { top: "24%" },
+          "& #touch-aux-zone": {
+            bottom: "var(--safe-bottom)",
+          },
+          "& #touch-stick, & #touch-aux-stick": {
+            width: "6.5rem",
+            height: "6.5rem",
+            bottom: "0.75rem",
+          },
+          "& #touch-stick": {
+            bottom: "calc(0.75rem + var(--safe-bottom))",
+          },
+          "& #touch-aux-stick": {
+            right: "13.6rem",
+          },
+          "& #touch-btns": {
+            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+            width: "13rem",
+            gap: "0.3rem",
+            right: "calc(0.6rem + var(--safe-right))",
+            bottom: "calc(0.6rem + var(--safe-bottom))",
+          },
+          "& #touch-btns button": {
+            minHeight: "2rem",
+            padding: "0.2rem 0.3rem",
+            fontSize: "0.62rem",
+          },
         },
       }}
     >

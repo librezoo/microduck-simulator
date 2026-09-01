@@ -134,7 +134,10 @@ export default function BiosOverlay() {
         // POST readout sits bottom-left like a real BIOS, not centered
         alignItems: "flex-end",
         justifyContent: "flex-start",
-        p: "2.2rem 2.4rem",
+        pt: "calc(2.2rem + var(--safe-top))",
+        pr: "calc(2.4rem + var(--safe-right))",
+        pb: "calc(2.2rem + var(--safe-bottom))",
+        pl: "calc(2.4rem + var(--safe-left))",
         background: INK,
         zIndex: 20,
         pointerEvents: "none",

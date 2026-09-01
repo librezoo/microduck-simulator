@@ -3,10 +3,9 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  // MuJoCo WASM and onnxruntime-web stay on the CDN (dynamic import with
-  // @vite-ignore in game/boot.js), exactly like the pre-Vite app: their
-  // .wasm sidecars resolve relative to the CDN URL and never touch the
-  // bundle.
+  // The same dist runs from HTTPS and the iOS app's microduck:// bundle
+  // scheme. Generated asset URLs therefore need to stay relative.
+  base: "./",
   server: {
     port: 5173,
   },

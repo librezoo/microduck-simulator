@@ -22,6 +22,11 @@
 //     flow back in through gameApi.
 
 import * as THREE from "three";
+import loadMujocoFactory from "@mujoco/mujoco";
+import mujocoWasmUrl from "@mujoco/mujoco/mujoco.wasm?url";
+import * as ort from "onnxruntime-web/wasm";
+import ortWasmUrl from "onnxruntime-web/ort-wasm-simd-threaded.wasm?url";
+import ortWasmModuleUrl from "onnxruntime-web/ort-wasm-simd-threaded.mjs?url";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { signed } from "./signed.js";
@@ -66,13 +71,11 @@ import { makeInfiniteGrid } from "./arena.js";
 import { createBallVisual } from "./ball-visual.js";
 import { loadWbcRuntime } from "./wbc.js";
 import { useGame, gameApi, bootLine, bootNote, bootHalt } from "../store.js";
-
-// Physics + inference runtimes stay on the CDN, exactly like the pre-Vite
-// app: mujoco.js resolves its .wasm sidecar relative to its own URL, and
-// onnxruntime fetches its wasm from wasmPaths - neither ever touches the
-// bundle. @vite-ignore keeps Rollup's static analysis out of it.
-const MUJOCO_URL = "https://cdn.jsdelivr.net/npm/@mujoco/mujoco@3.11.0/mujoco.js";
-const ORT_URL = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.27.0/dist/ort.min.mjs";
+import {
+  getPerformanceProfile,
+  postNative,
+  subscribePerformanceProfile,
+} from "../native/runtime.js";
 
 let bootStarted = false;
 
@@ -105,6 +108,7 @@ export async function bootGame({ scene, camera, renderer }) {
   } catch (err) {
     console.error("[game] boot failed", err);
     bootHalt(err?.message || String(err));
+    postNative({ type: "boot-failed", detail: err?.message || String(err) });
   }
 }
 
@@ -151,15 +155,14 @@ async function boot({ scene, camera, renderer }) {
     );
   };
 
-  // ── Runtimes (CDN) ──────────────────────────────────────────────────
-  const [{ default: loadMujocoFactory }, ort] = await traced(
-    "RUNTIME MODULES",
-    Promise.all([
-      import(/* @vite-ignore */ MUJOCO_URL),
-      import(/* @vite-ignore */ ORT_URL),
-    ]),
-  );
-  ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.27.0/dist/";
+  // ── Bundled runtimes ──────────────────────────────────────────────────
+  // Executable code and WASM stay inside the production bundle so browser
+  // and iOS boot do not depend on a CDN.
+  await traced("RUNTIME MODULES", Promise.resolve());
+  ort.env.wasm.wasmPaths = {
+    wasm: new URL(ortWasmUrl, location.href).href,
+    mjs: new URL(ortWasmModuleUrl, location.href).href,
+  };
   ort.env.wasm.numThreads = 1; // static hosting sends no COOP/COEP headers
 
   // ── MJCF preparation ────────────────────────────────────────────────
@@ -295,7 +298,11 @@ async function boot({ scene, camera, renderer }) {
 
   // ── Boot physics + policy in parallel with the render rig ────────────
   const [mujoco, { xml, meshFiles }, k] = await Promise.all([
-    traced("MUJOCO WASM", loadMujocoFactory()),
+    traced("MUJOCO WASM", loadMujocoFactory({
+      locateFile: (path) => path.endsWith(".wasm")
+        ? new URL(mujocoWasmUrl, location.href).href
+        : path,
+    })),
     traced("PHYSICS MJCF", buildPhysicsXml("robot_allcollisions.xml")),
     traced("KINEMATICS", loadKinematics(`${MODEL_DIR}/kinematics.json`)),
   ]);
@@ -896,6 +903,10 @@ async function boot({ scene, camera, renderer }) {
 
   // ── Control loop (50 Hz, async because ONNX inference is async) ──────
   let ctrlHz = 0;
+  let controlActivityEpoch = 0;
+  // Initialised asynchronously after the entrance. Declared before the
+  // lifecycle controller so an early native resume can safely reach it.
+  let ghosts = null;
 
   // Fresh projected-gravity z straight from the trunk pose (buildObs is
   // skipped during the fall-recovery settle, so obs[5] can go stale).
@@ -919,7 +930,7 @@ async function boot({ scene, camera, renderer }) {
     return null;
   }
 
-  async function controlStep() {
+  async function controlStep(expectedActivityEpoch = null) {
     let wbcFinished = false;
     driveRelief(CTRL_DT); // kinematic terrain, written before the physics steps
     // Settle phase: ctrl frozen on the pose held at the fall (approximates
@@ -938,6 +949,9 @@ async function boot({ scene, camera, renderer }) {
           ),
         };
         const out = await session.run(feeds);
+        if (expectedActivityEpoch !== null && expectedActivityEpoch !== controlActivityEpoch) {
+          return false;
+        }
         // A reset, clip change or control-stack switch can happen while
         // WASM inference yields. Never apply that stale result afterward.
         if (controlMode === "wbc" && runEpoch === controlEpoch &&
@@ -958,6 +972,9 @@ async function boot({ scene, camera, renderer }) {
         const feeds = { obs: new ort.Tensor("float32", buildObs(), [1, OBS_SIZE]) };
         const policy = activePolicy();
         const out = await policy.session.run(feeds);
+        if (expectedActivityEpoch !== null && expectedActivityEpoch !== controlActivityEpoch) {
+          return false;
+        }
         const act = out.actions.data;
         lastAction.set(act);
         const ctrl = data.ctrl;
@@ -1082,6 +1099,7 @@ async function boot({ scene, camera, renderer }) {
         syncButtons();
       }
     }
+    return true;
   }
 
   // ── Relief (prototype: the level itself gains gentle slopes) ────────
@@ -1131,11 +1149,43 @@ async function boot({ scene, camera, renderer }) {
     if (reliefGridMat) reliefGridMat.uniforms.uTopoScale.value = reliefScale;
   }
   let running = true;
+  let resumeControl = null;
+  let controlsActive = false;
+  let onControlActivityChanged = () => {};
+  const desiredControlActivity = () => {
+    const ui = store();
+    return !getPerformanceProfile().suspended && ui.entered && !ui.menuOpen;
+  };
+  const refreshControlActivity = () => {
+    const active = desiredControlActivity();
+    if (active === controlsActive) return;
+    controlsActive = active;
+    controlActivityEpoch++;
+    ghosts?.setActive?.(active);
+    onControlActivityChanged(active);
+    if (active && resumeControl) {
+      const resume = resumeControl;
+      resumeControl = null;
+      resume();
+    }
+  };
+  subscribePerformanceProfile(refreshControlActivity);
+  useGame.subscribe((s) => s.entered && !s.menuOpen, refreshControlActivity);
+  refreshControlActivity();
+
   (async function controlLoop() {
     let next = performance.now();
     let count = 0, hzT0 = next;
     while (running) {
-      await controlStep();
+      if (!controlsActive) {
+        await new Promise((resolve) => { resumeControl = resolve; });
+        next = performance.now();
+        count = 0;
+        hzT0 = next;
+        continue;
+      }
+      const stepped = await controlStep(controlActivityEpoch);
+      if (!stepped) continue;
       count++;
       const now = performance.now();
       if (now - hzT0 > 500) {
@@ -1479,7 +1529,7 @@ async function boot({ scene, camera, renderer }) {
     flashReset: () => {},
   });
 
-  const { group: ballGroup, mesh: ballMesh } = createBallVisual(renderer);
+  const { group: ballGroup, mesh: ballMesh } = await createBallVisual(renderer);
   scene.add(ballGroup);
   ball = createBallActor({
     THREE, scene, camera, renderer, fxModule: fx, mesh: ballMesh, group: ballGroup,
@@ -2018,6 +2068,15 @@ async function boot({ scene, camera, renderer }) {
     setTimeout(() => gain.disconnect(), 400);
   }
 
+  onControlActivityChanged = (active) => {
+    if (active) return;
+    wawaAudio.pause();
+    for (const chirp of chirpCache.values()) chirp.pause();
+    stopWheee({ silent: true });
+    if (wheeeCtx?.state === "running") wheeeCtx.suspend().catch(() => {});
+  };
+  if (!controlsActive) onControlActivityChanged(false);
+
   // Per-frame note picking: the full LT travel (above a small deadzone)
   // spans the pentatonic scale, one octave below natural pitch at rest up
   // to the natural pitch at full squeeze. Quantized to scale steps so
@@ -2042,6 +2101,7 @@ async function boot({ scene, camera, renderer }) {
   let odoM = 0;
   let odoX = null, odoY = null;
   let telemetryLastPush = 0;
+  let nativeTelemetryLastPush = 0;
   function renderTelemetry() {
     const now = performance.now();
     const dtF = (now - fpsLastT) / 1000;
@@ -2065,6 +2125,14 @@ async function boot({ scene, camera, renderer }) {
         ? { wbcProgress: { frame: wbcFrame, frames: wbcClip.frames } }
         : {}),
     });
+    if (now - nativeTelemetryLastPush >= 1000) {
+      nativeTelemetryLastPush = now;
+      postNative({
+        type: "telemetry",
+        fps: Math.round(fpsEma),
+        controlHz: Math.round(ctrlHz),
+      });
+    }
   }
 
   // ── Right-stick camera orbit (inertia downstream of the controller) ──
@@ -2093,9 +2161,6 @@ async function boot({ scene, camera, renderer }) {
     camera.position.setFromSpherical(_padSph).add(controls.target);
     camera.lookAt(controls.target);
   }
-
-  // Multiplayer ghosts, initialised asynchronously at the end of the boot.
-  let ghosts = null;
 
   // ── Per-frame drive, called by R3F's useFrame ────────────────────────
   let padWasConnected = null;
@@ -2577,6 +2642,7 @@ async function boot({ scene, camera, renderer }) {
   // the user already waddled in, or when they do) sees bootDone and closes
   // with READY. + fade on its own.
   setStore({ bootDone: true });
+  postNative({ type: "booted" });
 
   // ── Multiplayer ghosts (WebRTC, serverless signaling) ────────────────
   // Broadcast this duck's pose and render up to 3 other visitors live as
@@ -2611,6 +2677,7 @@ async function boot({ scene, camera, renderer }) {
       },
     });
     liveGhostSessions.add(ghosts);
+    ghosts.setActive?.(controlsActive);
     if (ghosts.room) ghosts.room.onPeerJoin = () => stickers?.pop("hi");
   } catch (e) {
     window.__ghostErr = String((e && e.stack) || e);

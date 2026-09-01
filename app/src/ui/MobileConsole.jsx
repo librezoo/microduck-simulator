@@ -133,8 +133,8 @@ export default function MobileConsole() {
           position: "fixed",
           // Community links occupy the top rail on touch too; keep this
           // primary affordance on its own line so GitHub never sits under it.
-          top: "5.15rem",
-          right: "1rem",
+          top: "calc(5.15rem + var(--safe-top))",
+          right: "calc(1rem + var(--safe-right))",
           zIndex: 15,
           display: "flex",
           alignItems: "center",
@@ -180,10 +180,10 @@ export default function MobileConsole() {
           onPointerDown={(event) => event.stopPropagation()}
           sx={{
             position: "fixed",
-            top: "8.55rem",
-            right: "0.72rem",
-            bottom: "0.72rem",
-            left: "0.72rem",
+            top: "calc(8.55rem + var(--safe-top))",
+            right: "calc(0.72rem + var(--safe-right))",
+            bottom: "calc(0.72rem + var(--safe-bottom))",
+            left: "calc(0.72rem + var(--safe-left))",
             zIndex: 14,
             display: "grid",
             alignContent: "start",

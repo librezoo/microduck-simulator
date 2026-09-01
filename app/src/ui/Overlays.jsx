@@ -7,8 +7,13 @@
 // Performance: the only animation is a transform-only jitter on the noise
 // layer, so everything stays on the compositor and never repaints the
 // WebGL canvas underneath.
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { keyframes } from "@mui/material/styles";
+import {
+  getPerformanceProfile,
+  subscribePerformanceProfile,
+} from "../native/runtime.js";
 
 const crtNoise = keyframes`
   0% { transform: translate(0, 0); }
@@ -40,6 +45,12 @@ export function Halftone() {
 }
 
 export function CrtOverlay() {
+  const [animateNoise, setAnimateNoise] = useState(
+    () => getPerformanceProfile().animateNoise,
+  );
+  useEffect(() => subscribePerformanceProfile(() => {
+    setAnimateNoise(getPerformanceProfile().animateNoise);
+  }), []);
   const scanlineOpacity = 0.13;
   const scanlinePitch = "3px";
   const noiseOpacity = 0.045;
@@ -89,8 +100,8 @@ export function CrtOverlay() {
           backgroundImage: NOISE_SVG,
           backgroundSize: "160px 160px",
           opacity: noiseOpacity,
-          animation: `${crtNoise} 0.5s steps(1) infinite`,
-          willChange: "transform",
+          animation: animateNoise ? `${crtNoise} 0.5s steps(1) infinite` : "none",
+          willChange: animateNoise ? "transform" : "auto",
           "@media (prefers-reduced-motion: reduce)": { animation: "none" },
         }}
       />

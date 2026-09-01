@@ -9,7 +9,6 @@
 // on the private Space those need the ?__sign JWT that only rl.js knows
 // how to append, so all rig helpers arrive through init parameters.
 
-const TRYSTERO_URL = "https://esm.run/trystero@0.25.3/nostr";
 const APP_ID = "microduck-sandbox";
 const ROOM = "lobby";
 const MAX_GHOSTS = 3;
@@ -69,11 +68,13 @@ if (import.meta.hot) {
 export async function initGhosts(env) {
   const noop = {
     update() {}, peerCount: () => 0, ghostCount: () => 0, debug: () => [],
-    mapDots: () => [], destroy() {}, injectState: () => false,
+    mapDots: () => [], destroy() {}, setActive() {}, injectState: () => false,
   };
   let room;
   try {
-    const { joinRoom } = await import(/* @vite-ignore */ TRYSTERO_URL);
+    // Lazy but bundled: only signaling and WebRTC use the network; no
+    // executable application code is downloaded at runtime.
+    const { joinRoom } = await import("trystero/nostr");
     room = joinRoom({ appId: APP_ID }, ROOM);
   } catch (e) {
     console.warn("ghosts disabled (signaling unavailable):", e);
@@ -316,7 +317,9 @@ export async function initGhosts(env) {
   // broadcasting at the nominal SEND_HZ. Inline via blob URL - no extra
   // file, no bundler config; falls back to a plain (throttled) interval
   // if workers or blob URLs are unavailable (strict CSP).
+  let tickActive = true;
   const tick = () => {
+    if (!tickActive) return;
     const s = getLocalState();
     if (s) sendState(s);
     const now = performance.now();
@@ -326,16 +329,25 @@ export async function initGhosts(env) {
   };
   let tickWorker = null;
   let tickId = null;
+  const startFallbackTimer = () => {
+    tickId ??= setInterval(tick, 1000 / SEND_HZ);
+  };
   try {
     const url = URL.createObjectURL(new Blob(
-      [`setInterval(() => postMessage(0), ${1000 / SEND_HZ});`],
+      [`let timer = 0;
+        const start = () => { timer ||= setInterval(() => postMessage(0), ${1000 / SEND_HZ}); };
+        onmessage = (event) => {
+          if (event.data === true) start();
+          else { clearInterval(timer); timer = 0; }
+        };
+        start();`],
       { type: "text/javascript" },
     ));
     tickWorker = new Worker(url);
     URL.revokeObjectURL(url); // the worker resolved the URL synchronously
     tickWorker.onmessage = tick;
   } catch {
-    tickId = setInterval(tick, 1000 / SEND_HZ);
+    startFallbackTimer();
   }
 
   // Scratch THREE.Quaternions without importing three: slerp needs real
@@ -345,6 +357,15 @@ export async function initGhosts(env) {
   let lastUpdateAt = performance.now(); // update() frame clock for the delay slew
   const api = {
     room,
+    setActive(active) {
+      tickActive = Boolean(active);
+      if (tickWorker) tickWorker.postMessage(tickActive);
+      else if (tickActive) startFallbackTimer();
+      else if (tickId !== null) {
+        clearInterval(tickId);
+        tickId = null;
+      }
+    },
     // Full teardown: without it, every HMR reload of this module stacked a
     // live 15 Hz interval plus a ghost room that kept broadcasting.
     destroy() {

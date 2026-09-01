@@ -2,23 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Microduck - Enhanced with MicroZoo</title>
-    <!-- Anton: the landing's brutal print display voice (FancyTitle /
-         ComicButton on the pollen-website Microduck pages). -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Anton&display=swap"
-      rel="stylesheet"
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
     />
+    <title>Microduck - Enhanced with MicroZoo</title>
     <style>
       :root {
         --ink: #08080c;
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-right: env(safe-area-inset-right, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-left: env(safe-area-inset-left, 0px);
       }
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { height: 100%; }
-      body { background: var(--ink); overflow: hidden; }
+      body {
+        background: var(--ink);
+        overflow: hidden;
+        overscroll-behavior: none;
+        -webkit-touch-callout: none;
+      }
       #root { height: 100%; }
     </style>
   </head>

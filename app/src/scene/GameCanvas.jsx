@@ -3,7 +3,7 @@
 // from useFrame. Lights and environment are declarative; the grid, walls,
 // duck rig, ball and props are added to the scene by the core (they carry
 // ceremony-driven shader state).
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
@@ -11,6 +11,40 @@ import { bootGame } from "../game/game.js";
 import { gameApi } from "../store.js";
 import { SPAWN_X, SPAWN_Y } from "../game/constants.js";
 import CrtDistortion, { CRT_DISTORTION_ENABLED } from "./CrtDistortion.jsx";
+import { useGame } from "../store.js";
+import {
+  getPerformanceProfile,
+  postNative,
+  subscribePerformanceProfile,
+} from "../native/runtime.js";
+
+function usePerformanceProfile() {
+  const [profile, setProfile] = useState(getPerformanceProfile);
+  useEffect(() => subscribePerformanceProfile(() => setProfile(getPerformanceProfile())), []);
+  return profile;
+}
+
+function FrameScheduler({ targetFps, suspended }) {
+  const invalidate = useThree((state) => state.invalidate);
+
+  useEffect(() => {
+    if (suspended) return undefined;
+    let frameId = 0;
+    let previous = 0;
+    const interval = 1000 / targetFps;
+    const tick = (now) => {
+      if (!previous || now - previous >= interval - 1) {
+        previous = now;
+        invalidate();
+      }
+      frameId = requestAnimationFrame(tick);
+    };
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, [invalidate, suspended, targetFps]);
+
+  return null;
+}
 
 function Game() {
   const { scene, camera, gl } = useThree();
@@ -23,6 +57,16 @@ function Game() {
     scene.environmentIntensity = 0.45;
     bootGame({ scene, camera, renderer: gl });
   }, [scene, camera, gl]);
+
+  useEffect(() => {
+    const canvas = gl.domElement;
+    const onContextLost = (event) => {
+      event.preventDefault();
+      postNative({ type: "webgl-context-lost" });
+    };
+    canvas.addEventListener("webglcontextlost", onContextLost);
+    return () => canvas.removeEventListener("webglcontextlost", onContextLost);
+  }, [gl]);
 
   // dt clamped so a background-tab stall can't slingshot the camera orbit.
   useFrame((_, dt) => {
@@ -40,11 +84,16 @@ function Game() {
 }
 
 export default function GameCanvas() {
+  const profile = usePerformanceProfile();
+  const menuOpen = useGame((state) => state.menuOpen);
+  const targetFps = profile.native && menuOpen ? 15 : profile.targetFps;
+
   return (
     <Canvas
       style={{ position: "fixed", inset: 0, zIndex: 1 }}
-      dpr={[1, 2]}
-      gl={{ antialias: true, alpha: true }}
+      dpr={profile.native ? profile.maxDpr : [1, profile.maxDpr]}
+      frameloop={profile.native ? "demand" : "always"}
+      gl={{ antialias: !profile.native, alpha: false }}
       // Boot framing translated onto the spawn cell (the orbit target
       // follows), so the follow-cam has nothing to drift toward during boot.
       camera={{
@@ -56,8 +105,11 @@ export default function GameCanvas() {
         position: [SPAWN_X + 0.55, 0.35, -SPAWN_Y + 0.7],
       }}
     >
+      {profile.native ? (
+        <FrameScheduler targetFps={targetFps} suspended={profile.suspended} />
+      ) : null}
       <Game />
-      {CRT_DISTORTION_ENABLED && <CrtDistortion />}
+      {CRT_DISTORTION_ENABLED && <CrtDistortion samples={profile.msaaSamples} />}
     </Canvas>
   );
 }

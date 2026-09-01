@@ -12,6 +12,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { keyframes, styled } from "@mui/material/styles";
 import { useGame } from "../store.js";
+import { getPerformanceProfile } from "../native/runtime.js";
 import { signed } from "../game/signed.js";
 import { INK, ORANGE, MONO } from "../theme.js";
 import { ComicButton, ComicTitle, HalftoneRamp, ANTON } from "./comic.jsx";
@@ -117,6 +118,7 @@ function closeMenu() {
 }
 
 export default function TitleMenu() {
+  const nativeApp = getPerformanceProfile().native;
   const menuOpen = useGame((s) => s.menuOpen);
   const entered = useGame((s) => s.entered);
   const padConnected = useGame((s) => s.padConnected);
@@ -186,7 +188,10 @@ export default function TitleMenu() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        p: "2.4rem 1.4rem 1.8rem",
+        pt: "calc(2.4rem + var(--safe-top))",
+        pr: "calc(1.4rem + var(--safe-right))",
+        pb: "calc(1.8rem + var(--safe-bottom))",
+        pl: "calc(1.4rem + var(--safe-left))",
         background: INK,
         opacity: menuOpen ? 1 : 0,
         pointerEvents: menuOpen ? "auto" : "none",
@@ -295,7 +300,7 @@ export default function TitleMenu() {
           }}
         >
           The exact same trained policies that drive the real robot,
-          live in your browser.
+          {nativeApp ? " live on your iPhone." : " live in your browser."}
         </Typography>
 
         <Box
