@@ -1,0 +1,448 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4EA68F0154409F396EC7115D /* SimulatorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 922AF4AC2816D623CB3656CD /* SimulatorViewController.swift */; };
+		841E8F6D7B6FF9FD6A8A969F /* MicroduckApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80D8768C2C24EC20A52068B1 /* MicroduckApp.swift */; };
+		9F105D3324B110C1422CC65C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C855C29684F91FB415B10EE4 /* Assets.xcassets */; };
+		B214D7E36D58D5C8F1302EEA /* PerformanceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F48085BDACAC1B6AB3D91B /* PerformanceController.swift */; };
+		F44CFEA5274E23B94E62110E /* LocalAssetResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEF5B43547A081F90F008D5 /* LocalAssetResolverTests.swift */; };
+		FD80A5546DC188612370E368 /* LocalAssetSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 908E62E4D011CAF30325E0A8 /* LocalAssetSchemeHandler.swift */; };
+		FDE302D2AA1FEC0F75F07C8E /* SimulatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B635F412BE96BA9BC3E263 /* SimulatorView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		307C81A1E6B96E1A19034055 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 14F762A59067ADFF9C137C60 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4403FEFCE6F44EB36A07AD5D;
+			remoteInfo = Microduck;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		16B635F412BE96BA9BC3E263 /* SimulatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorView.swift; sourceTree = "<group>"; };
+		379F3469BADF2BB7F98BBD3B /* Microduck.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Microduck.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6DEF5B43547A081F90F008D5 /* LocalAssetResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAssetResolverTests.swift; sourceTree = "<group>"; };
+		80D8768C2C24EC20A52068B1 /* MicroduckApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicroduckApp.swift; sourceTree = "<group>"; };
+		83C1B7DF7909544D31EEB75E /* MicroduckTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MicroduckTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		908E62E4D011CAF30325E0A8 /* LocalAssetSchemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAssetSchemeHandler.swift; sourceTree = "<group>"; };
+		922AF4AC2816D623CB3656CD /* SimulatorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorViewController.swift; sourceTree = "<group>"; };
+		B1D02F939E15CB082FF2D5A5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C855C29684F91FB415B10EE4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E3F48085BDACAC1B6AB3D91B /* PerformanceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceController.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		44A997D21AA6D7D1DCC6B1A2 /* Microduck */ = {
+			isa = PBXGroup;
+			children = (
+				C855C29684F91FB415B10EE4 /* Assets.xcassets */,
+				B1D02F939E15CB082FF2D5A5 /* Info.plist */,
+				908E62E4D011CAF30325E0A8 /* LocalAssetSchemeHandler.swift */,
+				80D8768C2C24EC20A52068B1 /* MicroduckApp.swift */,
+				E3F48085BDACAC1B6AB3D91B /* PerformanceController.swift */,
+				16B635F412BE96BA9BC3E263 /* SimulatorView.swift */,
+				922AF4AC2816D623CB3656CD /* SimulatorViewController.swift */,
+			);
+			path = Microduck;
+			sourceTree = "<group>";
+		};
+		958C5585877E157F6D8E2F3D /* MicroduckTests */ = {
+			isa = PBXGroup;
+			children = (
+				6DEF5B43547A081F90F008D5 /* LocalAssetResolverTests.swift */,
+			);
+			path = MicroduckTests;
+			sourceTree = "<group>";
+		};
+		F29F0D224775A368181B2F71 = {
+			isa = PBXGroup;
+			children = (
+				44A997D21AA6D7D1DCC6B1A2 /* Microduck */,
+				958C5585877E157F6D8E2F3D /* MicroduckTests */,
+				F7AF4EC6E3D7B5A0DE089582 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F7AF4EC6E3D7B5A0DE089582 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				379F3469BADF2BB7F98BBD3B /* Microduck.app */,
+				83C1B7DF7909544D31EEB75E /* MicroduckTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4403FEFCE6F44EB36A07AD5D /* Microduck */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3C467852AAD3DB779C03E87C /* Build configuration list for PBXNativeTarget "Microduck" */;
+			buildPhases = (
+				C75257E2C99EE22E2ED8579F /* Bundle offline simulator */,
+				452F302363200DCC5297FE9E /* Sources */,
+				B3CF6476E258BAA5AA92BB94 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Microduck;
+			productName = Microduck;
+			productReference = 379F3469BADF2BB7F98BBD3B /* Microduck.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CAA82D8D49FCB158411B626F /* MicroduckTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B9B4DF66C8ECC2D380A4AC49 /* Build configuration list for PBXNativeTarget "MicroduckTests" */;
+			buildPhases = (
+				4A585771960CD085C29C0DD3 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1C2496928384F6700A05F5FB /* PBXTargetDependency */,
+			);
+			name = MicroduckTests;
+			productName = MicroduckTests;
+			productReference = 83C1B7DF7909544D31EEB75E /* MicroduckTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		14F762A59067ADFF9C137C60 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					4403FEFCE6F44EB36A07AD5D = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 056353D47D02C1DF425BDDBD /* Build configuration list for PBXProject "Microduck" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = F29F0D224775A368181B2F71;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4403FEFCE6F44EB36A07AD5D /* Microduck */,
+				CAA82D8D49FCB158411B626F /* MicroduckTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B3CF6476E258BAA5AA92BB94 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9F105D3324B110C1422CC65C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C75257E2C99EE22E2ED8579F /* Bundle offline simulator */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Bundle offline simulator";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$SRCROOT/../scripts/build-ios-web.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		452F302363200DCC5297FE9E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FD80A5546DC188612370E368 /* LocalAssetSchemeHandler.swift in Sources */,
+				841E8F6D7B6FF9FD6A8A969F /* MicroduckApp.swift in Sources */,
+				B214D7E36D58D5C8F1302EEA /* PerformanceController.swift in Sources */,
+				FDE302D2AA1FEC0F75F07C8E /* SimulatorView.swift in Sources */,
+				4EA68F0154409F396EC7115D /* SimulatorViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4A585771960CD085C29C0DD3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F44CFEA5274E23B94E62110E /* LocalAssetResolverTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1C2496928384F6700A05F5FB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4403FEFCE6F44EB36A07AD5D /* Microduck */;
+			targetProxy = 307C81A1E6B96E1A19034055 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		00F4A95ABEB4A9BEECC41331 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		1A675C3AD9554801D623B74A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = zoo.micro.microduck.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Microduck.app/Microduck";
+			};
+			name = Debug;
+		};
+		5374FECB3BA35C5C07A713BA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		67FC0350ABF10D0525FD0A7F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = Microduck/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = zoo.micro.microduck;
+				PRODUCT_NAME = Microduck;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7081198E247E6F7C2FADDC1E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = zoo.micro.microduck.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Microduck.app/Microduck";
+			};
+			name = Release;
+		};
+		FC0A477C6C3FD710009BB591 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = Microduck/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = zoo.micro.microduck;
+				PRODUCT_NAME = Microduck;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		056353D47D02C1DF425BDDBD /* Build configuration list for PBXProject "Microduck" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00F4A95ABEB4A9BEECC41331 /* Debug */,
+				5374FECB3BA35C5C07A713BA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3C467852AAD3DB779C03E87C /* Build configuration list for PBXNativeTarget "Microduck" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				67FC0350ABF10D0525FD0A7F /* Debug */,
+				FC0A477C6C3FD710009BB591 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B9B4DF66C8ECC2D380A4AC49 /* Build configuration list for PBXNativeTarget "MicroduckTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A675C3AD9554801D623B74A /* Debug */,
+				7081198E247E6F7C2FADDC1E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 14F762A59067ADFF9C137C60 /* Project object */;
+}
