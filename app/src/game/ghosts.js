@@ -1,19 +1,43 @@
-// Live multiplayer ghosts: every open tab of the sandbox broadcasts its
-// duck state over WebRTC and renders the other visitors as translucent
-// ducks. There is no backend - this is a static Space - so peer discovery
-// uses Trystero's serverless signaling over public Nostr relays. Payloads
-// are tiny (22 floats + a variant name at SEND_HZ), and at most MAX_GHOSTS
-// ghosts are instantiated regardless of how many peers are in the room.
+// Opt-in multiplayer ghosts: while the visitor has explicitly enabled the
+// feature, this module broadcasts duck state over WebRTC and renders other
+// visitors as translucent ducks. There is no backend - this is a static Space
+// - so peer discovery uses Trystero's serverless signaling over public Nostr
+// relays. Payloads are tiny (22 floats + a variant name at SEND_HZ), and at
+// most MAX_GHOSTS ghosts are instantiated regardless of room population.
 //
 // This module deliberately imports nothing from duck.js / variants.js:
 // on the private Space those need the ?__sign JWT that only rl.js knows
 // how to append, so all rig helpers arrive through init parameters.
+import {
+  MAX_GHOSTS,
+  createPeerAdmission,
+  createPeerRateLimiter,
+  findStalePeerIds,
+  hasOpenRelay,
+  isValidGhostPeerId,
+  isValidGhostState,
+  selectActivePeerTargets,
+} from "./ghost-security.js";
 
 const APP_ID = "microduck-sandbox";
 const ROOM = "lobby";
-const MAX_GHOSTS = 3;
 const SEND_HZ = 15;
 const GHOST_OPACITY = 0.35;
+const HANDSHAKE_TIMEOUT_MS = 8000;
+const RELAY_CONNECT_TIMEOUT_MS = 5000;
+const RELAY_POLL_MS = 50;
+// An explicit, small relay set makes connection readiness attributable to
+// this room (getRelaySockets() is otherwise module-global) and avoids opening
+// Trystero's default five sockets for a three-peer feature.
+const NOSTR_RELAY_URLS = [
+  "wss://relay.damus.io",
+  "wss://nos.lol",
+  "wss://relay.agorist.space",
+];
+const networkLifecycleKey = Symbol.for("zoo-kinder.public-multiplayer-lifecycle");
+const networkLifecycle = globalThis[networkLifecycleKey] ??= {
+  shutdown: Promise.resolve(true),
+};
 // Snapshot interpolation: each ghost renders in the past, lerping between
 // the two buffered snapshots that bracket the render time (timed by local
 // ARRIVAL, so no clock sync and no payload change - old clients
@@ -65,18 +89,186 @@ if (import.meta.hot) {
   });
 }
 
-export async function initGhosts(env) {
+const selectedRelaySockets = (getRelaySockets) => {
+  const sockets = getRelaySockets?.() ?? {};
+  const allowed = new Set(NOSTR_RELAY_URLS);
+  return Object.entries(sockets)
+    .filter(([url]) => allowed.has(url))
+    .map(([, socket]) => socket);
+};
+
+const waitForOpenRelay = (getRelaySockets, shouldJoin) => new Promise((resolve) => {
+  const deadline = performance.now() + RELAY_CONNECT_TIMEOUT_MS;
+  let timer = null;
+  const finish = (ready) => {
+    if (timer !== null) clearTimeout(timer);
+    resolve(ready);
+  };
+  const check = () => {
+    if (!shouldJoin()) return finish(false);
+    if (hasOpenRelay(getRelaySockets?.(), NOSTR_RELAY_URLS)) return finish(true);
+    if (performance.now() >= deadline) return finish(false);
+    timer = setTimeout(check, RELAY_POLL_MS);
+  };
+  check();
+});
+
+const closeRelaySockets = (getRelaySockets) => {
+  for (const socket of selectedRelaySockets(getRelaySockets)) {
+    try {
+      if (socket.readyState === WebSocket.CONNECTING || socket.readyState === WebSocket.OPEN) {
+        socket.close();
+      }
+    } catch {}
+  }
+};
+
+const trackRelayOpenHistory = (getRelaySockets, openedUrls) => {
+  const cleanups = [];
+  const allowed = new Set(NOSTR_RELAY_URLS);
+  for (const [url, socket] of Object.entries(getRelaySockets?.() ?? {})) {
+    if (!allowed.has(url)) continue;
+    const markOpen = () => openedUrls.add(url);
+    if (socket.readyState === WebSocket.OPEN) markOpen();
+    socket.addEventListener?.("open", markOpen);
+    cleanups.push(() => socket.removeEventListener?.("open", markOpen));
+  }
+  return () => cleanups.forEach((cleanup) => cleanup());
+};
+
+const waitForActivePeersToClose = async (room) => {
+  const deadline = performance.now() + 750;
+  while (Object.keys(room.getPeers?.() ?? {}).length && performance.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+};
+
+const closeActivePeers = (room) => {
+  for (const connection of Object.values(room.getPeers?.() ?? {})) {
+    try { connection.close(); } catch {}
+  }
+};
+
+const leaveRoomSafely = async (room) => {
+  if (!room) return true;
+  let lastError;
+  // room.leave() sends a final action before unregistering the room. A channel
+  // that closes during that send rejects the whole operation before cleanup,
+  // so close active RTC transports first and retry cleanup a bounded number of
+  // times. The remote side observes the RTC close as an immediate peer leave.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    closeActivePeers(room);
+    await waitForActivePeersToClose(room);
+    try {
+      await room.leave();
+      return true;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  console.warn("ghosts: room cleanup failed; reload before retrying multiplayer", lastError);
+  return false;
+};
+
+const watchOpenRelays = (getRelaySockets, onUnavailable) => {
+  let stopped = false;
+  const sockets = selectedRelaySockets(getRelaySockets);
+  const onClose = () => queueMicrotask(() => {
+    if (!stopped && !hasOpenRelay(getRelaySockets?.(), NOSTR_RELAY_URLS)) {
+      onUnavailable();
+    }
+  });
+  for (const socket of sockets) socket.addEventListener?.("close", onClose);
+  // Cover a relay closing between the successful readiness check and listener
+  // registration without keeping an interval alive for the whole session.
+  onClose();
+  return () => {
+    stopped = true;
+    for (const socket of sockets) socket.removeEventListener?.("close", onClose);
+  };
+};
+
+export async function initGhosts(env, {
+  shouldJoin = () => true,
+  onPeerJoin = () => {},
+  onUnavailable = () => {},
+} = {}) {
   const noop = {
     update() {}, peerCount: () => 0, ghostCount: () => 0, debug: () => [],
-    mapDots: () => [], destroy() {}, setActive() {}, injectState: () => false,
+    mapDots: () => [], destroy: async () => true, setActive() {}, injectState: () => false,
   };
+  // The native reference build sets this Vite constant. Keeping the guard in
+  // the same module as the dynamic import lets Rollup remove Trystero/Nostr and
+  // its signaling crypto from the packaged iOS web payload entirely.
+  if (import.meta.env.VITE_DISABLE_PUBLIC_MULTIPLAYER === "1") return noop;
+  if (!await networkLifecycle.shutdown) {
+    console.warn("ghosts disabled: previous room cleanup did not complete");
+    return noop;
+  }
+  const admission = createPeerAdmission({
+    maxPeers: MAX_GHOSTS,
+    reservationMs: HANDSHAKE_TIMEOUT_MS + 1000,
+  });
   let room;
+  let getRelaySockets;
+  let pauseRelayReconnection;
+  const openedRelayUrls = new Set();
+  let stopRelayOpenTracking = () => {};
   try {
     // Lazy but bundled: only signaling and WebRTC use the network; no
     // executable application code is downloaded at runtime.
-    const { joinRoom } = await import("trystero/nostr");
-    room = joinRoom({ appId: APP_ID }, ROOM);
+    const nostr = await import("trystero/nostr");
+    const { joinRoom, resumeRelayReconnection } = nostr;
+    ({ getRelaySockets, pauseRelayReconnection } = nostr);
+    // Consent can be withdrawn while the lazy chunk is loading. Check at the
+    // last synchronous boundary before joinRoom opens signaling sockets.
+    if (!shouldJoin()) return noop;
+
+    // Trystero reconnects relay sockets forever by default. Resume any sockets
+    // deliberately paused by a previous consent session for one attempt, then
+    // re-arm the lock before joining. A failed or later-closed socket therefore
+    // stays closed until the user explicitly starts another session.
+    resumeRelayReconnection();
+    await Promise.resolve();
+    await Promise.resolve();
+    pauseRelayReconnection();
+
+    room = joinRoom({
+      appId: APP_ID,
+      relayConfig: {
+        urls: NOSTR_RELAY_URLS,
+        manualReconnection: true,
+      },
+    }, ROOM, {
+      handshakeTimeoutMs: HANDSHAKE_TIMEOUT_MS,
+      onPeerHandshake: async (peerId) => {
+        if (!admission.reserve(peerId)) {
+          throw new Error("peer admission denied");
+        }
+      },
+      onJoinError: ({ peerId }) => {
+        // Includes local rejection, handshake timeout and handshake failure.
+        admission.release(peerId);
+      },
+    });
+    stopRelayOpenTracking = trackRelayOpenHistory(getRelaySockets, openedRelayUrls);
+
+    if (!await waitForOpenRelay(getRelaySockets, shouldJoin)) {
+      throw new Error("no Nostr signaling relay became available");
+    }
   } catch (e) {
+    admission.clear();
+    pauseRelayReconnection?.();
+    stopRelayOpenTracking();
+    // Trystero leaves subscriptions waiting on a relay's never-resolved first
+    // OPEN even after room.leave(). Re-entering on the same module can then let
+    // stale cleanup remove the new room's subscription. Fail closed until a
+    // page reload unless every configured relay initialized at least once.
+    const canSafelyRejoin = NOSTR_RELAY_URLS.every((url) => openedRelayUrls.has(url));
+    closeRelaySockets(getRelaySockets);
+    networkLifecycle.shutdown = leaveRoomSafely(room)
+      .then((didLeave) => didLeave && canSafelyRejoin);
+    await networkLifecycle.shutdown;
     console.warn("ghosts disabled (signaling unavailable):", e);
     return noop;
   }
@@ -97,7 +289,11 @@ export async function initGhosts(env) {
   const act = room.makeAction("s");
   // send() rejects when a peer's channel drops mid-transfer; that peer will
   // be swept anyway, so failures are non-events.
-  const sendState = (data) => act.send(data).catch(() => {});
+  const sendState = (data) => {
+    const peers = room.getPeers?.() ?? {};
+    const targets = selectActivePeerTargets(admission.activePeerIds(), peers);
+    if (targets.length) act.send(data, { target: targets }).catch(() => {});
+  };
 
   // Ghosts share geometry with the local rig (cloneRig), but get their own
   // transparent material clones so repainting them never touches the
@@ -163,6 +359,9 @@ export async function initGhosts(env) {
   };
 
   const ghosts = new Map(); // peerId -> ghost
+  const inboundRate = createPeerRateLimiter();
+  const peerLastSeen = new Map();
+  const warnedPeers = new Set(); // bounded by admitted/rendered peers
   let destroyed = false; // set by destroy(): drops any late messages
   // Interpolation snapshot: the pose parts of a state message, stamped
   // with the local arrival time, de-jittered: a snapshot never lands
@@ -202,31 +401,23 @@ export async function initGhosts(env) {
       }
     });
     ghosts.delete(peerId);
+    inboundRate.delete(peerId);
+    warnedPeers.delete(peerId);
   };
 
   // The lobby is public over Nostr relays, so any peer can send anything:
-  // validate the payload shape before touching it, and never let a hostile
-  // or buggy message throw out of the handler.
-  const finiteArray = (a, n) => Array.isArray(a) && a.length === n && a.every(Number.isFinite);
-  const validState = (state) =>
-    typeof state === "object" && state !== null &&
-    finiteArray(state.p, 7) &&
-    finiteArray(state.j, jointNames.length) &&
-    (state.w == null || Number.isFinite(state.w)) &&
-    typeof state.v === "string";
-  const warnedPeers = new Set(); // one malformed-payload warn per peer
+  // validate shape and numeric bounds before touching it, admit no more peers
+  // than can be rendered, and cap each admitted sender at twice SEND_HZ.
+  const warnMalformed = (peerId) => {
+    if (warnedPeers.has(peerId) || warnedPeers.size >= MAX_GHOSTS) return;
+    warnedPeers.add(peerId);
+    console.warn("ghosts: dropping malformed state from peer", peerId);
+  };
 
   // Handler signature in this build: (payload, context) where context is
   // { peerId } - NOT the bare peerId string of classic trystero.
   const handleState = (state, peerId) => {
     if (destroyed) return;
-    if (!validState(state)) {
-      if (!warnedPeers.has(peerId)) {
-        warnedPeers.add(peerId);
-        console.warn("ghosts: dropping malformed state from peer", peerId);
-      }
-      return;
-    }
     // Sanitize the free-form fields in place (state is a fresh deserialized
     // object, never shared): unknown variant -> default, loco flag -> 0|1.
     if (knownVariants && !knownVariants.has(state.v)) state.v = defaultVariant;
@@ -281,9 +472,25 @@ export async function initGhosts(env) {
       ghostify(g.rig);
     }
   };
-  const onState = (state, { peerId }) => {
+  const onState = (state, context = {}) => {
+    const peerId = context?.peerId;
     try {
+      if (!isValidGhostPeerId(peerId)) {
+        warnMalformed(peerId);
+        return false;
+      }
+      const peers = room.getPeers?.() ?? {};
+      if (!Object.prototype.hasOwnProperty.call(peers, peerId)) return false;
+      if (!admission.isActive(peerId)) return false;
+      if (!ghosts.has(peerId) && ghosts.size >= MAX_GHOSTS) return false;
+      if (!inboundRate.allow(peerId)) return false;
+      if (!isValidGhostState(state, jointNames.length)) {
+        warnMalformed(peerId);
+        return false;
+      }
       handleState(state, peerId);
+      peerLastSeen.set(peerId, performance.now());
+      return true;
     } catch (e) {
       // Shape-valid but still poisonous payload, or an internal error: drop
       // the message, keep the handler alive for the next one.
@@ -291,17 +498,33 @@ export async function initGhosts(env) {
         warnedPeers.add(peerId);
         console.warn("ghosts: error handling state from peer", peerId, e);
       }
+      return false;
     }
   };
   act.onMessage = onState;
 
-  // Same setter-style registration as onMessage.
-  room.onPeerLeave = (peerId) => removeGhost(peerId);
+  room.onPeerJoin = (peerId) => {
+    // onPeerJoin is emitted only after both sides finish the handshake. The
+    // pending reservation now becomes an active slot used by targeted sends.
+    if (!admission.activate(peerId)) {
+      try { room.getPeers?.()[peerId]?.close(); } catch {}
+      return;
+    }
+    peerLastSeen.set(peerId, performance.now());
+    onPeerJoin(peerId);
+  };
+
+  // Same setter-style registration as onMessage/onPeerJoin.
+  room.onPeerLeave = (peerId) => {
+    removeGhost(peerId);
+    inboundRate.delete(peerId);
+    warnedPeers.delete(peerId);
+    peerLastSeen.delete(peerId);
+    admission.release(peerId);
+  };
 
   // Graceful exit so other tabs drop this ghost immediately...
-  const onPagehide = () => {
-    try { room.leave(); } catch {}
-  };
+  const onPagehide = () => api.destroy();
   window.addEventListener("pagehide", onPagehide);
   // ...and a staleness sweep for peers that vanished without leaving
   // (crashed tab, dropped connection): 5 s without a state packet means
@@ -323,8 +546,16 @@ export async function initGhosts(env) {
     const s = getLocalState();
     if (s) sendState(s);
     const now = performance.now();
-    for (const [peerId, g] of [...ghosts]) {
-      if (now - g.lastSeen > STALE_MS) removeGhost(peerId);
+    const peers = room.getPeers?.() ?? {};
+    for (const peerId of findStalePeerIds(
+      admission.activePeerIds(), peerLastSeen, now, STALE_MS,
+    )) {
+      // Release before closing so this peer is excluded from the next outbound
+      // tick even if the browser defers RTCPeerConnection's close event.
+      admission.release(peerId);
+      peerLastSeen.delete(peerId);
+      removeGhost(peerId);
+      try { peers[peerId]?.close(); } catch {}
     }
   };
   let tickWorker = null;
@@ -355,6 +586,8 @@ export async function initGhosts(env) {
   const _qa = env.rig.placer.quaternion.clone();
   const _qb = env.rig.placer.quaternion.clone();
   let lastUpdateAt = performance.now(); // update() frame clock for the delay slew
+  let stopRelayWatch = () => {};
+  let leavePromise = null;
   const api = {
     room,
     setActive(active) {
@@ -369,19 +602,31 @@ export async function initGhosts(env) {
     // Full teardown: without it, every HMR reload of this module stacked a
     // live 15 Hz interval plus a ghost room that kept broadcasting.
     destroy() {
-      if (destroyed) return;
+      if (destroyed) return leavePromise ?? Promise.resolve();
       destroyed = true;
       liveInstances.delete(api);
       tickWorker?.terminate();
       if (tickId !== null) clearInterval(tickId);
       window.removeEventListener("pagehide", onPagehide);
-      try { room.leave(); } catch {}
+      stopRelayWatch();
+      pauseRelayReconnection?.();
+      stopRelayOpenTracking();
+      const canSafelyRejoin = NOSTR_RELAY_URLS.every((url) => openedRelayUrls.has(url));
+      closeRelaySockets(getRelaySockets);
+      leavePromise = leaveRoomSafely(room)
+        .then((didLeave) => didLeave && canSafelyRejoin);
+      networkLifecycle.shutdown = leavePromise;
       for (const peerId of [...ghosts.keys()]) removeGhost(peerId);
+      inboundRate.clear();
+      warnedPeers.clear();
+      peerLastSeen.clear();
+      admission.clear();
+      return leavePromise;
     },
     // Debug/test hook: feed a payload through the exact same guarded path
     // as a network message (console QA of the validation layer).
     injectState: (state, peerId = "__debug") => onState(state, { peerId }),
-    peerCount: () => Object.keys(room.getPeers()).length,
+    peerCount: () => admission.activeCount(),
     ghostCount: () => ghosts.size,
     // Minimap feed: revealed ghosts' arena positions in raw MJCF coords
     // (trunk.position is set from qpos before the root's Z-up fix).
@@ -443,6 +688,11 @@ export async function initGhosts(env) {
       }
     },
   };
+  stopRelayWatch = watchOpenRelays(getRelaySockets, () => {
+    if (destroyed) return;
+    api.destroy();
+    onUnavailable();
+  });
   liveInstances.add(api);
   return api;
 }
