@@ -2131,6 +2131,14 @@ async function boot({ scene, camera, renderer }) {
         type: "telemetry",
         fps: Math.round(fpsEma),
         controlHz: Math.round(ctrlHz),
+        speed: Math.hypot(data.qvel[0], data.qvel[1]),
+        odometer: odoM,
+        mode,
+        loco,
+        scene: activeScene,
+        controlMode,
+        touchInputMode,
+        ballActive,
       });
     }
   }
