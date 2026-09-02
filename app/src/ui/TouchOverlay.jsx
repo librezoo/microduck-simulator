@@ -152,7 +152,11 @@ export default function TouchOverlay() {
             type="button"
             id={id}
             aria-label={label}
-            aria-pressed={(id === "touch-head" && inputMode === "head") || (id === "touch-pose" && inputMode === "pose")}
+            aria-pressed={
+              id === "touch-head" ? inputMode === "head"
+              : id === "touch-pose" ? inputMode === "pose"
+              : undefined
+            }
           >
             {label}
           </button>
