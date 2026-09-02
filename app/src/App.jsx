@@ -52,7 +52,7 @@ function SimulatorApp() {
       useGame.setState({ prebootDone: true, entered: true, menuOpen: false });
     } else {
       const img = new Image();
-      img.src = signed("./assets/duck-head-mark.webp");
+      img.src = signed("./assets/zoo-kinder-mark.webp");
       const imgReady = new Promise((res) => {
         if (img.complete && img.naturalWidth) res();
         else {
