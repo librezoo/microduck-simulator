@@ -180,13 +180,14 @@ UI intents in).
   wholesale; both stay resident after the first load so toggling back and
   forth is instant.
 
-## iOS app
+## Zoo Kinder iOS app
 
-`ios/Microduck.xcodeproj` is a native SwiftUI app that hosts the same simulator
-in one long-lived `WKWebView`. The Vite bundle, MuJoCo and ONNX Runtime WASM,
-fonts, policies, scenes, meshes and audio are copied into the `.app`; normal
-simulation is fully offline. Multiplayer ghosts and external community links
-still require a network connection.
+`ios/Microduck.xcodeproj` builds **Zoo Kinder**, published under the MicroZoo
+brand. It is a native SwiftUI app that hosts the same simulator in one
+long-lived `WKWebView`. The Vite bundle, MuJoCo and ONNX Runtime WASM, fonts,
+policies, scenes, meshes and audio are copied into the `.app`; normal simulation
+is fully offline. Multiplayer ghosts and external community links still require
+a network connection. `Microduck` remains the internal engine/target name.
 
 Before the first build, materialize the Git LFS assets and install JavaScript
 dependencies:
