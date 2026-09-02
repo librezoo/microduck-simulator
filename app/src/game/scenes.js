@@ -1,7 +1,8 @@
 // Runtime-selectable environments. The compact arcade remains the default;
-// the larger user-supplied room assets are loaded only when selected.
+// imported and procedural rooms are both constructed only when selected.
 
 import { ARENA_HALF, SPAWN_X, SPAWN_Y } from "./constants.js";
+import { createLoftRoom, createVintageRoom } from "./procedural-rooms.js";
 
 export const DEFAULT_SCENE = "arcade";
 
@@ -35,7 +36,7 @@ export const SCENES = Object.freeze({
     id: "loft",
     label: "Loft 13",
     arenaHalf: 4.8,
-    // The clear end of the interior; face back toward the furnished space.
+    // The clear end of the gallery; face back toward the conversation island.
     spawn: Object.freeze([4.2, 0.2]),
     heading: Math.PI,
     cameraDistance: 1.25,
@@ -44,10 +45,9 @@ export const SCENES = Object.freeze({
   vintage: Object.freeze({
     id: "vintage",
     label: "Vintage Room",
-    // The supplied modular kit is centered and scaled to a compact room.
+    // A compact, original postmodern salon built from local primitives.
     arenaHalf: 4.3,
-    // The furnished room is the left-side module cluster; the positive-X
-    // pieces are disconnected display assets, including the floating rug.
+    // The negative-X entry aisle stays clear of the raised lounge platform.
     spawn: Object.freeze([-2.6, 0]),
     heading: -Math.PI / 2,
     cameraDistance: 1.25,
@@ -65,11 +65,36 @@ export const SCENES = Object.freeze({
 
 export const SCENE_IDS = Object.freeze(Object.keys(SCENES));
 
+export const SCENE_ATTRIBUTIONS = Object.freeze({
+  dining: Object.freeze({
+    title: "Dining room | Kichen baked",
+    creator: "ChristyHsu",
+    sourceUrl: "https://sketchfab.com/3d-models/dining-room-kichen-baked-4831c2ce6a0044d9bee9eacefcc0f2bd",
+    license: "CC BY 4.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+    changes: "Converted to GLB, optimized, repositioned, and paired with simplified collision geometry by MicroZoo.",
+  }),
+  apartment: Object.freeze({
+    title: "Appartement",
+    creator: "SrMonteiro (crispimrafael)",
+    sourceUrl: "https://sketchfab.com/3d-models/appartement-6a7a5fe208344b2e8123a88923dbd5b3",
+    license: "CC BY 4.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+    changes: "Packaged as GLB, recentered, and floor-aligned at runtime; treated as modified because the historical import pipeline is incomplete.",
+  }),
+  backrooms: Object.freeze({
+    title: "Backrooms VR",
+    creator: "carlcapu9",
+    sourceUrl: "https://sketchfab.com/3d-models/backrooms-vr-d9b98eca8d064d0eafcd7f5484bb61ed",
+    license: "CC BY 4.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+    changes: "Packaged as GLB, rescaled, recentered, and floor-aligned at runtime; treated as modified because the historical import pipeline is incomplete.",
+  }),
+});
+
 // v=2 replaces the legacy dining-room GLB with the supplied USDZ conversion.
 export const DINING_ROOM_ASSET = "./assets/rooms/dining-room.glb?v=2";
 export const APARTMENT_ASSET = "./assets/rooms/apartment.glb?v=1";
-export const LOFT_ASSET = "./assets/rooms/loft-13.glb?v=1";
-export const VINTAGE_ROOM_ASSET = "./assets/rooms/vintage-living-room.glb?v=1";
 export const BACKROOMS_ASSET = "./assets/rooms/backrooms.glb?v=1";
 
 function finishRoom(root, {
@@ -132,17 +157,20 @@ export async function loadApartment({ GLTFLoader, signed, THREE, scene }) {
   });
 }
 
-export async function loadLoft({ GLTFLoader, signed, THREE, scene }) {
-  return loadRoom({
-    GLTFLoader, signed, THREE, scene, asset: LOFT_ASSET,
-    name: "loft-main-scene", scale: 1, centerAndFloor: true, floorOffset: 0.08,
+function loadProceduralRoom({ THREE, scene, name, create }) {
+  if (!THREE || !scene) throw new Error(`${name} requires THREE and scene`);
+  return finishRoom(create({ THREE }), { THREE, scene, name });
+}
+
+export async function loadLoft({ THREE, scene }) {
+  return loadProceduralRoom({
+    THREE, scene, name: "loft-main-scene", create: createLoftRoom,
   });
 }
 
-export async function loadVintageRoom({ GLTFLoader, signed, THREE, scene }) {
-  return loadRoom({
-    GLTFLoader, signed, THREE, scene, asset: VINTAGE_ROOM_ASSET,
-    name: "vintage-room-main-scene", scale: 0.35, centerAndFloor: true, floorOffset: 0,
+export async function loadVintageRoom({ THREE, scene }) {
+  return loadProceduralRoom({
+    THREE, scene, name: "vintage-room-main-scene", create: createVintageRoom,
   });
 }
 

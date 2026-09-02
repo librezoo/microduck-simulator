@@ -6,11 +6,12 @@ import {
   BACKROOMS_ASSET,
   DEFAULT_SCENE,
   DINING_ROOM_ASSET,
-  LOFT_ASSET,
+  loadLoft,
+  loadVintageRoom,
   SCENES,
   SCENE_IDS,
-  VINTAGE_ROOM_ASSET,
 } from "../src/game/scenes.js";
+import * as THREE from "three";
 
 test("publishes every runtime-selectable scene contract", () => {
   assert.equal(DEFAULT_SCENE, "arcade");
@@ -36,14 +37,55 @@ test("publishes every runtime-selectable scene contract", () => {
   assert.equal(SCENES.backrooms.arenaHalf, 14.5);
 });
 
-test("every imported room has a cache-busted GLB asset", () => {
+test("every externally imported room has a cache-busted GLB asset", () => {
   for (const asset of [
     DINING_ROOM_ASSET,
     APARTMENT_ASSET,
-    LOFT_ASSET,
-    VINTAGE_ROOM_ASSET,
     BACKROOMS_ASSET,
   ]) {
     assert.match(asset, /^\.\/assets\/rooms\/.+\.glb\?v=\d+$/);
   }
+});
+
+function assertOriginalProceduralRoom(root, scene, roomId, expectedName) {
+  assert.equal(root.name, expectedName);
+  assert.equal(root.parent, scene);
+  assert.equal(root.visible, false);
+  assert.equal(root.userData.roomId, roomId);
+  assert.equal(root.userData.procedural, true);
+  assert.deepEqual(root.userData.externalAssets, []);
+
+  let meshCount = 0;
+  root.traverse((node) => {
+    if (!node.isMesh) return;
+    meshCount++;
+    assert.ok(node.geometry, `${node.name} has geometry`);
+    const materials = Array.isArray(node.material) ? node.material : [node.material];
+    for (const material of materials) {
+      assert.ok(material?.isMeshStandardMaterial, `${node.name} uses a standard material`);
+      assert.equal(material.map, null, `${node.name} has no image texture`);
+      assert.equal(material.normalMap, null, `${node.name} has no normal texture`);
+      assert.equal(material.roughnessMap, null, `${node.name} has no roughness texture`);
+      assert.equal(material.metalnessMap, null, `${node.name} has no metalness texture`);
+      assert.equal(material.emissiveMap, null, `${node.name} has no emissive texture`);
+    }
+  });
+  assert.ok(meshCount >= 20, `${roomId} has enough architectural detail`);
+  assert.ok(meshCount <= 32, `${roomId} remains lightweight for mobile rendering`);
+
+  const bounds = new THREE.Box3().setFromObject(root);
+  assert.ok(bounds.min.y <= 0, `${roomId} floor reaches the simulation plane`);
+  assert.ok(bounds.max.y >= 3, `${roomId} has room-scale architecture`);
+}
+
+test("loft is an original texture-free procedural room", async () => {
+  const scene = new THREE.Scene();
+  const root = await loadLoft({ THREE, scene });
+  assertOriginalProceduralRoom(root, scene, "loft", "loft-main-scene");
+});
+
+test("vintage is an original texture-free procedural room", async () => {
+  const scene = new THREE.Scene();
+  const root = await loadVintageRoom({ THREE, scene });
+  assertOriginalProceduralRoom(root, scene, "vintage", "vintage-room-main-scene");
 });
