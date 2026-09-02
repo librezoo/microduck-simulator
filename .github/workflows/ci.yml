@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Test and build web app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+      - name: Check out repository and LFS assets
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Check patch whitespace
+        working-directory: .
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        shell: bash
+        run: |
+          if git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+            git diff --check "$BASE_SHA" HEAD
+          else
+            git diff-tree --check --root -r HEAD
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Verify distributable legal files
+        shell: bash
+        run: |
+          required=(
+            LICENSE-APACHE-2.0.txt
+            PROJECT-NOTICE.txt
+            PRIVACY.txt
+            TRADEMARKS.txt
+            ASSET-ATTRIBUTIONS.txt
+            THIRD-PARTY-NOTICES.txt
+            NPM-PRODUCTION-LICENSES.txt
+            ONNXRUNTIME-THIRD-PARTY-NOTICES.txt
+            MUJOCO-WASM-THIRD-PARTY-NOTICES.txt
+          )
+          for file in "${required[@]}"; do
+            test -s "dist/legal/$file"
+          done
+
+      - name: Verify disabled assets are absent
+        shell: bash
+        run: |
+          forbidden=(
+            assets/ball/soccer-bump.png
+            assets/ball/soccer-color.png
+            assets/duck-head-mark-open.webp
+            assets/duck-head-mark.webp
+            assets/microduck-wordmark.svg
+            assets/props/arcade.glb
+            assets/props/boombox.glb
+            assets/props/crt-tv.glb
+            assets/props/dartboard.glb
+            assets/props/lavalamp.glb
+            assets/props/segaconsole.glb
+            assets/props/skateboard.glb
+            assets/props/sneakers.glb
+            assets/props/walkman.glb
+            assets/rooms/loft-13.glb
+            assets/rooms/vintage-living-room.glb
+            assets/stickers/bang-red.webp
+            assets/stickers/boom.webp
+            assets/stickers/burst-yellow.webp
+            assets/stickers/quack-quack.webp
+            assets/stickers/quack.webp
+            assets/stickers/shooting-star.webp
+            assets/stickers/star-yellow.webp
+            assets/stickers/wave.webp
+            assets/stickers/ziouuu.webp
+            assets/voices/wawa.mp3
+            policies/run.onnx
+            wbc/microduck-wbc/config.yaml
+            wbc/microduck-wbc/policy.onnx
+            wbc/microduck-wbc/reference/index.json
+            wbc/microduck-wbc/reference/wbc_curious.csv
+            wbc/microduck-wbc/reference/wbc_happy.csv
+            wbc/microduck-wbc/reference/wbc_happy_bob.csv
+            wbc/microduck-wbc/reference/wbc_wiggle.csv
+            wbc/microduck-wbc/runtime.json
+          )
+          for file in "${forbidden[@]}"; do
+            if test -e "dist/$file"; then
+              echo "error: disabled asset was bundled: $file" >&2
+              exit 1
+            fi
+          done
