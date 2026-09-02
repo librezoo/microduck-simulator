@@ -2137,8 +2137,13 @@ async function boot({ scene, camera, renderer }) {
         loco,
         scene: activeScene,
         controlMode,
+        variant: currentVariant,
         touchInputMode,
         ballActive,
+        wbcClip: wbcClip?.id ?? null,
+        wbcFrame,
+        chaseCam,
+        inputLocked,
       });
     }
   }
