@@ -3,6 +3,12 @@ import UniformTypeIdentifiers
 import WebKit
 
 enum LocalAssetResolver {
+    enum RangeSelection: Equatable {
+        case fullResponse
+        case partial(Range<Int>)
+        case unsatisfiable
+    }
+
     static func resolve(_ url: URL, below root: URL) -> URL? {
         guard url.host == "app", let decoded = url.path.removingPercentEncoding else { return nil }
         let components = decoded.split(separator: "/", omittingEmptySubsequences: true)
@@ -20,11 +26,12 @@ enum LocalAssetResolver {
     }
 
     static func parseRange(_ header: String, fileSize: Int) -> Range<Int>? {
+        let header = header.trimmingCharacters(in: .whitespacesAndNewlines)
         guard fileSize > 0, header.lowercased().hasPrefix("bytes=") else { return nil }
-        let value = header.dropFirst(6)
+        let value = header.dropFirst(6).trimmingCharacters(in: .whitespaces)
         guard !value.contains(","), let dash = value.firstIndex(of: "-") else { return nil }
-        let lowerText = value[..<dash]
-        let upperText = value[value.index(after: dash)...]
+        let lowerText = value[..<dash].trimmingCharacters(in: .whitespaces)
+        let upperText = value[value.index(after: dash)...].trimmingCharacters(in: .whitespaces)
 
         if lowerText.isEmpty {
             guard let suffix = Int(upperText), suffix > 0 else { return nil }
@@ -36,6 +43,47 @@ enum LocalAssetResolver {
         let upperInclusive = upperText.isEmpty ? fileSize - 1 : min(Int(upperText) ?? -1, fileSize - 1)
         guard upperInclusive >= lower else { return nil }
         return lower..<(upperInclusive + 1)
+    }
+
+    static func selectRange(_ header: String?, fileSize: Int) -> RangeSelection {
+        guard let header else { return .fullResponse }
+        let normalizedHeader = header.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard normalizedHeader.lowercased().hasPrefix("bytes=") else { return .unsatisfiable }
+
+        let value = normalizedHeader.dropFirst(6)
+        let specifications = value.split(separator: ",", omittingEmptySubsequences: false)
+        if specifications.count > 1 {
+            // WKURLSchemeHandler cannot produce a multipart/byteranges body.
+            // RFC 9110 permits a server to ignore Range, but only do that for
+            // a syntactically valid multi-range request; malformed requests
+            // must not be mistaken for an ordinary full-file request.
+            return specifications.allSatisfy(isValidRangeSpecification)
+                ? .fullResponse
+                : .unsatisfiable
+        }
+
+        guard let range = parseRange(normalizedHeader, fileSize: fileSize) else {
+            return .unsatisfiable
+        }
+        return .partial(range)
+    }
+
+    private static func isValidRangeSpecification(_ rawValue: Substring) -> Bool {
+        let value = rawValue.trimmingCharacters(in: .whitespaces)
+        guard
+            !value.isEmpty,
+            let dash = value.firstIndex(of: "-"),
+            value[value.index(after: dash)...].firstIndex(of: "-") == nil
+        else { return false }
+
+        let lowerText = value[..<dash].trimmingCharacters(in: .whitespaces)
+        let upperText = value[value.index(after: dash)...].trimmingCharacters(in: .whitespaces)
+        if lowerText.isEmpty {
+            return Int(upperText).map { $0 > 0 } ?? false
+        }
+        guard let lower = Int(lowerText), lower >= 0 else { return false }
+        guard !upperText.isEmpty else { return true }
+        return Int(upperText).map { $0 >= lower } ?? false
     }
 
     static func mimeType(for fileURL: URL) -> String {
@@ -81,19 +129,24 @@ final class LocalAssetSchemeHandler: NSObject, WKURLSchemeHandler {
         super.init()
     }
 
+    deinit {
+        taskState.cancelAll()
+        loadingQueue.cancelAllOperations()
+    }
+
     func webView(_ webView: WKWebView, start urlSchemeTask: any WKURLSchemeTask) {
         let box = SchemeTaskBox(urlSchemeTask)
         taskState.register(box.id)
         let root = root
         let state = taskState
         let operation = BlockOperation {
-            guard state.isActive(box.id) else { return }
+            guard state.shouldContinue(box.id) else { return }
             let result = Result {
                 try Self.load(box.request, root: root) {
-                    !state.isActive(box.id)
+                    !state.shouldContinue(box.id)
                 }
             }
-            guard state.isActive(box.id) else { return }
+            guard state.shouldContinue(box.id) else { return }
             OperationQueue.main.addOperation {
                 guard state.finish(box.id) else { return }
                 switch result {
@@ -123,11 +176,12 @@ final class LocalAssetSchemeHandler: NSObject, WKURLSchemeHandler {
         taskState.cancel(ObjectIdentifier(urlSchemeTask as AnyObject))
     }
 
-    nonisolated private static func load(
+    nonisolated static func load(
         _ request: URLRequest,
         root: URL,
         isCancelled: @Sendable () -> Bool
     ) throws -> AssetPayload {
+        if isCancelled() { throw URLError(.cancelled) }
         guard
             let url = request.url,
             let fileURL = LocalAssetResolver.resolve(url, below: root),
@@ -137,36 +191,35 @@ final class LocalAssetSchemeHandler: NSObject, WKURLSchemeHandler {
         else {
             throw URLError(.fileDoesNotExist)
         }
+        if isCancelled() { throw URLError(.cancelled) }
 
         let fileSize = sizeNumber.intValue
-        let requestedRange = request.value(forHTTPHeaderField: "Range")
         let byteRange: Range<Int>
         let statusCode: Int
-        if let requestedRange, requestedRange.contains(",") {
-            // Multipart byte ranges add substantial response machinery and
-            // are unnecessary for local media. RFC clients may retry a full
-            // response, so serve 200 instead of incorrectly claiming 416.
+        switch LocalAssetResolver.selectRange(
+            request.value(forHTTPHeaderField: "Range"),
+            fileSize: fileSize
+        ) {
+        case .fullResponse:
             byteRange = 0..<fileSize
             statusCode = 200
-        } else if let requestedRange {
-            guard let parsed = LocalAssetResolver.parseRange(requestedRange, fileSize: fileSize) else {
-                return AssetPayload(
-                    url: url,
-                    statusCode: 416,
-                    headers: ["Content-Range": "bytes */\(fileSize)"],
-                    data: Data()
-                )
-            }
-            byteRange = parsed
+        case .partial(let range):
+            byteRange = range
             statusCode = 206
-        } else {
-            byteRange = 0..<fileSize
-            statusCode = 200
+        case .unsatisfiable:
+            if isCancelled() { throw URLError(.cancelled) }
+            return AssetPayload(
+                url: url,
+                statusCode: 416,
+                headers: ["Content-Range": "bytes */\(fileSize)"],
+                data: Data()
+            )
         }
 
         if isCancelled() { throw URLError(.cancelled) }
         let handle = try FileHandle(forReadingFrom: fileURL)
         defer { try? handle.close() }
+        if isCancelled() { throw URLError(.cancelled) }
         try handle.seek(toOffset: UInt64(byteRange.lowerBound))
         var data = Data()
         data.reserveCapacity(byteRange.count)
@@ -195,7 +248,7 @@ final class LocalAssetSchemeHandler: NSObject, WKURLSchemeHandler {
     }
 }
 
-private struct AssetPayload: @unchecked Sendable {
+struct AssetPayload: @unchecked Sendable {
     let url: URL
     let statusCode: Int
     let headers: [String: String]
@@ -214,7 +267,7 @@ private final class SchemeTaskBox: @unchecked Sendable {
     }
 }
 
-private final class SchemeTaskState: @unchecked Sendable {
+final class SchemeTaskState: @unchecked Sendable {
     private let lock = NSLock()
     private var active = Set<ObjectIdentifier>()
     private var operations = [ObjectIdentifier: Operation]()
@@ -224,21 +277,26 @@ private final class SchemeTaskState: @unchecked Sendable {
     }
 
     func attach(_ operation: Operation, to id: ObjectIdentifier) {
-        lock.withLock {
-            if active.contains(id) { operations[id] = operation }
-            else { operation.cancel() }
+        let shouldCancel = lock.withLock {
+            guard active.contains(id) else { return true }
+            operations[id] = operation
+            return false
         }
+        if shouldCancel { operation.cancel() }
     }
 
     func cancel(_ id: ObjectIdentifier) {
-        lock.withLock {
+        let operation = lock.withLock {
             active.remove(id)
-            operations.removeValue(forKey: id)?.cancel()
+            return operations.removeValue(forKey: id)
         }
+        operation?.cancel()
     }
 
-    func isActive(_ id: ObjectIdentifier) -> Bool {
-        lock.withLock { active.contains(id) }
+    func shouldContinue(_ id: ObjectIdentifier) -> Bool {
+        lock.withLock {
+            active.contains(id) && operations[id]?.isCancelled == false
+        }
     }
 
     func finish(_ id: ObjectIdentifier) -> Bool {
@@ -246,5 +304,14 @@ private final class SchemeTaskState: @unchecked Sendable {
             operations.removeValue(forKey: id)
             return active.remove(id) != nil
         }
+    }
+
+    func cancelAll() {
+        let pendingOperations = lock.withLock {
+            active.removeAll()
+            defer { operations.removeAll() }
+            return Array(operations.values)
+        }
+        pendingOperations.forEach { $0.cancel() }
     }
 }

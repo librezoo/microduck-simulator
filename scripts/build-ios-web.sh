@@ -26,7 +26,7 @@ cd "$WEB_APP"
 if [ ! -f node_modules/.package-lock.json ] || [ package-lock.json -nt node_modules/.package-lock.json ]; then
   "$NPM" ci --prefer-offline --no-audit --fund=false
 fi
-"$NPM" run build
+VITE_DISABLE_PUBLIC_MULTIPLAYER=1 "$NPM" run build
 
 WEB_DIST="$WEB_APP/dist"
 if [ ! -f "$WEB_DIST/index.html" ] || ! find "$WEB_DIST/bundle" -name '*.wasm' -type f | /usr/bin/grep -q .; then

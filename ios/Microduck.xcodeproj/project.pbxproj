@@ -11,6 +11,7 @@
 		841E8F6D7B6FF9FD6A8A969F /* MicroduckApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80D8768C2C24EC20A52068B1 /* MicroduckApp.swift */; };
 		9F105D3324B110C1422CC65C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C855C29684F91FB415B10EE4 /* Assets.xcassets */; };
 		B214D7E36D58D5C8F1302EEA /* PerformanceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3F48085BDACAC1B6AB3D91B /* PerformanceController.swift */; };
+		E25492AED36CFD900616DF2F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2F89F73B8436308C87B38E5B /* PrivacyInfo.xcprivacy */; };
 		F44CFEA5274E23B94E62110E /* LocalAssetResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEF5B43547A081F90F008D5 /* LocalAssetResolverTests.swift */; };
 		FD80A5546DC188612370E368 /* LocalAssetSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 908E62E4D011CAF30325E0A8 /* LocalAssetSchemeHandler.swift */; };
 		FDE302D2AA1FEC0F75F07C8E /* SimulatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16B635F412BE96BA9BC3E263 /* SimulatorView.swift */; };
@@ -28,6 +29,7 @@
 
 /* Begin PBXFileReference section */
 		16B635F412BE96BA9BC3E263 /* SimulatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorView.swift; sourceTree = "<group>"; };
+		2F89F73B8436308C87B38E5B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		379F3469BADF2BB7F98BBD3B /* Microduck.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Microduck.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DEF5B43547A081F90F008D5 /* LocalAssetResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAssetResolverTests.swift; sourceTree = "<group>"; };
 		80D8768C2C24EC20A52068B1 /* MicroduckApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicroduckApp.swift; sourceTree = "<group>"; };
@@ -48,6 +50,7 @@
 				908E62E4D011CAF30325E0A8 /* LocalAssetSchemeHandler.swift */,
 				80D8768C2C24EC20A52068B1 /* MicroduckApp.swift */,
 				E3F48085BDACAC1B6AB3D91B /* PerformanceController.swift */,
+				2F89F73B8436308C87B38E5B /* PrivacyInfo.xcprivacy */,
 				16B635F412BE96BA9BC3E263 /* SimulatorView.swift */,
 				922AF4AC2816D623CB3656CD /* SimulatorViewController.swift */,
 			);
@@ -154,6 +157,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F105D3324B110C1422CC65C /* Assets.xcassets in Resources */,
+				E25492AED36CFD900616DF2F /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

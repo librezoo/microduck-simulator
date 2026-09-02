@@ -2,6 +2,166 @@ import OSLog
 import UIKit
 import WebKit
 
+enum SimulatorNavigationPolicy {
+    static func isTrustedAppDocument(_ url: URL) -> Bool {
+        url.scheme?.lowercased() == "microduck"
+            && url.host?.lowercased() == "app"
+            && url.port == nil
+            && url.user == nil
+            && url.password == nil
+            && url.path == "/index.html"
+    }
+
+    static func allowsNavigation(to url: URL, targetIsMainFrame: Bool?) -> Bool {
+        switch targetIsMainFrame {
+        case true:
+            // Query items carry native boot options, but the origin and
+            // document path must remain exactly the bundled entry point.
+            return isTrustedAppDocument(url)
+        case false:
+            return url.absoluteString == "about:blank" || url.scheme?.lowercased() == "blob"
+        case nil:
+            // A nil target represents a new window, not a subframe.
+            return false
+        }
+    }
+
+    static func isExternalWebURL(_ url: URL) -> Bool {
+        url.scheme?.lowercased() == "https"
+    }
+
+    static func isTrustedBridgeSource(
+        documentURL: URL,
+        originProtocol: String,
+        originHost: String,
+        originPort: Int
+    ) -> Bool {
+        isTrustedAppDocument(documentURL)
+            && originProtocol == "microduck"
+            && originHost == "app"
+            && originPort == 0
+    }
+}
+
+struct SimulatorRecoveryCoordinator {
+    enum State: Equatable {
+        case healthy
+        case waitingForActive(reason: String, attemptsUsed: Int)
+        case waitingForRetry(reason: String, attempt: Int)
+        case recovering(reason: String, attempt: Int)
+        case failed(reason: String)
+    }
+
+    enum Event: Equatable {
+        case failure(String)
+        case becameInactive
+        case becameActive
+        case retryTimerFired
+        case booted
+        case manualRetry
+    }
+
+    enum Action: Equatable {
+        case none
+        case scheduleRetry(milliseconds: Int)
+        case reload
+        case stopLoading
+        case showFinalError(reason: String)
+    }
+
+    private static let retryDelays = [250, 750, 1_500]
+    private(set) var state: State = .healthy
+
+    mutating func handle(_ event: Event, isActive: Bool) -> Action {
+        switch event {
+        case .failure(let reason):
+            switch state {
+            case .healthy:
+                return queueRetry(reason: reason, attemptsUsed: 0, isActive: isActive)
+            case .waitingForActive(_, let attemptsUsed):
+                return queueRetry(reason: reason, attemptsUsed: attemptsUsed, isActive: isActive)
+            case .waitingForRetry(_, let attempt):
+                if isActive {
+                    state = .waitingForRetry(reason: reason, attempt: attempt)
+                } else {
+                    state = .waitingForActive(reason: reason, attemptsUsed: attempt - 1)
+                }
+                return .none
+            case .recovering(_, let attempt):
+                return queueRetry(reason: reason, attemptsUsed: attempt, isActive: isActive)
+            case .failed:
+                state = .failed(reason: reason)
+                return .showFinalError(reason: reason)
+            }
+
+        case .becameInactive:
+            switch state {
+            case .waitingForRetry(let reason, let attempt):
+                state = .waitingForActive(reason: reason, attemptsUsed: attempt - 1)
+            case .recovering(let reason, let attempt):
+                state = .waitingForActive(reason: reason, attemptsUsed: attempt - 1)
+                return .stopLoading
+            default:
+                break
+            }
+            return .none
+
+        case .becameActive:
+            guard case .waitingForActive(let reason, let attemptsUsed) = state else {
+                if case .failed(let reason) = state {
+                    return .showFinalError(reason: reason)
+                }
+                return .none
+            }
+            return queueRetry(reason: reason, attemptsUsed: attemptsUsed, isActive: isActive)
+
+        case .retryTimerFired:
+            guard case .waitingForRetry(let reason, let attempt) = state else { return .none }
+            guard isActive else {
+                state = .waitingForActive(reason: reason, attemptsUsed: attempt - 1)
+                return .none
+            }
+            state = .recovering(reason: reason, attempt: attempt)
+            return .reload
+
+        case .booted:
+            state = .healthy
+            return .none
+
+        case .manualRetry:
+            let reason: String
+            switch state {
+            case .failed(let previousReason),
+                 .waitingForActive(let previousReason, _),
+                 .waitingForRetry(let previousReason, _),
+                 .recovering(let previousReason, _):
+                reason = previousReason
+            case .healthy:
+                reason = "Simulator recovery requested"
+            }
+            return queueRetry(reason: reason, attemptsUsed: 0, isActive: isActive)
+        }
+    }
+
+    private mutating func queueRetry(
+        reason: String,
+        attemptsUsed: Int,
+        isActive: Bool
+    ) -> Action {
+        guard isActive else {
+            state = .waitingForActive(reason: reason, attemptsUsed: attemptsUsed)
+            return .none
+        }
+        guard attemptsUsed < Self.retryDelays.count else {
+            state = .failed(reason: reason)
+            return .showFinalError(reason: reason)
+        }
+        let attempt = attemptsUsed + 1
+        state = .waitingForRetry(reason: reason, attempt: attempt)
+        return .scheduleRetry(milliseconds: Self.retryDelays[attempt - 1])
+    }
+}
+
 @MainActor
 final class SimulatorViewController: UIViewController {
     private static let logger = Logger(subsystem: "zoo.micro.microduck", category: "simulator")
@@ -9,10 +169,9 @@ final class SimulatorViewController: UIViewController {
     private var webView: WKWebView!
     private var schemeHandler: LocalAssetSchemeHandler!
     private var scriptMessageProxy: WeakScriptMessageHandler!
-    private var deferredRecoveryReason: String?
-    private var recoveryWindowStartedAt = Date.distantPast
-    private var automaticRecoveryAttempts = 0
+    private var recovery = SimulatorRecoveryCoordinator()
     private var recoveryTask: Task<Void, Never>?
+    private weak var recoveryAlert: UIAlertController?
 
     init(performance: PerformanceController) {
         self.performance = performance
@@ -74,19 +233,31 @@ final class SimulatorViewController: UIViewController {
 
         performance.attach(to: webView)
         performance.onBecameActive = { [weak self] in
-            guard let self, let reason = self.deferredRecoveryReason else { return }
-            self.deferredRecoveryReason = nil
-            self.scheduleRecovery(reason: reason)
+            self?.transitionRecovery(.becameActive)
         }
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationWillResignActive),
+            name: UIApplication.willResignActiveNotification,
+            object: nil
+        )
         loadSimulator()
+    }
+
+    deinit {
+        recoveryTask?.cancel()
+        NotificationCenter.default.removeObserver(self)
     }
 
     override var prefersStatusBarHidden: Bool { true }
     override var prefersHomeIndicatorAutoHidden: Bool { true }
     override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge { .bottom }
 
+    @objc private func applicationWillResignActive() {
+        transitionRecovery(.becameInactive)
+    }
+
     private func loadSimulator() {
-        deferredRecoveryReason = nil
         var components = URLComponents()
         components.scheme = "microduck"
         components.host = "app"
@@ -105,38 +276,48 @@ final class SimulatorViewController: UIViewController {
         webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData))
     }
 
-    private func scheduleRecovery(reason: String) {
-        guard UIApplication.shared.applicationState == .active else {
-            Self.logger.error("\(reason, privacy: .public) in background; deferring recovery")
-            deferredRecoveryReason = reason
-            return
+    private func transitionRecovery(_ event: SimulatorRecoveryCoordinator.Event) {
+        let isActive: Bool
+        switch event {
+        case .becameActive:
+            isActive = true
+        case .becameInactive:
+            isActive = false
+        default:
+            isActive = UIApplication.shared.applicationState == .active
         }
-        guard recoveryTask == nil else { return }
-
-        let now = Date()
-        if now.timeIntervalSince(recoveryWindowStartedAt) > 60 {
-            recoveryWindowStartedAt = now
-            automaticRecoveryAttempts = 0
-        }
-        guard automaticRecoveryAttempts < 3 else {
-            showRecoveryAlert(reason: reason)
-            return
+        if !isActive || event == .booted {
+            recoveryTask?.cancel()
+            recoveryTask = nil
         }
 
-        automaticRecoveryAttempts += 1
-        let delayMilliseconds = [250, 750, 1_500][automaticRecoveryAttempts - 1]
-        Self.logger.error(
-            "\(reason, privacy: .public); recovery attempt \(self.automaticRecoveryAttempts)"
-        )
-        recoveryTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(nanoseconds: UInt64(delayMilliseconds) * 1_000_000)
-            guard !Task.isCancelled, let self else { return }
-            self.recoveryTask = nil
-            if UIApplication.shared.applicationState == .active {
-                self.loadSimulator()
-            } else {
-                self.deferredRecoveryReason = reason
+        let action = recovery.handle(event, isActive: isActive)
+        switch action {
+        case .none:
+            break
+        case .scheduleRetry(let delayMilliseconds):
+            guard recoveryTask == nil else { return }
+            Self.logger.error("Scheduling simulator recovery in \(delayMilliseconds) ms")
+            recoveryTask = Task { @MainActor [weak self] in
+                do {
+                    try await Task.sleep(for: .milliseconds(delayMilliseconds))
+                } catch {
+                    return
+                }
+                guard !Task.isCancelled, let self else { return }
+                self.recoveryTask = nil
+                self.transitionRecovery(.retryTimerFired)
             }
+        case .reload:
+            Self.logger.error("Reloading the offline simulator after a recoverable failure")
+            webView.stopLoading()
+            loadSimulator()
+        case .stopLoading:
+            Self.logger.notice("Suspending an in-progress simulator recovery")
+            webView.stopLoading()
+        case .showFinalError(let reason):
+            Self.logger.fault("Simulator recovery exhausted: \(reason, privacy: .public)")
+            showRecoveryAlert(reason: reason)
         }
     }
 
@@ -149,10 +330,9 @@ final class SimulatorViewController: UIViewController {
         )
         alert.addAction(UIAlertAction(title: "Retry", style: .default) { [weak self] _ in
             guard let self else { return }
-            self.automaticRecoveryAttempts = 0
-            self.recoveryWindowStartedAt = .distantPast
-            self.loadSimulator()
+            self.transitionRecovery(.manualRetry)
         })
+        recoveryAlert = alert
         present(alert, animated: true)
     }
 }
@@ -182,9 +362,12 @@ extension SimulatorViewController: WKScriptMessageHandler {
             message.name == "microduck",
             message.frameInfo.isMainFrame,
             let sourceURL = message.frameInfo.request.url,
-            sourceURL.scheme == "microduck",
-            sourceURL.host == "app",
-            sourceURL.path == "/index.html",
+            SimulatorNavigationPolicy.isTrustedBridgeSource(
+                documentURL: sourceURL,
+                originProtocol: message.frameInfo.securityOrigin.protocol,
+                originHost: message.frameInfo.securityOrigin.host,
+                originPort: message.frameInfo.securityOrigin.port
+            ),
             let body = message.body as? [String: Any],
             let type = body["type"] as? String
         else { return }
@@ -195,14 +378,12 @@ extension SimulatorViewController: WKScriptMessageHandler {
             performance.pushState(force: true)
         case "booted":
             Self.logger.notice("Offline simulator boot completed")
-            recoveryTask?.cancel()
-            recoveryTask = nil
-            automaticRecoveryAttempts = 0
-            recoveryWindowStartedAt = .distantPast
+            transitionRecovery(.booted)
         case "boot-failed":
             Self.logger.error("Web simulator boot failed: \(String(describing: body["detail"]))")
+            transitionRecovery(.failure("Web simulator boot failed"))
         case "webgl-context-lost":
-            scheduleRecovery(reason: "WebGL context lost")
+            transitionRecovery(.failure("WebGL context lost"))
         default:
             break
         }
@@ -219,23 +400,50 @@ extension SimulatorViewController: WKNavigationDelegate {
             decisionHandler(.cancel)
             return
         }
-        if url.scheme == "microduck", url.host == "app", url.path == "/index.html" {
+        if SimulatorNavigationPolicy.allowsNavigation(
+            to: url,
+            targetIsMainFrame: navigationAction.targetFrame?.isMainFrame
+        ) {
             decisionHandler(.allow)
             return
         }
-        if url.absoluteString == "about:blank" {
-            decisionHandler(.allow)
-            return
-        }
-        if navigationAction.navigationType == .linkActivated,
-           url.scheme == "https" || url.scheme == "http" {
+        if isTrustedExternalLink(navigationAction), SimulatorNavigationPolicy.isExternalWebURL(url) {
             UIApplication.shared.open(url)
         }
         decisionHandler(.cancel)
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-        scheduleRecovery(reason: "Web content process terminated")
+        transitionRecovery(.failure("Web content process terminated"))
+    }
+
+    func webView(
+        _ webView: WKWebView,
+        didFailProvisionalNavigation navigation: WKNavigation!,
+        withError error: any Error
+    ) {
+        handleNavigationFailure(error)
+    }
+
+    func webView(
+        _ webView: WKWebView,
+        didFail navigation: WKNavigation!,
+        withError error: any Error
+    ) {
+        handleNavigationFailure(error)
+    }
+
+    private func handleNavigationFailure(_ error: any Error) {
+        if (error as? URLError)?.code == .cancelled { return }
+        transitionRecovery(.failure("Offline simulator navigation failed"))
+    }
+
+    private func isTrustedExternalLink(_ navigationAction: WKNavigationAction) -> Bool {
+        navigationAction.navigationType == .linkActivated
+            && navigationAction.sourceFrame.isMainFrame
+            && navigationAction.sourceFrame.request.url.map(
+                SimulatorNavigationPolicy.isTrustedAppDocument
+            ) == true
     }
 }
 
@@ -246,8 +454,13 @@ extension SimulatorViewController: WKUIDelegate {
         for navigationAction: WKNavigationAction,
         windowFeatures: WKWindowFeatures
     ) -> WKWebView? {
-        if let url = navigationAction.request.url,
-           url.scheme == "https" || url.scheme == "http" {
+        if navigationAction.navigationType == .linkActivated,
+           navigationAction.sourceFrame.isMainFrame,
+           navigationAction.sourceFrame.request.url.map(
+               SimulatorNavigationPolicy.isTrustedAppDocument
+           ) == true,
+           let url = navigationAction.request.url,
+           SimulatorNavigationPolicy.isExternalWebURL(url) {
             UIApplication.shared.open(url)
         }
         return nil
