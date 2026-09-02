@@ -143,7 +143,7 @@ final class SimulatorViewController: UIViewController {
     private func showRecoveryAlert(reason: String) {
         guard presentedViewController == nil else { return }
         let alert = UIAlertController(
-            title: "Microduck paused",
+            title: "Zoo Kinder paused",
             message: "\(reason). The simulator could not recover automatically.",
             preferredStyle: .alert
         )

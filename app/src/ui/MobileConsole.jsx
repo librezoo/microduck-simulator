@@ -9,6 +9,7 @@ import { VARIANT_LABELS, VARIANT_SWATCH_HEX } from "../game/variants.js";
 import { SCENE_IDS, SCENES } from "../game/scenes.js";
 import { INK, ORANGE, MONO } from "../theme.js";
 import { ANTON, COMIC_INK, CREAM } from "./comic.jsx";
+import { getPerformanceProfile } from "../native/runtime.js";
 
 const panelButtonSx = {
   appearance: "none",
@@ -80,6 +81,7 @@ function Segment({ label, items, value, onChange }) {
 }
 
 export default function MobileConsole() {
+  const nativeApp = getPerformanceProfile().native;
   const touchMode = useGame((s) => s.touchMode);
   const entered = useGame((s) => s.entered);
   const menuOpen = useGame((s) => s.menuOpen);
@@ -201,10 +203,10 @@ export default function MobileConsole() {
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: "0.75rem" }}>
             <Box>
               <Box sx={{ fontFamily: ANTON, fontSize: "1.08rem", letterSpacing: "0.07em", color: ORANGE, textTransform: "uppercase" }}>
-                Microduck
+                {nativeApp ? "Zoo Kinder" : "Microduck"}
               </Box>
               <Box sx={{ mt: "0.12rem", fontFamily: MONO, fontSize: "0.55rem", letterSpacing: "0.12em", color: "rgba(250, 248, 242, 0.6)", textTransform: "uppercase" }}>
-                Enhanced with MicroZoo
+                {nativeApp ? "By MicroZoo" : "Enhanced with MicroZoo"}
               </Box>
             </Box>
             <Box sx={{ fontFamily: MONO, fontSize: "0.6rem", letterSpacing: "0.1em", color: "rgba(250, 248, 242, 0.62)", textTransform: "uppercase", textAlign: "right" }}>

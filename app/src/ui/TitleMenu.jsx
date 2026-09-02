@@ -119,6 +119,8 @@ function closeMenu() {
 
 export default function TitleMenu() {
   const nativeApp = getPerformanceProfile().native;
+  const productName = nativeApp ? "Zoo Kinder" : "Microduck";
+  const publisherLine = nativeApp ? "By MicroZoo" : "Enhanced with MicroZoo";
   const menuOpen = useGame((s) => s.menuOpen);
   const entered = useGame((s) => s.entered);
   const padConnected = useGame((s) => s.padConnected);
@@ -179,7 +181,7 @@ export default function TitleMenu() {
     <Box
       role="dialog"
       aria-modal="true"
-      aria-label="Microduck - Enhanced with MicroZoo"
+      aria-label={`${productName} - ${publisherLine}`}
       sx={{
         position: "fixed",
         inset: 0,
@@ -279,8 +281,8 @@ export default function TitleMenu() {
           accent={ORANGE}
           fontSize="clamp(3.1rem, 10vw, 5.4rem)"
           lines={[
-            { text: "Microduck" },
-            { text: "Enhanced with MicroZoo", variant: "outline", scale: 0.31 },
+            { text: productName },
+            { text: publisherLine, variant: "outline", scale: 0.31 },
           ]}
           sx={{ ...row(0.08) }}
         />
@@ -299,8 +301,9 @@ export default function TitleMenu() {
             ...row(0.24),
           }}
         >
-          The exact same trained policies that drive the real robot,
-          {nativeApp ? " live on your iPhone." : " live in your browser."}
+          {nativeApp
+            ? "MicroZoo's animal kindergarten, powered by the same trained policies that drive the real robot."
+            : "The exact same trained policies that drive the real robot, live in your browser."}
         </Typography>
 
         <Box

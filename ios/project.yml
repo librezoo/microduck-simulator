@@ -17,9 +17,10 @@ targets:
     info:
       path: Microduck/Info.plist
       properties:
-        CFBundleDisplayName: Microduck
+        CFBundleDisplayName: Zoo Kinder
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSHumanReadableCopyright: Copyright © 2026 MicroZoo. All rights reserved.
         LSRequiresIPhoneOS: true
         UIApplicationSupportsIndirectInputEvents: true
         UILaunchScreen:

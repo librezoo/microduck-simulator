@@ -121,7 +121,7 @@ async function boot({ scene, camera, renderer }) {
     ? materialMapForHexOverrides(savedStudioDesign.meshColors)
     : null;
 
-  bootNote("Microduck BIOS v1.0");
+  bootNote(`${getPerformanceProfile().native ? "Zoo Kinder" : "Microduck"} BIOS v1.0`);
   bootLine("MEMORY CHECK")("640K OK");
   bootLine("DUCK FIRMWARE")("PRESENT");
 
