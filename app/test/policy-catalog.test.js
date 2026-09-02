@@ -3,7 +3,10 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 
-import { OFFICIAL_POLICY_CATALOG } from "../src/game/constants.js";
+import {
+  INITIAL_POLICY_CATALOG,
+  OFFICIAL_POLICY_CATALOG,
+} from "../src/game/constants.js";
 
 const DEPLOYMENT_SHA256 = {
   walk: "e36332d383997d51401897734cd3e79cf5038406feddb18b4d57ecfb141daa6c",
@@ -18,6 +21,14 @@ const DEPLOYMENT_SHA256 = {
 };
 
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
+
+test("initial boot loads only the seven leg deployment policies", () => {
+  assert.deepEqual(
+    INITIAL_POLICY_CATALOG.map((policy) => policy.id),
+    ["walk", "stand", "sitstand", "groundpick", "kickL", "kickR", "roll"],
+  );
+  assert.ok(INITIAL_POLICY_CATALOG.every((policy) => policy.mode === "legs"));
+});
 
 test("ships every default 61D policy resolved by microduck deployment", async () => {
   assert.deepEqual(OFFICIAL_POLICY_CATALOG.map((policy) => policy.id), Object.keys(DEPLOYMENT_SHA256));
@@ -36,14 +47,4 @@ test("ships every default 61D policy resolved by microduck deployment", async ()
     const bytes = await readFile(new URL(`../public/${relative}`, import.meta.url));
     assert.equal(sha256(bytes), DEPLOYMENT_SHA256[policy.id], policy.id);
   }
-});
-
-test("ships the deployment WBC policy byte-for-byte", async () => {
-  const bytes = await readFile(
-    new URL("../public/wbc/microduck-wbc/policy.onnx", import.meta.url),
-  );
-  assert.equal(
-    sha256(bytes),
-    "d207ee5742738263c5b45be7bb72c3eff7242a772f4e06b99aeaba308c360047",
-  );
 });

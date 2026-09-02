@@ -44,6 +44,12 @@ export const OFFICIAL_POLICY_CATALOG = Object.freeze([
   Object.freeze({ id: "crouch", label: "Roller Crouch", asset: POLICIES.crouch, mode: "not-scheduled" }),
 ]);
 
+// The seven leg policies required for the initial playground boot. Roller
+// drive stays lazy and Roller Crouch remains an inventory-only asset.
+export const INITIAL_POLICY_CATALOG = OFFICIAL_POLICY_CATALOG.filter(
+  (policy) => policy.mode === "legs",
+);
+
 // From the ONNX metadata (identical for all alpha policies) and the STAND
 // keyframe in mjlab's scene_walk.xml. Order matches the actuators in
 // the MJCF.
@@ -108,18 +114,23 @@ export const ARENA_WALL_T = 0.05;
 // column/row of cells exists; the lattice is shifted half a cell in the
 // shaders so the walls land exactly on section lines).
 export const GRID_SECTION = (2 * ARENA_HALF) / 5; // 0.6 m
-// Arcade cabinet row: three cabinets side by side against the front (+X)
-// wall, screens facing the arena. Consumed by the prop library (props.js
-// "arcade" def - currently benched, enabled: false) for both the clone
-// placements and the row's single static collision box. Proportions
-// measured from the GLB's natural size (0.524 x 0.587 x 1.0 m, w x d x h).
-// Slightly surreal scale: ~2.8x the 0.25 m duck (a real 1.73 m cabinet
-// felt overwhelming in the 3 m arena). Big enough to read as oversized
-// furniture, small enough that the row (~1.15 m wide, 0.41 m deep)
-// leaves the play area open.
+// Compact procedural arcade cabinet proportions. The prop factory and its
+// static collision box both consume these values, keeping the generated
+// visual and MuJoCo footprint aligned. At ~2.8x the 0.25 m duck it reads as
+// oversized furniture without closing off the 3 m arena.
 export const ARCADE_H = 0.7; // target height, m
-export const ARCADE_W = ARCADE_H * 0.524; // footprint width, ~0.22 m
-export const ARCADE_D = ARCADE_H * 0.5876; // footprint depth, ~0.247 m
+export const ARCADE_W = ARCADE_H * 0.524; // body width, ~0.367 m
+export const ARCADE_D = ARCADE_H * 0.5876; // body depth, ~0.411 m
+export const ARCADE_CONTROL_TILT = -0.13;
+export const ARCADE_CONTROL_H = ARCADE_H * 0.075;
+export const ARCADE_CONTROL_D = ARCADE_D * 0.32;
+export const ARCADE_CONTROL_Z = ARCADE_D * 0.52;
+// The tilted control plane is the cabinet's foremost primitive. Keep its
+// projected edge explicit so the static collider covers the ~7.7 cm overhang
+// without widening the cabinet in the other horizontal axis.
+export const ARCADE_FRONT_Z = ARCADE_CONTROL_Z
+  + (ARCADE_CONTROL_D / 2) * Math.cos(ARCADE_CONTROL_TILT)
+  + (ARCADE_CONTROL_H / 2) * Math.abs(Math.sin(ARCADE_CONTROL_TILT));
 export const ARCADE_GAP = 0.02; // gap between neighbouring cabinets
 export const ARCADE_WALL_GAP = 0.01; // clearance between backs and the wall
 

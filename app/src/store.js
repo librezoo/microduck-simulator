@@ -11,6 +11,12 @@
 //                   safe to interact with before that.
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
+import {
+  readMultiplayerPreference,
+  writeMultiplayerPreference,
+} from "./game/multiplayer-preference.js";
+
+const initialMultiplayerEnabled = readMultiplayerPreference();
 
 export const useGame = create(
   subscribeWithSelector(() => ({
@@ -57,10 +63,24 @@ export const useGame = create(
     keyboardInputMode: "drive",
     mouthOpen: 0,
     ballActive: false,
+    // Explicit local opt-in for the public Nostr/WebRTC room. A fresh install
+    // starts offline; status describes the current runtime session rather
+    // than silently treating saved consent as a live connection.
+    multiplayerEnabled: initialMultiplayerEnabled,
+    multiplayerStatus: initialMultiplayerEnabled ? "pending" : "off",
     // Throttled telemetry block (4 Hz), bottom-right OSD
     telemetry: { fps: 0, ctrlHz: 0, speed: 0, odo: 0, peers: 0 },
   })),
 );
+
+export function setMultiplayerEnabled(enabled) {
+  const next = Boolean(enabled);
+  writeMultiplayerPreference(next);
+  useGame.setState({
+    multiplayerEnabled: next,
+    multiplayerStatus: next ? "pending" : "off",
+  });
+}
 
 // Imperative game surface, assigned by game/game.js once booted. The UI
 // only ever optional-chains into it.

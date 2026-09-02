@@ -31,7 +31,8 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { signed } from "./signed.js";
 import {
-  POLICIES, JOINT_NAMES, DEFAULT_POSE, NUM_JOINTS, OBS_SIZE, CMD_SIZE,
+  POLICIES, INITIAL_POLICY_CATALOG,
+  JOINT_NAMES, DEFAULT_POSE, NUM_JOINTS, OBS_SIZE, CMD_SIZE,
   WALK_ACTION_SCALE, ROLLER_ACTION_SCALE, SKILL_ACTION_SCALE, RUN_ACTION_SCALE,
   DANCE_ACTION_SCALE,
   STANDING_THRESHOLD,
@@ -49,6 +50,7 @@ import {
   DEFAULT_SCENE, SCENES, SCENE_IDS,
   loadDiningRoom, loadApartment, loadLoft, loadVintageRoom, loadBackrooms,
 } from "./scenes.js";
+import { createRoomVisualCache } from "./room-cache.js";
 import {
   buildRig, cloneRig, loadKinematics, setJoint, setJawOpen, MODEL_DIR, MESH_VERSION,
   loadGlbGeometries, geometryToBinaryStl,
@@ -69,7 +71,12 @@ import { createBallActor } from "./ball-actor.js";
 import { initGhosts } from "./ghosts.js";
 import { makeInfiniteGrid } from "./arena.js";
 import { createBallVisual } from "./ball-visual.js";
-import { loadWbcRuntime } from "./wbc.js";
+import {
+  DEFAULT_PROCEDURAL_MOTION_ID,
+  PROCEDURAL_MOTIONS,
+  getProceduralMotion,
+  sampleProceduralMotionFrame,
+} from "./procedural-motions.js";
 import { useGame, gameApi, bootLine, bootNote, bootHalt } from "../store.js";
 import {
   getPerformanceProfile,
@@ -93,8 +100,11 @@ function duckYaw(qpos) {
 // via an edit to ghosts.js) used to stack a live 15 Hz broadcast interval
 // plus a ghost room per reload (the historical "stale module" bug class).
 const liveGhostSessions = new Set();
+const liveGhostPreferenceCleanups = new Set();
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
+    for (const cleanup of [...liveGhostPreferenceCleanups]) cleanup();
+    liveGhostPreferenceCleanups.clear();
     for (const g of liveGhostSessions) g.destroy();
     liveGhostSessions.clear();
   });
@@ -121,7 +131,7 @@ async function boot({ scene, camera, renderer }) {
     ? materialMapForHexOverrides(savedStudioDesign.meshColors)
     : null;
 
-  bootNote(`${getPerformanceProfile().native ? "Zoo Kinder" : "Microduck"} BIOS v1.0`);
+  bootNote("Zoo Kinder BIOS v1.0");
   bootLine("MEMORY CHECK")("640K OK");
   bootLine("DUCK FIRMWARE")("PRESENT");
 
@@ -366,34 +376,33 @@ async function boot({ scene, camera, renderer }) {
       throw err;
     }
   })();
-  // Boot policies with a live [n/8] counter on the BIOS line.
+  // Boot the seven leg deployment policies. Roller drive remains lazy and
+  // loads only when the user first switches locomotion modes.
   const donePolicies = bootLine("LOADING POLICIES");
   const sessionOpts = { executionProviders: ["wasm"] };
+  // The verified browser sprint policy is booted beside the deployment set.
+  const policyTotal = INITIAL_POLICY_CATALOG.length + 1;
   let policiesLoaded = 0;
   const bootPolicy = (url) =>
     ort.InferenceSession.create(signed(url), sessionOpts).then((s) => {
-      donePolicies.progress(`${++policiesLoaded}/8`);
+      donePolicies.progress(`${++policiesLoaded}/${policyTotal}`);
       return s;
     });
   try {
-    [sessions.walk, sessions.sitstand, sessions.roll, sessions.kickL, sessions.kickR,
-     sessions.groundpick, sessions.stand, sessions.run] =
-      await Promise.all([
-        bootPolicy(POLICIES.walk),
-        bootPolicy(POLICIES.sitstand),
-        bootPolicy(POLICIES.roll),
-        bootPolicy(POLICIES.kickL),
-        bootPolicy(POLICIES.kickR),
-        bootPolicy(POLICIES.groundpick),
-        bootPolicy(POLICIES.stand),
-        bootPolicy(POLICIES.run),
-      ]);
+    const booted = await Promise.all([
+      ...INITIAL_POLICY_CATALOG.map((policy) => bootPolicy(policy.asset)),
+      bootPolicy(POLICIES.run),
+    ]);
+    INITIAL_POLICY_CATALOG.forEach((policy, index) => {
+      sessions[policy.id] = booted[index];
+    });
+    sessions.run = booted[INITIAL_POLICY_CATALOG.length];
   } catch (err) {
     donePolicies("FAILED");
     bootHalt(err?.message || String(err));
     throw err;
   }
-  donePolicies("8/8");
+  donePolicies(`${policyTotal}/${policyTotal}`);
 
   const doneCompile = bootLine("COMPILING PHYSICS");
   let model, data;
@@ -483,18 +492,26 @@ async function boot({ scene, camera, renderer }) {
   let sitFlag = 0;
   const isKick = () => mode === "kickL" || mode === "kickR";
 
-  // Two independent control stacks share the same MuJoCo model. Skills
-  // consume a 61D operator command observation; WBC consumes a 24D motion
-  // reference plus robot feedback and predicts a residual around the
-  // reference joint pose. The WBC assets stay lazy until first selected.
+  // Two control stacks share the same MuJoCo model. Skills consume a 61D
+  // operator command observation. Pose motions feed small, deterministic
+  // joint targets generated around DEFAULT_POSE directly to the actuators.
+  // The legacy "wbc" state value is retained for saved/native compatibility.
   let controlMode = "skills"; // "skills" | "wbc"
-  let wbcBundle = null;
-  let wbcBundleLoading = null;
   let wbcClip = null;
   let wbcFrame = 0;
-  let wbcObs = null;
   let wbcRequest = 0;
+  const wbcTarget = new Float32Array(NUM_JOINTS);
   let controlEpoch = 0;
+  const initialMotionId = getProceduralMotion(store().wbcClip)?.id ??
+    DEFAULT_PROCEDURAL_MOTION_ID;
+  setStore({
+    wbcLoading: false,
+    wbcError: null,
+    wbcClip: initialMotionId,
+    wbcClips: PROCEDURAL_MOTIONS.map(({ id, name, durationSec, frames }) => ({
+      id, name, durationSec, frames,
+    })),
+  });
 
   // The dance session is lazy because it is only useful once the user picks
   // local audio.  `clock` returns HTMLAudioElement.currentTime, so the policy
@@ -579,7 +596,6 @@ async function boot({ scene, camera, renderer }) {
     runPolicyActive = next.policyActive;
     return next;
   }
-
   // ── Automatic fall recovery (legs walk mode only) ────────────────────
   // Mirrors the runtime's --fall-detect state machine (main.rs ~3658):
   // a debounced tip (gz > -0.5 for 0.2 s) freezes ctrl on the current
@@ -788,7 +804,7 @@ async function boot({ scene, camera, renderer }) {
   const _q = new THREE.Quaternion();
   const _g = new THREE.Vector3();
 
-  function buildObs() {
+  function buildObs({ zeroCommand = false } = {}) {
     const qpos = data.qpos, qvel = data.qvel, sens = data.sensordata;
     let i = 0;
     for (let a = 0; a < 3; a++) obs[i++] = sens[gyroAdr + a];
@@ -816,7 +832,10 @@ async function boot({ scene, camera, renderer }) {
       // slots ([cos, sin, 0]).  Clear all 13 values so a stopped dance cannot
       // leave an old phase or move bit in another policy's observation.
       cmd.fill(0);
-      if (mode === "sitstand") {
+      if (zeroCommand) {
+        // Pose motions layer small authored offsets over the feedback-stabilized
+        // stand policy. It must not inherit a held drive command.
+      } else if (mode === "sitstand") {
         cmd[0] = sitFlag;
       } else if (mode === "groundpick" && pickRun) {
         const a = 2 * Math.PI * pickRun.phase;
@@ -849,32 +868,6 @@ async function boot({ scene, camera, renderer }) {
     }
     for (let c = 0; c < CMD_SIZE; c++) obs[i++] = cmd[c];
     return obs;
-  }
-
-  function buildWbcObs() {
-    if (!wbcBundle || !wbcClip || !wbcObs) throw new Error("WBC control selected before assets loaded");
-    const { runtime } = wbcBundle;
-    const qpos = data.qpos, qvel = data.qvel, sens = data.sensordata;
-    const refStart = wbcFrame * runtime.referenceCommandSize;
-    wbcObs.set(
-      wbcClip.values.subarray(refStart, refStart + runtime.referenceCommandSize),
-      0,
-    );
-    let i = runtime.referenceCommandSize;
-    for (let a = 0; a < 3; a++) wbcObs[i++] = sens[gyroAdr + a];
-    const xq = data.body(trunkId).xquat;
-    _q.set(xq[1], xq[2], xq[3], xq[0]).conjugate();
-    _g.set(0, 0, -1).applyQuaternion(_q);
-    wbcObs[i++] = _g.x; wbcObs[i++] = _g.y; wbcObs[i++] = _g.z;
-    for (let j = 0; j < NUM_JOINTS; j++) {
-      wbcObs[i++] = qpos[qposAdr[j]] - runtime.defaultJointPosition[j];
-    }
-    for (let j = 0; j < NUM_JOINTS; j++) wbcObs[i++] = qvel[dofAdr[j]];
-    for (let j = 0; j < NUM_JOINTS; j++) wbcObs[i++] = lastAction[j];
-    if (i !== runtime.observationSize) {
-      throw new Error(`WBC observation size mismatch: built ${i}, expected ${runtime.observationSize}`);
-    }
-    return wbcObs;
   }
 
   // Policy priority and scales mirror the leg deployment stack. Rollers are
@@ -937,32 +930,25 @@ async function boot({ scene, camera, renderer }) {
     // the runtime's limp beat), physics keeps stepping, no inference.
     if (recovery?.state !== "fallen") {
       if (controlMode === "wbc") {
-        const { runtime, session } = wbcBundle;
         const runClip = wbcClip;
         const runFrame = wbcFrame;
         const runEpoch = controlEpoch;
         const feeds = {
-          [runtime.inputName]: new ort.Tensor(
-            "float32",
-            buildWbcObs(),
-            [1, runtime.observationSize],
-          ),
+          obs: new ort.Tensor("float32", buildObs({ zeroCommand: true }), [1, OBS_SIZE]),
         };
-        const out = await session.run(feeds);
+        const out = await sessions.stand.run(feeds);
         if (expectedActivityEpoch !== null && expectedActivityEpoch !== controlActivityEpoch) {
           return false;
         }
-        // A reset, clip change or control-stack switch can happen while
-        // WASM inference yields. Never apply that stale result afterward.
         if (controlMode === "wbc" && runEpoch === controlEpoch &&
             runClip === wbcClip && runFrame === wbcFrame) {
-          const act = out[runtime.outputName].data;
+          sampleProceduralMotionFrame(runClip.id, runFrame, wbcTarget);
+          const act = out.actions.data;
           lastAction.set(act);
           const ctrl = data.ctrl;
-          const refStart = runFrame * runtime.referenceCommandSize +
-            runtime.referenceJointPositionOffset;
           for (let j = 0; j < NUM_JOINTS; j++) {
-            ctrl[j] = runClip.values[refStart + j] + act[j] * runtime.actionScale;
+            const motionOffset = wbcTarget[j] - DEFAULT_POSE[j];
+            ctrl[j] = DEFAULT_POSE[j] + act[j] * SKILL_ACTION_SCALE + motionOffset;
           }
           if (bamActuator) bamActuator.setTarget(ctrl);
           if (runFrame + 1 === runClip.frames) wbcFinished = true;
@@ -996,6 +982,8 @@ async function boot({ scene, camera, renderer }) {
     // Match robotd's one-pass reference clock: the final CSV row owns one
     // complete control period, then control returns through the Skills/HOME
     // reset path. Reference clips never wrap silently.
+    // The final generated frame owns one complete control period, then the
+    // control returns through the Skills/HOME reset path. Motions never wrap.
     if (wbcFinished && controlMode === "wbc") await setControlMode("skills");
 
     const death = poseIsDead();
@@ -1285,8 +1273,8 @@ async function boot({ scene, camera, renderer }) {
     if (name !== "legs" && name !== "rollers") return;
     if (name !== "legs" && danceRun) finishDance({ pauseAudio: true });
     if (name === "rollers" && controlMode === "wbc") {
-      // WBC was trained for the leg model. A roller request is also an
-      // explicit request to return ownership to the regular skill stack.
+      // Pose motions target the leg joints. A roller request is also an
+      // explicit request to return to operator-driven Skills control.
       await setControlMode("skills");
     }
     if (loco === name || locoSwitching) return;
@@ -1386,33 +1374,7 @@ async function boot({ scene, camera, renderer }) {
     }
   }
 
-  // ── WBC policy + reference stream (lazy) ───────────────────────────
-  function ensureWbc() {
-    if (wbcBundle) return Promise.resolve(wbcBundle);
-    if (!wbcBundleLoading) {
-      wbcBundleLoading = loadWbcRuntime({
-        ort,
-        sessionOptions: sessionOpts,
-        expectedJointNames: JOINT_NAMES,
-        expectedDefaultJointPosition: DEFAULT_POSE,
-      }).then((bundle) => {
-        wbcBundle = bundle;
-        wbcObs = new Float32Array(bundle.runtime.observationSize);
-        setStore({
-          wbcClips: bundle.clips.map(({ id, name, durationSec, frames }) => ({
-            id, name, durationSec, frames,
-          })),
-          wbcClip: store().wbcClip || bundle.runtime.defaultClip,
-        });
-        return bundle;
-      }).catch((error) => {
-        wbcBundleLoading = null;
-        throw error;
-      });
-    }
-    return wbcBundleLoading;
-  }
-
+  // ── Original procedural pose motions (50 Hz) ───────────────────────
   async function setControlMode(next) {
     if (next !== "skills" && next !== "wbc") return;
     if (next === "wbc") {
@@ -1429,12 +1391,11 @@ async function boot({ scene, camera, renderer }) {
       return;
     }
 
-    setStore({ wbcLoading: true, wbcError: null });
+    setStore({ wbcLoading: false, wbcError: null });
     try {
-      const bundle = await ensureWbc();
-      const clipId = store().wbcClip || bundle.runtime.defaultClip;
-      const clip = await bundle.loadClip(clipId);
-      if (request !== wbcRequest) return;
+      const clipId = store().wbcClip || DEFAULT_PROCEDURAL_MOTION_ID;
+      const clip = getProceduralMotion(clipId);
+      if (!clip) throw new Error(`Unknown pose motion: ${clipId}`);
       setStore({ locoWant: "legs" });
       while (locoSwitching) {
         await new Promise((resolve) => setTimeout(resolve, 50));
@@ -1444,7 +1405,7 @@ async function boot({ scene, camera, renderer }) {
         await setLoco("legs", { force: true });
       }
       if (request !== wbcRequest) return;
-      if (loco !== "legs") throw new Error("WBC could not activate the leg model");
+      if (loco !== "legs") throw new Error("Pose motions could not activate the leg model");
       wbcClip = clip;
       wbcFrame = 0;
       lastAction.fill(0);
@@ -1461,40 +1422,34 @@ async function boot({ scene, camera, renderer }) {
       if (request !== wbcRequest) return;
       controlMode = "skills";
       const message = error?.message || String(error);
-      console.error("[game] WBC load failed", error);
+      console.error("[game] pose motion start failed", error);
       setStore({ controlMode, wbcLoading: false, wbcError: message });
       syncButtons();
     }
   }
 
-  async function setWbcClip(id) {
-    const request = ++wbcRequest;
-    setStore({ wbcLoading: true, wbcError: null });
-    try {
-      const bundle = await ensureWbc();
-      const clip = await bundle.loadClip(id);
-      if (request !== wbcRequest) return;
-      const switchingLive = controlMode === "wbc";
-      if (switchingLive) controlEpoch++;
-      wbcClip = clip;
-      wbcFrame = 0;
-      // A live WBC-to-WBC switch is continuous: preserve physics state and
-      // previous-action history, invalidating only an inference still in
-      // flight. A clip chosen before WBC starts gets a clean history later
-      // when setControlMode("wbc") owns the entry transition.
-      if (!switchingLive) lastAction.fill(0);
-      setStore({
-        wbcLoading: false,
-        wbcError: null,
-        wbcClip: clip.id,
-        wbcProgress: { frame: 0, frames: clip.frames },
-      });
-    } catch (error) {
-      if (request !== wbcRequest) return;
-      const message = error?.message || String(error);
-      console.error("[game] WBC clip load failed", error);
+  function setWbcClip(id) {
+    const clip = getProceduralMotion(id);
+    if (!clip) {
+      const message = `Unknown pose motion: ${id}`;
+      console.error(`[game] ${message}`);
       setStore({ wbcLoading: false, wbcError: message });
+      return;
     }
+    ++wbcRequest;
+    const switchingLive = controlMode === "wbc";
+    if (switchingLive) controlEpoch++;
+    wbcClip = clip;
+    wbcFrame = 0;
+    // A live motion-to-motion switch preserves the current physics state.
+    // A selection made from Skills starts with clean history on entry.
+    if (!switchingLive) lastAction.fill(0);
+    setStore({
+      wbcLoading: false,
+      wbcError: null,
+      wbcClip: clip.id,
+      wbcProgress: { frame: 0, frames: clip.frames },
+    });
   }
 
   // Quickbar loco intent: reconcile locoWant -> actual, retrying until the
@@ -1545,11 +1500,10 @@ async function boot({ scene, camera, renderer }) {
   });
 
   // ── Environment switching ───────────────────────────────────────────
-  // Physics boundaries for every scene are resident in each locomotion
-  // model. Visual rooms remain lazy: switching becomes visibility, collision
-  // masks and a safe respawn after their one-time GLB load.
-  const roomRoots = {};
-  const roomLoading = {};
+  // Physics boundaries for every scene are resident in each locomotion model.
+  // Visual rooms remain lazy and bounded: retain the active visual plus one
+  // recently used inactive room, then release older GLTF GPU resources. This
+  // keeps repeated room tours from growing WKWebView memory without bound.
   const roomLoaders = {
     dining: loadDiningRoom,
     apartment: loadApartment,
@@ -1557,22 +1511,16 @@ async function boot({ scene, camera, renderer }) {
     vintage: loadVintageRoom,
     backrooms: loadBackrooms,
   };
+  const roomCache = createRoomVisualCache({
+    loadRoom: (sceneId) => {
+      const loader = roomLoaders[sceneId];
+      return loader ? loader({ GLTFLoader, signed, THREE, scene }) : null;
+    },
+    maxInactive: 1,
+  });
   let sceneSwitching = false;
 
-  function ensureRoom(sceneId) {
-    const loader = roomLoaders[sceneId];
-    if (!loader) return Promise.resolve(null);
-    roomLoading[sceneId] ??= loader({ GLTFLoader, signed, THREE, scene })
-      .then((root) => {
-        roomRoots[sceneId] = root;
-        return root;
-      })
-      .catch((error) => {
-        roomLoading[sceneId] = null;
-        throw error;
-      });
-    return roomLoading[sceneId];
-  }
+  const ensureRoom = (sceneId) => roomCache.ensure(sceneId);
 
   async function setScene(sceneId) {
     if (!SCENES[sceneId] || sceneSwitching || sceneId === activeScene) return;
@@ -1588,9 +1536,7 @@ async function boot({ scene, camera, renderer }) {
       for (const groups of Object.values(propGroups)) {
         for (const group of groups) group.visible = arcadeVisible;
       }
-      for (const [roomSceneId, root] of Object.entries(roomRoots)) {
-        root.visible = sceneId === roomSceneId;
-      }
+      roomCache.activate(sceneId);
       controls.maxDistance = SCENES[sceneId].cameraMaxDistance;
       resetSim();
       setStore({ scene: sceneId, sceneWant: sceneId });
@@ -1896,7 +1842,7 @@ async function boot({ scene, camera, renderer }) {
   // boot instead of on the first input edge. `preload=auto` starts the
   // fetch/decode pipeline before the player can invoke Wawa; the same
   // Audio instance is rewound for repeat presses without allocating again.
-  const wawaAudio = new Audio(signed("./assets/voices/wawa.mp3"));
+  const wawaAudio = new Audio(signed("./assets/voices/wawa.wav"));
   wawaAudio.preload = "auto";
   wawaAudio.volume = 0.7;
   wawaAudio.load();
@@ -2298,7 +2244,7 @@ async function boot({ scene, camera, renderer }) {
     const sitting = mode === "sitstand" && sitFlag === 1;
     setMode(sitting ? "walk" : "sit");
   });
-  // Pad DpadUp short press: straight back to running (ignored mid-roll;
+  // Pad DpadUp short press: straight back to walking (ignored mid-roll;
   // it hands back to walk on its own).
   controller.on("walk", () => {
     if (mode !== "walk" && mode !== "roll") setMode("walk");
@@ -2468,7 +2414,7 @@ async function boot({ scene, camera, renderer }) {
     syncButtons();
   }
 
-  // One roll, then straight back to running. lastAction is deliberately
+  // One roll, then straight back to walking. lastAction is deliberately
   // NOT zeroed: the runtime keeps one continuous action history across
   // policy switches, and the roll initiates more reliably mid-gait.
   function triggerRoll(source = "kb") {
@@ -2513,7 +2459,7 @@ async function boot({ scene, camera, renderer }) {
   function syncButtons() {
     const sitting = mode === "sitstand" && sitFlag === 1;
     const label =
-      controlMode === "wbc" ? "WBC"
+      controlMode === "wbc" ? "Motion"
       : mode === "dance" ? "Dance"
       : recovery ? "Recovery"
       : mode === "roll" ? "Roll"
@@ -2603,12 +2549,13 @@ async function boot({ scene, camera, renderer }) {
     get scene() { return activeScene; },
     get renderScene() { return scene; },
     get sceneSwitching() { return sceneSwitching; },
-    setScene, ensureRoom,
+    setScene, ensureRoom, roomCache,
     get controlMode() { return controlMode; },
-    get wbcBundle() { return wbcBundle; },
     get wbcClip() { return wbcClip; },
     get wbcFrame() { return wbcFrame; },
-    buildWbcObs, ensureWbc, setControlMode, setWbcClip,
+    proceduralMotions: PROCEDURAL_MOTIONS,
+    sampleProceduralMotionFrame,
+    setControlMode, setWbcClip,
     ensureDance, startDance, stopDance: finishDance,
     get danceTimeline() { return danceRun?.timeline ?? null; },
     triggerGroundPick,
@@ -2664,43 +2611,120 @@ async function boot({ scene, camera, renderer }) {
   setStore({ bootDone: true });
   postNative({ type: "booted" });
 
-  // ── Multiplayer ghosts (WebRTC, serverless signaling) ────────────────
-  // Broadcast this duck's pose and render up to 3 other visitors live as
-  // translucent ducks. Fire-and-forget: any failure just means no ghosts.
+  // ── Optional multiplayer ghosts (WebRTC, public Nostr signaling) ──────
+  // A fresh install stays offline. The saved preference can be changed from
+  // the welcome/pause screen without reloading: enable joins once the
+  // entrance is complete, disable tears the current room down immediately.
   const r3 = (x) => Math.round(x * 1000) / 1000;
-  try {
-    // Ghosts only join once the entrance has fully played: the world (and
-    // this duck) must stay hidden until then, translucent peers included.
-    await ceremony.entranceFinished;
-    ghosts = await initGhosts({
-      scene, rig, cloneRig, setJoint, setJawOpen, applyVariant,
-      jointNames: JOINT_NAMES,
-      // Payload sanitizing: ghosts.js coerces unknown peer variants to the
-      // default instead of letting applyVariant throw on a bad key.
-      variantNames: Object.keys(VARIANTS),
-      defaultVariant: DEFAULT_VARIANT,
-      // Ghost rig per locomotion flag: peers in roller mode clone the
-      // roller rig once this tab has built it, and fall back to the leg
-      // rig until then. Known v1 limitation, documented in the README.
-      getRigFor: (l) => (l && locos.rollers ? locos.rollers.rig : locos.legs.rig),
-      getLocalState: () => {
-        const qpos = data.qpos;
-        const j = new Array(NUM_JOINTS);
-        for (let i = 0; i < NUM_JOINTS; i++) j[i] = r3(qpos[qposAdr[i]]);
-        return {
-          p: [r3(qpos[0]), r3(qpos[1]), r3(qpos[2]), r3(qpos[3]), r3(qpos[4]), r3(qpos[5]), r3(qpos[6])],
-          j,
-          w: r3(jawOpenNow()),
-          v: currentVariant,
-          l: loco === "rollers" ? 1 : 0,
-        };
-      },
-    });
-    liveGhostSessions.add(ghosts);
-    ghosts.setActive?.(controlsActive);
-    if (ghosts.room) ghosts.room.onPeerJoin = () => stickers?.pop("hi");
-  } catch (e) {
-    window.__ghostErr = String((e && e.stack) || e);
-    console.warn("ghosts disabled:", e);
-  }
+  const ghostEnv = {
+    scene, rig, cloneRig, setJoint, setJawOpen, applyVariant,
+    jointNames: JOINT_NAMES,
+    // Payload sanitizing: ghosts.js coerces unknown peer variants to the
+    // default instead of letting applyVariant throw on a bad key.
+    variantNames: Object.keys(VARIANTS),
+    defaultVariant: DEFAULT_VARIANT,
+    // Ghost rig per locomotion flag: peers in roller mode clone the
+    // roller rig once this tab has built it, and fall back to the leg
+    // rig until then. Known v1 limitation, documented in the README.
+    getRigFor: (l) => (l && locos.rollers ? locos.rollers.rig : locos.legs.rig),
+    getLocalState: () => {
+      const qpos = data.qpos;
+      const j = new Array(NUM_JOINTS);
+      for (let i = 0; i < NUM_JOINTS; i++) j[i] = r3(qpos[qposAdr[i]]);
+      return {
+        p: [r3(qpos[0]), r3(qpos[1]), r3(qpos[2]), r3(qpos[3]), r3(qpos[4]), r3(qpos[5]), r3(qpos[6])],
+        j,
+        w: r3(jawOpenNow()),
+        v: currentVariant,
+        l: loco === "rollers" ? 1 : 0,
+      };
+    },
+  };
+  let multiplayerReady = false;
+  let ghostGeneration = 0;
+  let ghostShutdown = Promise.resolve(true);
+  const publicMultiplayerAvailable = !getPerformanceProfile().native;
+
+  const stopGhostSession = () => {
+    ghostGeneration++;
+    const session = ghosts;
+    ghosts = null;
+    if (session) {
+      liveGhostSessions.delete(session);
+      // destroy begins local teardown immediately and resolves after Trystero
+      // has vacated its room registration. A rapid off/on waits below so the
+      // next join receives fresh handshake callbacks instead of the old Room.
+      try { ghostShutdown = Promise.resolve(session.destroy()).then(Boolean, () => false); }
+      catch { ghostShutdown = Promise.resolve(false); }
+    }
+    return ghostShutdown;
+  };
+
+  const reconcileGhostSession = async () => {
+    const enabled = publicMultiplayerAvailable && store().multiplayerEnabled;
+    if (!enabled) {
+      stopGhostSession();
+      setStore({ multiplayerStatus: "off" });
+      return;
+    }
+    if (!multiplayerReady) {
+      setStore({ multiplayerStatus: "pending" });
+      return;
+    }
+    if (ghosts) return;
+
+    const generation = ++ghostGeneration;
+    setStore({ multiplayerStatus: "joining" });
+    try {
+      if (!await ghostShutdown) {
+        setStore({ multiplayerStatus: "unavailable" });
+        return;
+      }
+      if (generation !== ghostGeneration || !store().multiplayerEnabled) return;
+      const session = await initGhosts(ghostEnv, {
+        shouldJoin: () => generation === ghostGeneration && store().multiplayerEnabled,
+        onPeerJoin: () => stickers?.pop("hi"),
+        onUnavailable: () => {
+          if (generation !== ghostGeneration || !store().multiplayerEnabled) return;
+          stopGhostSession();
+          setStore({ multiplayerStatus: "unavailable" });
+        },
+      });
+      // A user can withdraw consent while the lazy network module is loading.
+      // Never publish a late-created session after that choice changed.
+      if (generation !== ghostGeneration || !store().multiplayerEnabled) {
+        session.destroy();
+        return;
+      }
+      ghosts = session;
+      liveGhostSessions.add(session);
+      session.setActive?.(controlsActive);
+      if (session.room) {
+        setStore({ multiplayerStatus: "connected" });
+      } else {
+        setStore({ multiplayerStatus: "unavailable" });
+      }
+    } catch (e) {
+      if (generation !== ghostGeneration || !store().multiplayerEnabled) return;
+      window.__ghostErr = String((e && e.stack) || e);
+      setStore({ multiplayerStatus: "unavailable" });
+      console.warn("ghosts disabled:", e);
+    }
+  };
+
+  const unsubscribeMultiplayer = useGame.subscribe(
+    (s) => s.multiplayerEnabled,
+    () => { void reconcileGhostSession(); },
+  );
+  const cleanupMultiplayer = () => {
+    unsubscribeMultiplayer();
+    stopGhostSession();
+    liveGhostPreferenceCleanups.delete(cleanupMultiplayer);
+  };
+  liveGhostPreferenceCleanups.add(cleanupMultiplayer);
+
+  // Peers must not appear before the local world and duck are revealed.
+  await ceremony.entranceFinished;
+  multiplayerReady = true;
+  void reconcileGhostSession();
 }
