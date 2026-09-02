@@ -1,0 +1,24 @@
+ZOO KINDER TRADEMARK POLICY
+
+The Apache License 2.0 grants copyright and patent permissions for covered
+material. It does not grant trademark rights.
+
+"MicroZoo", "Zoo Kinder", their logos, and other source identifiers used by
+this project may be trademarks or trade dress of their respective owner. They
+may be used truthfully to identify the unmodified project, describe
+compatibility, or satisfy attribution requirements. They may not be used to
+suggest sponsorship, endorsement, or production of a modified distribution
+without separate permission.
+
+Forks should use their own product name and visual identity and make their
+modified status clear. Removing project branding does not remove copyright or
+attribution obligations imposed by the applicable licenses.
+
+"Microduck", "Pollen Robotics", and other third-party names and logos belong
+to their respective owners. They are used only for compatibility, provenance,
+or attribution. No affiliation with or endorsement by Pollen Robotics is
+implied.
+
+Nothing in this policy claims that a mark is registered in a particular
+jurisdiction, limits nominative or otherwise lawful use, or changes rights
+granted by an applicable open-source or Creative Commons license.

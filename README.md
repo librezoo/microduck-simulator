@@ -8,9 +8,9 @@ app_port: 8080
 pinned: false
 ---
 
-# Microduck RL playground
+# Zoo Kinder simulator
 
-Real trained RL policies for the Microduck robot, running fully in the
+Real trained RL policies compatible with the Microduck robot, running fully in the
 browser: MuJoCo compiled to WebAssembly steps the physics, onnxruntime-web
 runs the policy network at 50 Hz. No server, no backend.
 
@@ -19,29 +19,33 @@ the default) and **rollers** (the wheeled skating variant). Press `M` (or
 hold D-pad up ~1 s on a gamepad) to switch; the roller model, meshes and
 policies are lazy-loaded on the first switch.
 
-The feet model also has a **WBC** control stack. Select `WBC` in the HUD,
-then choose one of four deployment-compatible CSV references. The browser runs the tracking
-policy closed-loop at 50 Hz; this is not prerecorded pose playback. The WBC
-policy, motion index and selected reference stream are lazy-loaded on first use.
+The feet model also has a **Pose motions** control stack. Select `Motions` in
+the HUD, then choose one of four original movement styles. Each 14-joint motion
+offset is generated deterministically in the browser at 50 Hz from smooth
+functions around the neutral pose and layered over the existing feedback-
+stabilized Stand policy. This path loads no tracking model, recording or CSV.
 
 The HUD can also switch between the compact **Arcade** and a full-size
 **Dining Room**. The room asset is loaded only on first use; both scene
 collision sets are already resident, so later switches are immediate. Scene
-switching preserves the selected Skills/WBC control stack and respawns the
+switching preserves the selected Skills/Motions control stack and respawns the
 robot at a safe scene-specific start point.
 
-## Policies
+## Policies and motions
 
 The complete default policy set is taken from `microduck/robotd-params` and
 the simulator copies are byte-for-byte identical to the deployment assets.
+Initial boot loads only the seven leg deployment networks; Roller Drive is
+loaded on the first switch to rollers, while Roller Crouch remains inventory
+only.
 Idle legs use the standing network at the deployed 0.05 twist threshold;
 roller mode is deliberately one self-contained Drive skill. Its checkpoint
 inventory still includes Roller Crouch for completeness, but the simulator
 does not schedule another action policy while rollers are active.
 
-| Mode | Checkpoint | What it does |
+| Mode | Implementation | What it does |
 |--------|-----------|--------------|
-| Run (legs) | `BEST_alpha_walking.onnx` | Velocity-tracking locomotion (arrows / WASD to steer) |
+| Walk (legs) | `BEST_alpha_walking.onnx` | Velocity-tracking locomotion (arrows / WASD to steer) |
 | Stand / recover (legs) | `BEST_alpha_stand.onnx` | Holds at idle and owns automatic fall recovery |
 | Sit / rise (legs) | `BEST_alpha_sitstand.onnx` | Sits down on its hull, stands back up |
 | Ground pick (legs) | `alpha_ground_pick.onnx` | Phase-driven beak-to-ground motion |
@@ -49,15 +53,14 @@ does not schedule another action policy while rollers are active.
 | Kick (legs) | `ball_kick_left.onnx` / `ball_kick_right.onnx` | Blind one-shot kick (0.5 s window, zeroed commands), left or right leg |
 | Drive (rollers) | `BEST_roller.onnx` | Velocity-tracking skating on 4 passive wheels (higher top speed: 0.6 m/s) |
 | Roller Crouch (bundled only) | `BEST_roller_crouch.onnx` | Official checkpoint retained in the catalogue; not scheduled in Roller mode |
-| WBC (legs) | `wbc/microduck-wbc/policy.onnx` | Tracks the selected whole-body reference with policy-predicted joint residuals |
+| Pose motions (legs) | `src/game/procedural-motions.js` | Generates four gentle 50 Hz joint-offset sequences over the stabilized Stand policy |
 
 Policies and MJCF model from
 [micro-zoo/microduck](https://github.com/micro-zoo/microduck)
 and [micro-zoo/microduck_rl](https://github.com/micro-zoo/microduck_rl).
-The WBC policy and four 50 Hz references come from
-[micro-zoo/wbc-mjlab](https://github.com/micro-zoo/wbc-mjlab). The default
-`wbc_happy.csv` is byte-for-byte the file currently shipped by `microduck`;
-the other three use the same headerless 24-column deployment contract.
+The four pose motions are project-authored procedural code. Their existing clip
+IDs and timings remain stable for saved selections and native diagnostics, but
+their joint trajectories do not depend on an external motion asset.
 
 ## Controls
 
@@ -72,9 +75,9 @@ the other three use the same headerless 24-column deployment contract.
 - Drag to orbit, scroll to zoom
 - Colour dots: repaint the duck (it quacks)
 - Scene panel: switch between Arcade and Dining Room
-- Control panel: switch between operator-driven Skills and WBC motion tracking
-- WBC Motion: switching CSV starts the new motion at frame 0 without resetting
-  physics or previous-action history
+- Control panel: switch between operator-driven Skills and Pose motions
+- Pose Motion: switching styles starts the new motion at frame 0 without
+  resetting physics
 
 ## Color Studio
 
@@ -93,11 +96,11 @@ models.
 Roller mode only runs its Drive skill. Roll, ground pick, kicks, sit/stand
 and head-mode inputs are ignored until you switch back to Feet.
 
-WBC is feet-only. Selecting WBC while rollers are active switches back to
-feet; selecting rollers while WBC is active returns to the Skills stack.
+Pose motions are feet-only. Selecting Motions while rollers are active switches
+back to feet; selecting rollers during a motion returns to the Skills stack.
 Normal locomotion, sit, roll, kick and head-mode inputs do not alter the robot
-while the WBC tracker owns control. Reset restarts the selected motion. Each
-CSV runs once and returns to Skills after its final row, matching deployment.
+while a pose motion owns control. Reset restarts the selected motion. Each
+generated sequence runs once and returns to Skills after its final frame.
 
 ### URL parameters
 
@@ -130,18 +133,19 @@ Plug in a controller and the same mapping as the real robot runtime applies:
 - RB / LB: right / left kick (feet only)
 - D-pad down: sit / stand toggle (feet only)
 - D-pad up: hold ~1 s to switch legs <-> rollers (the real robot uses a 3 s hold)
-- D-pad right: hold ~1 s to toggle WBC (the real robot uses a 2 s hold)
+- D-pad right: hold ~1 s to toggle Pose motions
 - Right trigger: mouth (analog) + quack
 
 ## Multiplayer ghosts
 
-Other people visiting the Space at the same time show up as translucent
-ducks, live. Peer-to-peer WebRTC via [Trystero](https://github.com/dmotz/trystero)
-(serverless signaling over public Nostr relays), so it works from a static
-Space with no backend. Each tab broadcasts its duck's pose (trunk + 14
-joints + jaw + colour + locomotion variant) at 15 Hz; up to 3 ghosts are
-rendered, extra peers stay connected but invisible. The camcorder-style OSD
-in the top-right corner shows "N ONLINE" when peers are around.
+Public multiplayer is optional and **off by default**. After a user explicitly
+enables it, other opted-in visitors show up as translucent ducks. Peer-to-peer
+WebRTC uses [Trystero](https://github.com/dmotz/trystero) with public Nostr
+signaling relays, so peers and relay operators receive connection metadata as
+described in [PRIVACY.md](PRIVACY.md). Each enabled tab broadcasts its duck's
+pose (trunk + 14 joints + jaw + colour + locomotion variant) at 15 Hz. The
+reference client admits and renders at most 3 peers and rate-limits inbound
+state. Turning the option off leaves the room immediately.
 
 Ghost limitations in v1: a peer in roller mode renders with the roller rig
 only if your tab has already loaded it (otherwise it falls back to the leg
@@ -167,12 +171,10 @@ UI intents in).
   and 14 position-targets, matching [`microduck_rl/scripts/infer_policy.py`](https://github.com/pollen-robotics/microduck_rl/blob/main/scripts/infer_policy.py).
   The roller variant adds 4 passive wheel hinges that appear in `qpos`
   (zeroed in the keyframe) but not in the observation.
-- WBC uses its exported 72D actor observation: a 24D reference command
-  (base height, body-frame linear/angular velocity, gravity and 14 reference
-  joint positions), followed by gyro, projected gravity, 14 relative joint
-  positions, 14 joint velocities and the previous 14D residual action. Its
-  control target is `reference_joint_position + residual_action`, matching
-  the policy's `reference_residual` training contract.
+- Pose motions layer 14 deterministic offsets over the feedback-stabilized
+  Stand policy at the same 50 Hz control cadence. A zero-slope envelope makes
+  every style depart from and return to its neutral target smoothly before
+  ownership returns to Skills.
 - Rendering is a three.js rig built from `kinematics.json` /
   `kinematics_rollers.json` + decimated STL meshes, driven directly from
   MuJoCo `qpos` (including the passive wheel spin).
@@ -185,9 +187,9 @@ UI intents in).
 `ios/Microduck.xcodeproj` builds **Zoo Kinder**, published under the MicroZoo
 brand. It is a native SwiftUI app that hosts the same simulator in one
 long-lived `WKWebView`. The Vite bundle, MuJoCo and ONNX Runtime WASM, fonts,
-policies, scenes, meshes and audio are copied into the `.app`; normal simulation
-is fully offline. Multiplayer ghosts and external community links still require
-a network connection. `Microduck` remains the internal engine/target name.
+policies, scenes, meshes and audio are copied into the `.app`; simulation is
+fully offline. The iOS reference build disables public multiplayer and public
+community links. `Microduck` remains the internal compatibility/target name.
 
 Before the first build, materialize the Git LFS assets and install JavaScript
 dependencies:
@@ -219,6 +221,35 @@ The native performance profiles favor sustained frame pacing over peak refresh:
 `WKWebView` currently has no public ProMotion/120 Hz control, so the app targets
 a stable 60 fps ceiling. A true 120 Hz requirement would need a later native
 Metal renderer rather than a private WebKit setting.
+
+## Licensing and asset boundary
+
+The declared license for project-authored source code and documentation is the
+[Apache License 2.0](LICENSE). Copyright remains with each contributor, and the
+license can cover only material whose rights holder authorized it; adding the
+license file does not retroactively relicense third-party work. That license
+also does not automatically cover every model, room, policy, sound, font,
+texture, or brand asset in `app/public/`.
+
+- [ASSET_LICENSES.md](ASSET_LICENSES.md) is the controlling per-asset inventory
+  and identifies both separately licensed files and unresolved `PENDING`
+  material.
+- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) contains software, font, and
+  Creative Commons attribution notices.
+- [TRADEMARKS.md](TRADEMARKS.md) explains the separate Zoo Kinder and MicroZoo
+  brand-use boundary.
+- [PRIVACY.md](PRIVACY.md) describes the default-off public multiplayer data
+  flow and the additional review required for child-directed distribution.
+- `app/public/legal/` is copied into web and iOS builds so the applicable
+  license and attribution text accompanies binary distributions.
+- [docs/legal/release-readiness.md](docs/legal/release-readiness.md) records the
+  remaining model, historical-source, contributor, trademark, and publisher
+  decisions that code changes alone cannot clear.
+
+Do not publish a revision or binary that contains an item marked `PENDING`.
+Until those entries are removed or separately cleared, the complete runnable
+distribution must not be described as wholly open source, even when it is
+offered without charge.
 
 Command-line verification:
 

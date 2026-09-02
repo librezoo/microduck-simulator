@@ -1,0 +1,85 @@
+ZOO KINDER REFERENCE BUILD PRIVACY DISCLOSURE
+Last updated: 2026-09-03
+
+SCOPE
+
+This disclosure describes the unmodified microduck-simulator and Zoo Kinder
+iOS reference build published by the project. A fork, hosted copy, relay,
+application distributor, or modified build may process different data and must
+publish its own accurate disclosure.
+
+DEFAULT OPERATION
+
+The reference build has no account system, advertising SDK, analytics SDK,
+camera access, microphone access, location access, contact access, or
+developer-operated telemetry backend. Simulation resources are bundled with
+the iOS app and can run offline. Public multiplayer is OFF by default in the
+browser build. The Zoo Kinder iOS build disables it at compile time and does
+not package the Trystero/Nostr networking chunk.
+
+LOCAL STORAGE
+
+The multiplayer preference is stored on the device in browser local storage.
+It remains until the user changes it or clears the app/site data. The reference
+build does not transmit the preference to MicroZoo.
+
+OPTIONAL PUBLIC MULTIPLAYER -- BROWSER BUILD ONLY
+
+The browser user must affirmatively switch on Public Multiplayer. While it is on, the
+reference build joins the fixed microduck-sandbox/lobby room through public
+Nostr signaling relays and establishes peer-to-peer WebRTC connections.
+
+The following simulation data is sent to peers at up to 15 updates per second:
+
+- simulated trunk position and orientation;
+- 14 simulated joint positions and jaw opening;
+- selected colour variant and leg/roller mode; and
+- an ephemeral peer identifier used for the session.
+
+WebRTC peers can receive network metadata needed for a direct connection,
+including IP addresses. Public Nostr relay operators process signaling
+messages and network metadata under their own practices. Relay retention and
+deletion are not controlled by this project. The reference build does not add
+a person's name, account identifier, precise device location, contacts,
+camera, or microphone content to the multiplayer payload.
+
+Turning Public Multiplayer off immediately leaves the room and stops new pose
+broadcasts. Peers or relay operators may already have received data while the
+feature was active; the project cannot remotely delete third-party copies.
+
+EXTERNAL LINKS
+
+The browser build's GitHub, Discord, source, and license links open only after
+a user action and are governed by the destination service's privacy terms.
+The iOS reference build hides public community links; its license and privacy
+materials are displayed inside the app.
+
+CHILD-DIRECTED DISTRIBUTION
+
+The iOS reference build disables public multiplayer and public community links,
+but that technical boundary alone is not a claim of compliance with the Apple
+Kids Category, COPPA, GDPR child-consent rules, or every local age threshold. A
+distributor that directs the product to children must provide a monitored
+privacy contact and complete a jurisdiction-specific review before release.
+The optional browser multiplayer feature is not for children without a parent
+or guardian's authorization.
+
+IOS PRIVACY MANIFEST AND ENCRYPTION
+
+The app-bundle PrivacyInfo.xcprivacy declares no tracking and no collected-data
+types. It declares reason C617.1 for reading the size and other metadata of
+simulator files inside the application bundle while serving local resources.
+The iOS target packages no custom networking/cryptography implementation and
+uses only operating-system facilities that qualify for the app's exempt-
+encryption declaration. Modified builds must reassess both statements.
+
+SECURITY AND CONTACT
+
+Malformed multiplayer payloads are rejected, visible peers are capped, and
+per-peer message rates and value ranges are limited. Security or privacy
+concerns should be reported privately through the GitHub repository's
+"Report a vulnerability" workflow as described in SECURITY.md. A downstream
+App Store publisher must replace this project channel with its monitored legal
+and privacy contact before distribution.
+
+This disclosure is an engineering description, not legal advice.
