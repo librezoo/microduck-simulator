@@ -136,7 +136,7 @@ export default function TouchOverlay() {
             bottom: "calc(0.6rem + var(--safe-bottom))",
           },
           "& #touch-btns button": {
-            minHeight: "2rem",
+            minHeight: "2.75rem",
             padding: "0.2rem 0.3rem",
             fontSize: "0.62rem",
           },

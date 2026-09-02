@@ -11,6 +11,8 @@ import { INK, ORANGE, MONO } from "../theme.js";
 import { ANTON, COMIC_INK, CREAM } from "./comic.jsx";
 import { getPerformanceProfile } from "../native/runtime.js";
 
+const LANDSCAPE_PHONE = "@media (orientation: landscape) and (max-height: 520px)";
+
 const panelButtonSx = {
   appearance: "none",
   minHeight: "2.7rem",
@@ -32,6 +34,7 @@ const panelButtonSx = {
   "&:focus-visible": { outline: `2px dashed ${CREAM}`, outlineOffset: 3 },
   "&:disabled": { cursor: "not-allowed", opacity: 0.38 },
   "@media (prefers-reduced-motion: reduce)": { transition: "none" },
+  [LANDSCAPE_PHONE]: { minHeight: "2.75rem" },
 };
 
 function DeckSection({ title, children }) {
@@ -141,6 +144,12 @@ export default function MobileConsole() {
           display: "flex",
           alignItems: "center",
           gap: "0.5rem",
+          [LANDSCAPE_PHONE]: {
+            top: "calc(0.7rem + var(--safe-top))",
+            right: "auto",
+            left: "50%",
+            transform: "translateX(-50%)",
+          },
         }}
       >
         <Box
@@ -152,6 +161,7 @@ export default function MobileConsole() {
             letterSpacing: "0.12em",
             textTransform: "uppercase",
             color: "rgba(250, 248, 242, 0.56)",
+            [LANDSCAPE_PHONE]: { display: "none" },
           }}
         >
           {modeLabel}
@@ -168,6 +178,7 @@ export default function MobileConsole() {
             px: "0.9rem",
             background: open ? ORANGE : "rgba(8, 8, 12, 0.78)",
             color: open ? INK : CREAM,
+            [LANDSCAPE_PHONE]: { minHeight: "2.75rem" },
           }}
         >
           {open ? "Close" : "Controls"}
@@ -198,6 +209,21 @@ export default function MobileConsole() {
             boxShadow: `4px 4px 0 ${COMIC_INK}`,
             background: "rgba(8, 8, 12, 0.94)",
             backdropFilter: "blur(10px)",
+            [LANDSCAPE_PHONE]: {
+              top: "calc(4.2rem + var(--safe-top))",
+              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              columnGap: "0.8rem",
+              rowGap: "0.65rem",
+              p: "0.75rem",
+              "& > div:first-of-type": { gridColumn: "1 / -1" },
+              "& > [role='alert'], & > [role='status']": { gridColumn: "1 / -1" },
+              "& > section": { minWidth: 0, gap: "0.32rem" },
+              "& > section[aria-label^='Actions']": { gridColumn: "1 / -1" },
+              "& > section[aria-label^='Actions'] > div:nth-of-type(2)": {
+                gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+              },
+              "& > div:last-child": { gridColumn: "1 / -1" },
+            },
           }}
         >
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: "0.75rem" }}>
@@ -241,6 +267,7 @@ export default function MobileConsole() {
                       boxShadow: selected ? `2px 2px 0 ${ORANGE}` : `2px 2px 0 ${COMIC_INK}`,
                       WebkitTapHighlightColor: "transparent",
                       "&:focus-visible": { outline: `2px dashed ${CREAM}`, outlineOffset: 3 },
+                      [LANDSCAPE_PHONE]: { height: "2.75rem" },
                     }}
                   />
                 );
