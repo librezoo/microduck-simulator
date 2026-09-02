@@ -9,72 +9,61 @@
 // site, so deleting the single import line in rl.js removes the feature
 // without breaking anything.
 //
-// Image assets are the pre-cut Pollen showcase stickers (assets/stickers/,
-// webp with transparency). Their URLs go through the injected `signed()`
-// helper so they load on the private HF Space (?__sign JWT) as well as
-// locally, where signed() is a no-op.
+// The marks are original CSS typography rather than bundled brand artwork,
+// so the effect remains self-contained and redistributable with the code.
 //
 //   const stickers = initStickers({ signed, isLocked });
 //   stickers.pop("quack");   // one of: kick, quack, roll, spawn, hi
 //   stickers.dispose();      // remove layer + styles (tests/teardown)
 
-// Bump when the webp files change; python http.server sends no
-// Cache-Control, same convention as the mesh/module ?v= busters.
-const ASSET_V = "1";
-const DIR = "./assets/stickers";
-
-// Comic palette sampled from the sticker sheet itself.
 const C = {
   red: "#ff3b30",
   teal: "#1fb6a8",
   yellow: "#ffd23f",
   blue: "#2f8bff",
   pink: "#ff2d78",
+  orange: "#ff7a2f",
 };
 
-// Per-event pools: each pop picks one variant at random. `img` is a die-cut
-// webp sticker (w = on-screen width in px before jitter), `text` a pure
-// CSS onomatopoeia; both together = text overlaid on the image (POP! burst).
+// Per-event pools: each pop picks one original typographic variant at random.
 // `cool` is the per-event rate limit in ms - repeated quacks/kicks reuse
 // the sticker on screen instead of stacking a new one per press.
 const EVENTS = {
   kick: {
     cool: 900,
     pool: [
-      { img: "bang-red", w: 170 },
-      { img: "boom", w: 175 },
-      { img: "star-yellow", w: 120 },
       { text: "BAM!", color: C.red },
+      { text: "POW!", color: C.yellow },
+      { text: "KICK!", color: C.blue },
     ],
   },
   quack: {
     cool: 700,
     pool: [
-      { img: "quack", w: 180 },
-      { img: "quack-quack", w: 170 },
       { text: "QUACK!", color: C.teal },
+      { text: "QUA!", color: C.orange },
     ],
   },
   roll: {
     cool: 1600,
     pool: [
       { text: "WHEE!", color: C.pink },
-      { img: "ziouuu", w: 200 },
-      { img: "shooting-star", w: 150 },
+      { text: "WHIRR!", color: C.blue },
+      { text: "GO!", color: C.orange },
     ],
   },
   spawn: {
     cool: 900,
     pool: [
-      { img: "burst-yellow", w: 140, text: "POP!", color: C.pink },
       { text: "POP!", color: C.yellow },
+      { text: "HELLO!", color: C.pink },
     ],
   },
   hi: {
     cool: 2500,
     pool: [
       { text: "HI!", color: C.blue },
-      { img: "wave", w: 150 },
+      { text: "HEY!", color: C.teal },
     ],
   },
 };
@@ -100,10 +89,6 @@ const CSS = `
   will-change: transform, opacity;
   animation: sticker-pop ${LIFE_MS}ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-#sticker-layer .sticker img {
-  display: block;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
-}
 #sticker-layer .sticker-text {
   font-family: "Arial Black", "Avenir-Black", "Helvetica Neue", sans-serif;
   font-weight: 900;
@@ -115,16 +100,6 @@ const CSS = `
   paint-order: stroke fill;
   text-shadow: 0.07em 0.1em 0 rgba(20, 10, 40, 0.85);
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
-}
-/* Text overlaid on a die-cut sticker (e.g. POP! on the blank burst). */
-#sticker-layer .sticker-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(1.6rem, 3.2vw, 2.4rem);
-  transform: rotate(-8deg);
 }
 /* Pop-in with scale overshoot + a small rotation settle, short hold, then
    shrink/fade. --rot / --s carry the per-pop random jitter. */
@@ -143,9 +118,7 @@ const CSS = `
 
 const rand = (a, b) => a + Math.random() * (b - a);
 
-export function initStickers({ signed = (u) => u, isLocked = () => false } = {}) {
-  const url = (name) => signed(`${DIR}/${name}.webp?v=${ASSET_V}`);
-
+export function initStickers({ isLocked = () => false } = {}) {
   const style = document.createElement("style");
   style.textContent = CSS;
   document.head.appendChild(style);
@@ -154,11 +127,6 @@ export function initStickers({ signed = (u) => u, isLocked = () => false } = {})
   layer.id = "sticker-layer";
   layer.setAttribute("aria-hidden", "true");
   document.body.appendChild(layer);
-
-  // Warm the image cache so the first pop of each sticker isn't a blank
-  // frame while the webp downloads.
-  for (const { pool } of Object.values(EVENTS))
-    for (const v of pool) if (v.img) new Image().src = url(v.img);
 
   const lastAt = new Map(); // event -> last pop timestamp
   // Avoid showing the same variant twice in a row per event.
@@ -185,26 +153,11 @@ export function initStickers({ signed = (u) => u, isLocked = () => false } = {})
     el.style.setProperty("--rot", `${rand(-14, 14)}deg`);
     el.style.setProperty("--s", rand(0.88, 1.12).toFixed(2));
 
-    if (v.img) {
-      const img = document.createElement("img");
-      img.src = url(v.img);
-      img.width = v.w;
-      img.alt = "";
-      el.appendChild(img);
-      if (v.text) {
-        const t = document.createElement("span");
-        t.className = "sticker-text sticker-overlay";
-        t.style.color = v.color;
-        t.textContent = v.text;
-        el.appendChild(t);
-      }
-    } else {
-      const t = document.createElement("span");
-      t.className = "sticker-text";
-      t.style.color = v.color;
-      t.textContent = v.text;
-      el.appendChild(t);
-    }
+    const t = document.createElement("span");
+    t.className = "sticker-text";
+    t.style.color = v.color;
+    t.textContent = v.text;
+    el.appendChild(t);
 
     el.addEventListener("animationend", () => el.remove(), { once: true });
     // Fallback sweep in case the animation never fires (hidden tab).

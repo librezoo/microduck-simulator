@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { useGame, gameApi } from "../store.js";
 import { VARIANT_LABELS, VARIANT_SWATCH_HEX } from "../game/variants.js";
-import { SCENE_IDS, SCENES } from "../game/scenes.js";
+import { SCENE_ATTRIBUTIONS, SCENE_IDS, SCENES } from "../game/scenes.js";
 import { INK, ORANGE, MONO } from "../theme.js";
 import { ANTON, COMIC_INK, CREAM } from "./comic.jsx";
 import { getPerformanceProfile } from "../native/runtime.js";
@@ -118,18 +118,19 @@ export default function MobileConsole() {
   const message = sceneError
     ? `Scene error · ${sceneError}`
     : wbcError
-    ? `WBC error · ${wbcError}`
+    ? `Motion error · ${wbcError}`
     : sceneSwitching
     ? "Loading scene…"
     : rollersLoading
     ? "Loading rollers…"
     : wbcLoading
-    ? "Loading WBC…"
+    ? "Preparing motion…"
     : null;
   const action = (name) => gameApi.triggerAction?.(name);
   const skillsOnly = controlMode !== "skills" || loco !== "legs";
   const modalInput = touchInputMode !== "drive";
   const skillsActionDisabled = skillsOnly || modalInput;
+  const sceneAttribution = SCENE_ATTRIBUTIONS[sceneWant];
 
   return (
     <>
@@ -229,10 +230,10 @@ export default function MobileConsole() {
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: "0.75rem" }}>
             <Box>
               <Box sx={{ fontFamily: ANTON, fontSize: "1.08rem", letterSpacing: "0.07em", color: ORANGE, textTransform: "uppercase" }}>
-                {nativeApp ? "Zoo Kinder" : "Microduck"}
+                Zoo Kinder
               </Box>
               <Box sx={{ mt: "0.12rem", fontFamily: MONO, fontSize: "0.55rem", letterSpacing: "0.12em", color: "rgba(250, 248, 242, 0.6)", textTransform: "uppercase" }}>
-                {nativeApp ? "By MicroZoo" : "Enhanced with MicroZoo"}
+                {nativeApp ? "By MicroZoo" : "Independent · Microduck compatible"}
               </Box>
             </Box>
             <Box sx={{ fontFamily: MONO, fontSize: "0.6rem", letterSpacing: "0.1em", color: "rgba(250, 248, 242, 0.62)", textTransform: "uppercase", textAlign: "right" }}>
@@ -295,6 +296,36 @@ export default function MobileConsole() {
             >
               {SCENE_IDS.map((id) => <option key={id} value={id}>{SCENES[id].label}</option>)}
             </Box>
+            {sceneAttribution ? (
+              <Box
+                sx={{
+                  fontFamily: MONO,
+                  fontSize: "0.55rem",
+                  letterSpacing: "0.06em",
+                  lineHeight: 1.5,
+                  color: "rgba(250, 248, 242, 0.58)",
+                  "& a": { color: CREAM },
+                }}
+              >
+                <Box
+                  component={nativeApp ? "span" : "a"}
+                  href={nativeApp ? undefined : sceneAttribution.sourceUrl}
+                  target={nativeApp ? undefined : "_blank"}
+                  rel={nativeApp ? undefined : "noopener noreferrer"}
+                >
+                  {sceneAttribution.title}
+                </Box>{" "}by {sceneAttribution.creator} ·{" "}
+                <Box
+                  component={nativeApp ? "span" : "a"}
+                  href={nativeApp ? undefined : sceneAttribution.licenseUrl}
+                  target={nativeApp ? undefined : "_blank"}
+                  rel={nativeApp ? undefined : "noopener noreferrer"}
+                >
+                  {sceneAttribution.license}
+                </Box>
+                <br />Modified: {sceneAttribution.changes}
+              </Box>
+            ) : null}
           </DeckSection>
 
           <DeckSection title="Control stack">
@@ -302,7 +333,7 @@ export default function MobileConsole() {
               label="Control stack"
               value={controlMode}
               onChange={(next) => gameApi.requestControlMode?.(next)}
-              items={[{ value: "skills", label: "Skills" }, { value: "wbc", label: "WBC" }]}
+              items={[{ value: "skills", label: "Skills" }, { value: "wbc", label: "Motions" }]}
             />
             <Box
               component="button"
@@ -321,7 +352,7 @@ export default function MobileConsole() {
             {controlMode === "wbc" || wbcLoading ? (
               <Box
                 component="select"
-                aria-label="WBC reference motion"
+                aria-label="Pose motion"
                 value={wbcClip}
                 disabled={wbcLoading || wbcClips.length === 0}
                 onChange={(event) => gameApi.requestWbcClip?.(event.target.value)}

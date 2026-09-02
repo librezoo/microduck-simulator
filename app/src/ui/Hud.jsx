@@ -16,7 +16,8 @@ import Box from "@mui/material/Box";
 import { keyframes } from "@mui/material/styles";
 import { useGame, gameApi } from "../store.js";
 import { VARIANT_LABELS, VARIANT_SWATCH_HEX } from "../game/variants.js";
-import { SCENE_IDS, SCENES } from "../game/scenes.js";
+import { SCENE_ATTRIBUTIONS, SCENE_IDS, SCENES } from "../game/scenes.js";
+import { getPerformanceProfile } from "../native/runtime.js";
 import { ORANGE, MONO } from "../theme.js";
 import { ANTON, COMIC_INK, CREAM } from "./comic.jsx";
 import { readLayoutMap, resolveKeycaps } from "./keyboard-layout.js";
@@ -466,7 +467,7 @@ function Quickbar() {
         >
           {[
             { name: "skills", label: "Skills" },
-            { name: "wbc", label: "WBC" },
+            { name: "wbc", label: "Motions" },
           ].map(({ name, label }) => {
             const selected = selectedControl === name;
             return (
@@ -582,10 +583,10 @@ function Quickbar() {
         </Box>
       </HudPlate>
       {(controlMode === "wbc" || wbcLoading) && (
-        <HudPlate caption="WBC Motion">
+        <HudPlate caption="Pose Motion">
           <Box
             component="select"
-            aria-label="WBC reference motion"
+            aria-label="Pose motion"
             value={wbcClip}
             disabled={wbcLoading || wbcClips.length === 0}
             onChange={(event) => gameApi.requestWbcClip?.(event.target.value)}
@@ -621,7 +622,7 @@ function Telemetry() {
   const odo = t.odo < 1000 ? `${t.odo.toFixed(1)}M` : `${(t.odo / 1000).toFixed(2)}KM`;
   const lines = [];
   if (controlMode === "wbc" && wbcProgress.frames) {
-    lines.push(`WBC ${wbcProgress.frame + 1}/${wbcProgress.frames}`);
+    lines.push(`MOTION ${wbcProgress.frame + 1}/${wbcProgress.frames}`);
   }
   if (t.peers) lines.push(`${t.peers + 1} ONLINE`);
   lines.push(`${t.speed.toFixed(2)}M/S \u00b7 ODO ${odo}`);
@@ -662,9 +663,9 @@ function OsdLoad() {
   const message = sceneError
     ? `SCENE ERROR · ${sceneError}`
     : wbcError
-    ? `WBC ERROR · ${wbcError}`
+    ? `MOTION ERROR · ${wbcError}`
     : sceneSwitching ? "LOADING SCENE"
-    : wbcLoading ? "LOADING WBC" : "LOADING ROLLERS";
+    : wbcLoading ? "PREPARING MOTION" : "LOADING ROLLERS";
   return (
     <Box
       sx={{
@@ -696,7 +697,8 @@ function OsdLoad() {
 
 function SceneCredit() {
   const scene = useGame((s) => s.scene);
-  if (scene !== "dining") return null;
+  const attribution = SCENE_ATTRIBUTIONS[scene];
+  if (!attribution) return null;
   return (
     <Box
       sx={{
@@ -711,8 +713,14 @@ function SceneCredit() {
         "& a": { color: "inherit" },
       }}
     >
-      ROOM: <a href="https://sketchfab.com/ida61xq" target="_blank" rel="noreferrer">CHRISTYHSU</a>
-      {" · "}<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>
+      ROOM:{" "}
+      <a href={attribution.sourceUrl} target="_blank" rel="noreferrer">
+        {attribution.title.toUpperCase()} · {attribution.creator.toUpperCase()}
+      </a>
+      {" · "}
+      <a href={attribution.licenseUrl} target="_blank" rel="noreferrer">
+        {attribution.license}
+      </a>
     </Box>
   );
 }
@@ -764,7 +772,7 @@ function ControlHints() {
       ? [
           { caps: ["LS"], label: "Drive" },
           { caps: ["↑"], label: "Hold: Feet" },
-          { caps: ["→"], label: "Switch WBC" },
+          { caps: ["→"], label: "Switch motions" },
           { caps: ["R3"], label: "Camera" },
         ]
       : [
@@ -782,7 +790,7 @@ function ControlHints() {
         { caps: ["Y", "B"], label: "Head / Pose" },
         { caps: ["↓"], label: "Sit" },
         { caps: ["↑"], label: "Mode" },
-        { caps: ["→"], label: "WBC" },
+        { caps: ["→"], label: "Motions" },
         { caps: ["R3"], label: "Camera" },
       ]
     : [
@@ -840,11 +848,12 @@ export default function Hud() {
   const entered = useGame((s) => s.entered);
   const menuOpen = useGame((s) => s.menuOpen);
   const touchMode = useGame((s) => s.touchMode);
+  const nativeApp = getPerformanceProfile().native;
   if (!entered || menuOpen) return null;
   return (
     <>
       <NavigationButtons />
-      <CommunityLinks />
+      {!nativeApp && <CommunityLinks />}
       {!touchMode && (
         <>
           <Quickbar />

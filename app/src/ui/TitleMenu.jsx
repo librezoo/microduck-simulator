@@ -15,8 +15,10 @@ import { useGame } from "../store.js";
 import { getPerformanceProfile } from "../native/runtime.js";
 import { signed } from "../game/signed.js";
 import { INK, ORANGE, MONO } from "../theme.js";
-import { ComicButton, ComicTitle, HalftoneRamp, ANTON } from "./comic.jsx";
+import { ComicButton, ComicTitle, HalftoneRamp, ANTON, CREAM } from "./comic.jsx";
+import LegalDisclosure from "./LegalDisclosure.jsx";
 import { readLayoutMap, resolveKeycaps } from "./keyboard-layout.js";
+import PublicMultiplayerConsent from "./PublicMultiplayerConsent.jsx";
 
 const rowIn = keyframes`
   from { transform: translateY(12px); opacity: 0; }
@@ -81,7 +83,7 @@ const TILES = {
 };
 const HINTS = {
   kb: "drag to orbit \u00b7 scroll to zoom",
-  pad: "hold \u2191 mode \u00b7 hold \u2192 WBC \u00b7 RT quack \u00b7 LT wheee \u00b7 R3 chase",
+  pad: "hold \u2191 mode \u00b7 hold \u2192 motions \u00b7 RT quack \u00b7 LT wheee \u00b7 R3 chase",
   touch: "drag to orbit · pinch to zoom · choose Head or Pose for two-stick control",
 };
 
@@ -119,8 +121,8 @@ function closeMenu() {
 
 export default function TitleMenu() {
   const nativeApp = getPerformanceProfile().native;
-  const productName = nativeApp ? "Zoo Kinder" : "Microduck";
-  const publisherLine = nativeApp ? "By MicroZoo" : "Enhanced with MicroZoo";
+  const productName = "Zoo Kinder";
+  const publisherLine = "By MicroZoo";
   const menuOpen = useGame((s) => s.menuOpen);
   const entered = useGame((s) => s.entered);
   const padConnected = useGame((s) => s.padConnected);
@@ -148,12 +150,16 @@ export default function TitleMenu() {
     const onKey = (e) => {
       const s = useGame.getState();
       if (e.code === "Enter" && s.menuOpen) {
-        if (e.target instanceof HTMLButtonElement && e.target.dataset.cta !== "1") return;
+        const interactive = e.target instanceof Element
+          ? e.target.closest("button, input, select, textarea, a[href]")
+          : null;
+        if (interactive && interactive.dataset.cta !== "1") return;
         e.preventDefault();
         closeMenu();
         return;
       }
       if (e.code !== "Escape") return;
+      if (document.querySelector("[data-legal-dialog='true']")) return;
       if (s.biosVisible) return;
       if (s.menuOpen) {
         if (s.entered) closeMenu();
@@ -200,7 +206,7 @@ export default function TitleMenu() {
         overflowY: "auto",
         transition: "opacity 0.35s ease, background 0.4s ease",
         "@media (orientation: landscape) and (max-height: 520px)": {
-          justifyContent: "center",
+          justifyContent: "flex-start",
           pt: "calc(0.55rem + var(--safe-top))",
           pr: "calc(0.8rem + var(--safe-right))",
           pb: "calc(0.55rem + var(--safe-bottom))",
@@ -244,8 +250,8 @@ export default function TitleMenu() {
             },
           }}
         >
-          {/* Vitrine brand lockup: drawn duck head + name. Hovering swaps to
-              the open-beak frame, same hard sprite swap as the vitrine. */}
+          {/* Independent MicroZoo mark: an abstract postmodern zoo portal.
+              It deliberately shares no artwork with the robot brand. */}
           <Box
             aria-hidden
             sx={{
@@ -257,8 +263,6 @@ export default function TitleMenu() {
               mb: "1.15rem",
               userSelect: "none",
               ...row(0, brandIn),
-              "&:hover .duck-closed": { opacity: 0 },
-              "&:hover .duck-open": { opacity: 1 },
               "@media (orientation: landscape) and (max-height: 520px)": {
                 gap: "0.25rem",
                 mb: "0.35rem",
@@ -269,37 +273,31 @@ export default function TitleMenu() {
               component="span"
               sx={{
                 position: "relative",
-                display: "block",
-                height: { xs: "2.4rem", sm: "3rem" },
-                filter: "drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.5))",
+                display: "grid",
+                placeItems: "center",
+                width: { xs: "3.6rem", sm: "4.2rem" },
+                height: { xs: "3.6rem", sm: "4.2rem" },
+                p: "0.32rem",
+                border: `2px solid ${CREAM}`,
+                background: CREAM,
+                boxShadow: "5px 5px 0 #2ff0e6",
                 "@media (orientation: landscape) and (max-height: 520px)": {
-                  height: "1.85rem",
+                  width: "2.7rem",
+                  height: "2.7rem",
+                  p: "0.22rem",
+                  boxShadow: "3px 3px 0 #2ff0e6",
                 },
               }}
             >
               <Box
                 component="img"
-                className="duck-closed"
                 alt=""
-                src={signed("./assets/duck-head-mark.webp")}
-                sx={{ display: "block", height: "100%", width: "auto" }}
-              />
-              {/* The open frame's canvas (460x333) is a hair wider/taller
-                  than the closed one (454x269); offsets pin the head while
-                  the jaw hangs below. */}
-              <Box
-                component="img"
-                className="duck-open"
-                alt=""
-                src={signed("./assets/duck-head-mark-open.webp")}
+                src={signed("./assets/zoo-kinder-mark.webp")}
                 sx={{
-                  position: "absolute",
-                  top: "-0.75%",
-                  left: "-1.1%",
-                  width: "101.3%",
-                  maxWidth: "none",
-                  height: "auto",
-                  opacity: 0,
+                  display: "block",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
                 }}
               />
             </Box>
@@ -501,8 +499,9 @@ export default function TitleMenu() {
         <Box
           sx={{
             display: "flex",
-            flexWrap: "wrap",
-            gap: "1rem",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "0.8rem",
             justifyContent: "center",
             mt: "1.7rem",
             "@media (max-height: 700px)": { mt: "1.2rem" },
@@ -510,10 +509,18 @@ export default function TitleMenu() {
             "@media (orientation: landscape) and (max-height: 520px)": {
               gridArea: "cta",
               alignSelf: "start",
+              display: "grid",
+              gridTemplateColumns: "auto auto",
+              alignItems: "center",
+              justifyContent: "center",
+              columnGap: "0.65rem",
+              rowGap: "0.35rem",
+              "& > [data-multiplayer-consent='true']": { gridColumn: "1 / -1" },
               mt: "0.75rem",
             },
           }}
         >
+          <PublicMultiplayerConsent />
           <ComicButton
             scheme="orange"
             size="medium"
@@ -532,6 +539,7 @@ export default function TitleMenu() {
           >
             Color Studio
           </ComicButton>
+          <LegalDisclosure />
         </Box>
       </Box>
     </Box>
