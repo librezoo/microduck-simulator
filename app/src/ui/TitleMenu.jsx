@@ -199,6 +199,13 @@ export default function TitleMenu() {
         pointerEvents: menuOpen ? "auto" : "none",
         overflowY: "auto",
         transition: "opacity 0.35s ease, background 0.4s ease",
+        "@media (orientation: landscape) and (max-height: 520px)": {
+          justifyContent: "center",
+          pt: "calc(0.55rem + var(--safe-top))",
+          pr: "calc(0.8rem + var(--safe-right))",
+          pb: "calc(0.55rem + var(--safe-bottom))",
+          pl: "calc(0.8rem + var(--safe-left))",
+        },
       }}
     >
       {/* Theme-orange halftone pooling in the top-left corner, dots
@@ -217,207 +224,279 @@ export default function TitleMenu() {
           maxWidth: "min(48rem, 92vw)",
           textAlign: "center",
           m: "auto 0",
+          "@media (orientation: landscape) and (max-height: 520px)": {
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 0.86fr) minmax(0, 1.14fr)",
+            gridTemplateAreas: '"hero tutorial" "cta tutorial"',
+            columnGap: "clamp(0.8rem, 2.5vw, 1.6rem)",
+            alignItems: "center",
+            width: "100%",
+            maxWidth: "min(58rem, 100%)",
+            m: 0,
+          },
         }}
       >
-        {/* Vitrine brand lockup: drawn duck head + name. Hovering swaps to
-            the open-beak frame, same hard sprite swap as the vitrine. */}
         <Box
-          aria-hidden
           sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "0.5rem",
-            mb: "1.15rem",
-            userSelect: "none",
-            ...row(0, brandIn),
-            "&:hover .duck-closed": { opacity: 0 },
-            "&:hover .duck-open": { opacity: 1 },
+            "@media (orientation: landscape) and (max-height: 520px)": {
+              gridArea: "hero",
+              alignSelf: "end",
+            },
           }}
         >
+          {/* Vitrine brand lockup: drawn duck head + name. Hovering swaps to
+              the open-beak frame, same hard sprite swap as the vitrine. */}
           <Box
-            component="span"
+            aria-hidden
             sx={{
-              position: "relative",
-              display: "block",
-              height: { xs: "2.4rem", sm: "3rem" },
-              filter: "drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.5))",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.5rem",
+              mb: "1.15rem",
+              userSelect: "none",
+              ...row(0, brandIn),
+              "&:hover .duck-closed": { opacity: 0 },
+              "&:hover .duck-open": { opacity: 1 },
+              "@media (orientation: landscape) and (max-height: 520px)": {
+                gap: "0.25rem",
+                mb: "0.35rem",
+              },
             }}
           >
             <Box
-              component="img"
-              className="duck-closed"
-              alt=""
-              src={signed("./assets/duck-head-mark.webp")}
-              sx={{ display: "block", height: "100%", width: "auto" }}
-            />
-            {/* The open frame's canvas (460x333) is a hair wider/taller
-                than the closed one (454x269); offsets pin the head while
-                the jaw hangs below. */}
-            <Box
-              component="img"
-              className="duck-open"
-              alt=""
-              src={signed("./assets/duck-head-mark-open.webp")}
+              component="span"
               sx={{
-                position: "absolute",
-                top: "-0.75%",
-                left: "-1.1%",
-                width: "101.3%",
-                maxWidth: "none",
-                height: "auto",
-                opacity: 0,
-              }}
-            />
-          </Box>
-        </Box>
-
-        {/* The landing hero's mistracked-VHS treatment: orange fill with
-            ink drop + chroma ghosts, hollow echo line below. */}
-        <ComicTitle
-          component="h1"
-          tone="dark"
-          accent={ORANGE}
-          fontSize="clamp(3.1rem, 10vw, 5.4rem)"
-          lines={[
-            { text: productName },
-            { text: publisherLine, variant: "outline", scale: 0.31 },
-          ]}
-          sx={{ ...row(0.08) }}
-        />
-
-        <Typography
-          sx={{
-            mx: "auto",
-            mt: "1.1rem",
-            "@media (max-height: 700px)": { mt: "0.8rem" },
-            maxWidth: "36ch",
-            fontSize: { xs: "0.95rem", sm: "1.05rem" },
-            lineHeight: 1.5,
-            letterSpacing: "-0.012em",
-            color: "rgba(255, 255, 255, 0.72)",
-            textWrap: "balance",
-            ...row(0.24),
-          }}
-        >
-          {nativeApp
-            ? "MicroZoo's animal kindergarten, powered by the same trained policies that drive the real robot."
-            : "The exact same trained policies that drive the real robot, live in your browser."}
-        </Typography>
-
-        <Box
-          sx={{
-            display: "grid",
-            // Three columns from ~500px up (two rows of tiles); narrow
-            // phones fall back to two.
-            gridTemplateColumns:
-              tutorialVariant === "touch" ? "repeat(3, 1fr)" : "repeat(2, 1fr)",
-            "@media (min-width: 500px)": {
-              gridTemplateColumns: "repeat(3, 1fr)",
-            },
-            gap: "0.55rem",
-            m: "1.35rem auto 0",
-            maxWidth: "36rem",
-            ...row(0.32),
-          }}
-        >
-          {tiles.map((t) => (
-            <Box
-              key={t.name}
-              sx={{
-                p: { xs: "0.65rem 0.35rem 0.6rem", sm: "0.8rem 0.45rem 0.7rem" },
-                border: "1px solid rgba(255, 255, 255, 0.09)",
-                background: "rgba(255, 255, 255, 0.035)",
+                position: "relative",
+                display: "block",
+                height: { xs: "2.4rem", sm: "3rem" },
+                filter: "drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.5))",
+                "@media (orientation: landscape) and (max-height: 520px)": {
+                  height: "1.85rem",
+                },
               }}
             >
               <Box
+                component="img"
+                className="duck-closed"
+                alt=""
+                src={signed("./assets/duck-head-mark.webp")}
+                sx={{ display: "block", height: "100%", width: "auto" }}
+              />
+              {/* The open frame's canvas (460x333) is a hair wider/taller
+                  than the closed one (454x269); offsets pin the head while
+                  the jaw hangs below. */}
+              <Box
+                component="img"
+                className="duck-open"
+                alt=""
+                src={signed("./assets/duck-head-mark-open.webp")}
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.2rem",
-                  height: { xs: "2.8rem", sm: "3.3rem" },
-                  // Arrow-cluster keycaps are a notch smaller so two rows
-                  // fit.
-                  "& .cluster kbd": {
-                    minWidth: "1.4rem",
-                    height: "1.4rem",
-                    p: "0 0.3rem",
-                    fontSize: "0.62rem",
+                  position: "absolute",
+                  top: "-0.75%",
+                  left: "-1.1%",
+                  width: "101.3%",
+                  maxWidth: "none",
+                  height: "auto",
+                  opacity: 0,
+                }}
+              />
+            </Box>
+          </Box>
+
+          {/* The landing hero's mistracked-VHS treatment: orange fill with
+              ink drop + chroma ghosts, hollow echo line below. */}
+          <ComicTitle
+            component="h1"
+            tone="dark"
+            accent={ORANGE}
+            fontSize="clamp(3.1rem, 10vw, 5.4rem)"
+            lines={[
+              { text: productName },
+              { text: publisherLine, variant: "outline", scale: 0.31 },
+            ]}
+            sx={{
+              ...row(0.08),
+              "@media (orientation: landscape) and (max-height: 520px)": {
+                fontSize: "clamp(2.65rem, 6.3vw, 3.45rem)",
+              },
+            }}
+          />
+
+          <Typography
+            sx={{
+              mx: "auto",
+              mt: "1.1rem",
+              "@media (max-height: 700px)": { mt: "0.8rem" },
+              maxWidth: "36ch",
+              fontSize: { xs: "0.95rem", sm: "1.05rem" },
+              lineHeight: 1.5,
+              letterSpacing: "-0.012em",
+              color: "rgba(255, 255, 255, 0.72)",
+              textWrap: "balance",
+              ...row(0.24),
+              "@media (orientation: landscape) and (max-height: 520px)": {
+                mt: "0.55rem",
+                maxWidth: "33ch",
+                fontSize: "0.78rem",
+                lineHeight: 1.35,
+              },
+            }}
+          >
+            {nativeApp
+              ? "MicroZoo's animal kindergarten, powered by the same trained policies that drive the real robot."
+              : "The exact same trained policies that drive the real robot, live in your browser."}
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            "@media (orientation: landscape) and (max-height: 520px)": {
+              gridArea: "tutorial",
+              alignSelf: "center",
+              minWidth: 0,
+            },
+          }}
+        >
+          <Box
+            sx={{
+              display: "grid",
+              // Three columns from ~500px up (two rows of tiles); narrow
+              // phones fall back to two.
+              gridTemplateColumns:
+                tutorialVariant === "touch" ? "repeat(3, 1fr)" : "repeat(2, 1fr)",
+              "@media (min-width: 500px)": {
+                gridTemplateColumns: "repeat(3, 1fr)",
+              },
+              gap: "0.55rem",
+              m: "1.35rem auto 0",
+              maxWidth: "36rem",
+              ...row(0.32),
+              "@media (orientation: landscape) and (max-height: 520px)": {
+                gap: "0.45rem",
+                m: 0,
+                maxWidth: "none",
+              },
+            }}
+          >
+            {tiles.map((t) => (
+              <Box
+                key={t.name}
+                sx={{
+                  p: { xs: "0.65rem 0.35rem 0.6rem", sm: "0.8rem 0.45rem 0.7rem" },
+                  border: "1px solid rgba(255, 255, 255, 0.09)",
+                  background: "rgba(255, 255, 255, 0.035)",
+                  "@media (orientation: landscape) and (max-height: 520px)": {
+                    p: "0.5rem 0.3rem 0.45rem",
                   },
                 }}
               >
-                {t.caps === "cluster-arrows" ? (
-                  <Box
-                    className="cluster"
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: "0.2rem",
-                    }}
-                  >
-                    <Box sx={{ display: "flex", gap: "0.22rem", justifyContent: "center" }}>
-                      <Kbd>{"\u2191"}</Kbd>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.2rem",
+                    height: { xs: "2.8rem", sm: "3.3rem" },
+                    // Arrow-cluster keycaps are a notch smaller so two rows
+                    // fit.
+                    "& .cluster kbd": {
+                      minWidth: "1.4rem",
+                      height: "1.4rem",
+                      p: "0 0.3rem",
+                      fontSize: "0.62rem",
+                    },
+                    "@media (orientation: landscape) and (max-height: 520px)": {
+                      height: "2.45rem",
+                    },
+                  }}
+                >
+                  {t.caps === "cluster-arrows" ? (
+                    <Box
+                      className="cluster"
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "0.2rem",
+                      }}
+                    >
+                      <Box sx={{ display: "flex", gap: "0.22rem", justifyContent: "center" }}>
+                        <Kbd>{"\u2191"}</Kbd>
+                      </Box>
+                      <Box sx={{ display: "flex", gap: "0.22rem", justifyContent: "center" }}>
+                        <Kbd>{"\u2190"}</Kbd>
+                        <Kbd>{"\u2193"}</Kbd>
+                        <Kbd>{"\u2192"}</Kbd>
+                      </Box>
                     </Box>
+                  ) : (
                     <Box sx={{ display: "flex", gap: "0.22rem", justifyContent: "center" }}>
-                      <Kbd>{"\u2190"}</Kbd>
-                      <Kbd>{"\u2193"}</Kbd>
-                      <Kbd>{"\u2192"}</Kbd>
+                      {t.caps.map((c, i) => (
+                        <Kbd key={i} round={t.round ? 1 : 0}>{c}</Kbd>
+                      ))}
                     </Box>
-                  </Box>
-                ) : (
-                  <Box sx={{ display: "flex", gap: "0.22rem", justifyContent: "center" }}>
-                    {t.caps.map((c, i) => (
-                      <Kbd key={i} round={t.round ? 1 : 0}>{c}</Kbd>
-                    ))}
-                  </Box>
-                )}
+                  )}
+                </Box>
+                <Box
+                  sx={{
+                    mt: "0.5rem",
+                    fontFamily: ANTON,
+                    fontSize: "0.8rem",
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    color: "#fff",
+                    "@media (orientation: landscape) and (max-height: 520px)": {
+                      mt: "0.35rem",
+                      fontSize: "0.74rem",
+                    },
+                  }}
+                >
+                  {t.name}
+                </Box>
+                <Box
+                  sx={{
+                    mt: "0.16rem",
+                    fontSize: "0.6rem",
+                    fontWeight: 600,
+                    letterSpacing: "0.11em",
+                    textTransform: "uppercase",
+                    color: ORANGE,
+                    "@media (orientation: landscape) and (max-height: 520px)": {
+                      fontSize: "0.55rem",
+                      letterSpacing: "0.08em",
+                    },
+                  }}
+                >
+                  {t.hint}
+                </Box>
               </Box>
-              <Box
-                sx={{
-                  mt: "0.5rem",
-                  fontFamily: ANTON,
-                  fontSize: "0.8rem",
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
-                  color: "#fff",
-                }}
-              >
-                {t.name}
-              </Box>
-              <Box
-                sx={{
-                  mt: "0.16rem",
-                  fontSize: "0.6rem",
-                  fontWeight: 600,
-                  letterSpacing: "0.11em",
-                  textTransform: "uppercase",
-                  color: ORANGE,
-                }}
-              >
-                {t.hint}
-              </Box>
-            </Box>
-          ))}
-        </Box>
+            ))}
+          </Box>
 
-        <Typography
-          sx={{
-            mt: "0.85rem",
-            fontFamily: MONO,
-            fontSize: "0.64rem",
-            fontWeight: 600,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: "rgba(255, 255, 255, 0.38)",
-            ...row(0.4),
-          }}
-        >
-          {HINTS[tutorialVariant]}
-        </Typography>
+          <Typography
+            sx={{
+              mt: "0.85rem",
+              fontFamily: MONO,
+              fontSize: "0.64rem",
+              fontWeight: 600,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "rgba(255, 255, 255, 0.38)",
+              ...row(0.4),
+              "@media (orientation: landscape) and (max-height: 520px)": {
+                mt: "0.55rem",
+                fontSize: "0.56rem",
+                lineHeight: 1.3,
+                letterSpacing: "0.08em",
+              },
+            }}
+          >
+            {HINTS[tutorialVariant]}
+          </Typography>
+        </Box>
 
         <Box
           sx={{
@@ -428,6 +507,11 @@ export default function TitleMenu() {
             mt: "1.7rem",
             "@media (max-height: 700px)": { mt: "1.2rem" },
             ...row(0.48),
+            "@media (orientation: landscape) and (max-height: 520px)": {
+              gridArea: "cta",
+              alignSelf: "start",
+              mt: "0.75rem",
+            },
           }}
         >
           <ComicButton
