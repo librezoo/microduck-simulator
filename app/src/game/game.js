@@ -2102,6 +2102,7 @@ async function boot({ scene, camera, renderer }) {
   let odoX = null, odoY = null;
   let telemetryLastPush = 0;
   let nativeTelemetryLastPush = 0;
+  const nativeTelemetryIntervalMs = window.__MICRODUCK_NATIVE__?.uiTesting ? 250 : 1000;
   function renderTelemetry() {
     const now = performance.now();
     const dtF = (now - fpsLastT) / 1000;
@@ -2125,7 +2126,7 @@ async function boot({ scene, camera, renderer }) {
         ? { wbcProgress: { frame: wbcFrame, frames: wbcClip.frames } }
         : {}),
     });
-    if (now - nativeTelemetryLastPush >= 1000) {
+    if (now - nativeTelemetryLastPush >= nativeTelemetryIntervalMs) {
       nativeTelemetryLastPush = now;
       postNative({
         type: "telemetry",
@@ -2144,6 +2145,12 @@ async function boot({ scene, camera, renderer }) {
         wbcFrame,
         chaseCam,
         inputLocked,
+        mouth: manualJaw,
+        jaw: jawOpenNow(),
+        commandForward: cmd[0],
+        commandYaw: cmd[2],
+        headTarget: Array.from(headTarget),
+        bodyTarget: Array.from(bodyTarget),
       });
     }
   }
