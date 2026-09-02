@@ -21,6 +21,14 @@ test("runs the native nominal profile at a stable 60 fps", () => {
   assert.equal(profile.suspended, false);
 });
 
+test("drops extra multisampling when thermal state becomes fair", () => {
+  const profile = resolvePerformanceProfile({ native: true, thermalState: "fair" });
+  assert.equal(profile.targetFps, 60);
+  assert.equal(profile.maxDpr, 1.25);
+  assert.equal(profile.msaaSamples, 0);
+  assert.equal(profile.animateNoise, true);
+});
+
 test("reduces bandwidth and frame rate under power or thermal pressure", () => {
   for (const input of [
     { native: true, lowPowerMode: true },

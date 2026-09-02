@@ -7,7 +7,7 @@ const WEB = Object.freeze({
 
 const NATIVE = Object.freeze({
   nominal: Object.freeze({ targetFps: 60, maxDpr: 1.5, msaaSamples: 2, animateNoise: true }),
-  fair: Object.freeze({ targetFps: 60, maxDpr: 1.25, msaaSamples: 2, animateNoise: true }),
+  fair: Object.freeze({ targetFps: 60, maxDpr: 1.25, msaaSamples: 0, animateNoise: true }),
   constrained: Object.freeze({ targetFps: 30, maxDpr: 1, msaaSamples: 0, animateNoise: false }),
 });
 
