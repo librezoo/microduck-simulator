@@ -10,13 +10,11 @@ import { mergeVertices, toCreasedNormals } from "three/addons/utils/BufferGeomet
 
 // Cache-busting version appended to the GLB / kinematics / leftover STL
 // fetches. Bump whenever microduck.glb is regenerated.
-export const MESH_VERSION = "11";
+export const MESH_VERSION = "13";
 
-// Default model directory: the complete mjlab export (converted from
-// robot_walk.xml by tools/mjcf_to_kinematics.py). robot/v1.5/ and
-// robot/alpha/ stay on disk for reference but the code no longer
-// targets them.
-export const MODEL_DIR = "./robot/mjlab";
+// Default model directory: the MicroZoo microduck_927 body, generated from the
+// team's own CAD by tools/build_robot_model.py (see docs/robot-model.md).
+export const MODEL_DIR = "./robot/microzoo";
 
 // On a private HF Space, asset requests carry the ?__sign JWT (auth
 // cookies may be blocked in the hub iframe). Identity everywhere else.
@@ -282,63 +280,44 @@ export async function buildRig(k, opts = {}) {
   return rig;
 }
 
-// ── Jaw hinge ───────────────────────────────────────────────────────────
-// The mjlab model has no passive jaw joints: jaw.stl / jaw_soft.stl are
-// rigid geoms of the head body (named "jaw_soft" in the MJCF, it carries
-// the head_roll joint). The quack re-creates the hinge in JS: both jaw
-// meshes are reparented into a "jaw_pivot" group whose origin sits on the
-// physical hinge, and setJawOpen rotates that pivot about the robot's
-// left-right axis so the beak tip swings down.
-const JAW_MESH_NAMES = new Set(["jaw.stl", "jaw_soft.stl"]);
-export const JAW_MAX_OPEN = 0.32; // rad at openness 1
-
-// The physical hinge: jaw.stl ends in a circular boss (8 mm ring with the
-// axle hole at its center) on each side, hole axis along mesh-local X (the
-// robot's left-right). Circle fitted offline on the STL's hole-wall
-// vertices (RANSAC, 68 inliers, < 0.15 mm spread); x = 0 sits mid-way
-// between the two bosses, on the hinge line.
-const JAW_HINGE_LOCAL = new THREE.Vector3(0, 0.00004, 0.0075);
+// ── Voice pulse ─────────────────────────────────────────────────────────
+// The 927 head is a closed visor with a single camera eye and no moving beak,
+// so a quack is shown by the eye: the ring and the lens swell together about
+// the optical axis and settle back. The pivot is created once per rig and
+// resolved lazily by name so clones from cloneRig work transparently.
+// setJawOpen keeps its historical name: 0 = at rest, 1 = fully pulsed.
+const EYE_MESH_NAMES = new Set(["eye_ring.stl", "lens.stl"]);
+export const JAW_MAX_OPEN = 0.16; // relative growth of the eye at openness 1
 
 function setupJawPivot(rig) {
   const meshes = [];
   rig.root.traverse((o) => {
-    if (o.isMesh && JAW_MESH_NAMES.has(o.userData.meshName)) meshes.push(o);
+    if (o.isMesh && EYE_MESH_NAMES.has(o.userData.meshName)) meshes.push(o);
   });
   if (!meshes.length) return;
   const body = meshes[0].parent;
-  // The placer is still untransformed right after buildRig, so world
-  // coords == placer coords here: robot forward is +X, up is +Y.
-  rig.placer.updateWorldMatrix(true, true);
-  const jawMesh = meshes.find((m) => m.userData.meshName === "jaw.stl") ?? meshes[0];
-  const hingeW = jawMesh.localToWorld(JAW_HINGE_LOCAL.clone());
-  // +angle about -Z rotates the +X beak tip toward -Y (down).
-  const axisW = new THREE.Vector3(0, 0, -1);
-  const bodyQuatInv = body.getWorldQuaternion(new THREE.Quaternion()).invert();
-  const hingeL = body.worldToLocal(hingeW.clone());
-  const axisL = axisW.applyQuaternion(bodyQuatInv).normalize();
+  // The ring is centred on the lens: pivot about the ring's own centre.
+  const ring = meshes.find((m) => m.userData.meshName === "eye_ring.stl") ?? meshes[0];
+  ring.updateMatrix();
+  ring.geometry.computeBoundingBox();
+  const centre = ring.geometry.boundingBox.getCenter(new THREE.Vector3()).applyMatrix4(ring.matrix);
   const pivot = new THREE.Group();
   pivot.name = "jaw_pivot";
-  pivot.position.copy(hingeL);
-  // Plain array so Object3D.copy's JSON userData clone preserves it.
-  pivot.userData.jawAxis = axisL.toArray();
+  pivot.position.copy(centre);
   body.add(pivot);
   for (const m of meshes) {
-    m.position.sub(hingeL);
+    m.position.sub(centre);
     pivot.add(m);
   }
 }
 
-// Open the beak: 0 = closed, 1 = fully open (JAW_MAX_OPEN rad). The pivot
-// is resolved lazily by name so clones from cloneRig work transparently.
-const _jawAxis = new THREE.Vector3();
 export function setJawOpen(rig, open) {
   if (rig._jawPivot === undefined) {
     rig._jawPivot = rig.placer.getObjectByName("jaw_pivot") ?? null;
   }
   const pivot = rig._jawPivot;
   if (!pivot) return;
-  _jawAxis.fromArray(pivot.userData.jawAxis);
-  pivot.quaternion.setFromAxisAngle(_jawAxis, JAW_MAX_OPEN * open);
+  pivot.scale.setScalar(1 + JAW_MAX_OPEN * open);
 }
 
 // Set one named joint, clamped to its MJCF range when known.

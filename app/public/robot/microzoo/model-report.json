@@ -1,0 +1,292 @@
+{
+ "source": "microduck_927",
+ "parts": {
+  "servo_case": {
+   "source": "P013__CASE",
+   "faces_src": 3100,
+   "faces": 3100,
+   "proxy": false
+  },
+  "trunk_plate": {
+   "source": "P024",
+   "faces_src": 3912,
+   "faces": 3912,
+   "proxy": false
+  },
+  "body_shell_left": {
+   "source": "P022",
+   "faces_src": 16160,
+   "faces": 7500,
+   "proxy": false
+  },
+  "pcb_main": {
+   "source": "P016",
+   "faces_src": 15280,
+   "faces": 2500,
+   "proxy": false
+  },
+  "servo_horn": {
+   "source": "P013__OUTPUT",
+   "faces_src": 1932,
+   "faces": 1932,
+   "proxy": false
+  },
+  "body_shell_right": {
+   "source": "P023",
+   "faces_src": 16624,
+   "faces": 7500,
+   "proxy": false
+  },
+  "P007__DETAIL_0": {
+   "source": "P007__DETAIL_0",
+   "faces_src": 149758,
+   "faces": 368,
+   "proxy": false
+  },
+  "P007__DETAIL_1": {
+   "source": "P007__DETAIL_1",
+   "faces_src": 121530,
+   "faces": 1980,
+   "proxy": false
+  },
+  "P007__DETAIL_2": {
+   "source": "P007__DETAIL_2",
+   "faces_src": 63224,
+   "faces": 1330,
+   "proxy": false
+  },
+  "trunk_base": {
+   "source": "P017",
+   "faces_src": 8348,
+   "faces": 5678,
+   "proxy": false
+  },
+  "battery": {
+   "source": "REF_F550",
+   "faces_src": 12,
+   "faces": 12,
+   "proxy": true
+  },
+  "idler_bearing": {
+   "source": "REF_REAR_IDLER",
+   "faces_src": 192,
+   "faces": 192,
+   "proxy": true
+  },
+  "yaw_link_left": {
+   "source": "P027",
+   "faces_src": 4818,
+   "faces": 4500,
+   "proxy": false
+  },
+  "hip_cover_left": {
+   "source": "P030",
+   "faces_src": 20940,
+   "faces": 6390,
+   "proxy": false
+  },
+  "leg_plate_left": {
+   "source": "P029",
+   "faces_src": 2140,
+   "faces": 2140,
+   "proxy": false
+  },
+  "upper_leg_left": {
+   "source": "P032",
+   "faces_src": 13712,
+   "faces": 4000,
+   "proxy": false
+  },
+  "shin_left": {
+   "source": "P028",
+   "faces_src": 15726,
+   "faces": 4000,
+   "proxy": false
+  },
+  "spacer": {
+   "source": "P001",
+   "faces_src": 640,
+   "faces": 640,
+   "proxy": false
+  },
+  "foot_left": {
+   "source": "P033",
+   "faces_src": 8196,
+   "faces": 4000,
+   "proxy": false
+  },
+  "ankle_bracket_a_left": {
+   "source": "P025",
+   "faces_src": 4298,
+   "faces": 4298,
+   "proxy": false
+  },
+  "ankle_bracket_b_left": {
+   "source": "P026",
+   "faces_src": 2264,
+   "faces": 2264,
+   "proxy": false
+  },
+  "neck_link": {
+   "source": "P020",
+   "faces_src": 1308,
+   "faces": 1308,
+   "proxy": false
+  },
+  "neck_pitch_link": {
+   "source": "P012",
+   "faces_src": 6188,
+   "faces": 4918,
+   "proxy": false
+  },
+  "head_yoke": {
+   "source": "P019",
+   "faces_src": 6204,
+   "faces": 4000,
+   "proxy": false
+  },
+  "head_band": {
+   "source": "P005",
+   "faces_src": 28010,
+   "faces": 7000,
+   "proxy": false
+  },
+  "head_brace": {
+   "source": "P034",
+   "faces_src": 5304,
+   "faces": 4500,
+   "proxy": false
+  },
+  "head_dome": {
+   "source": "P006",
+   "faces_src": 55341,
+   "faces": 12000,
+   "proxy": false
+  },
+  "head_base": {
+   "source": "P015",
+   "faces_src": 9076,
+   "faces": 4500,
+   "proxy": false
+  },
+  "face_plate": {
+   "source": "P002",
+   "faces_src": 21362,
+   "faces": 7000,
+   "proxy": false
+  },
+  "eye_ring": {
+   "source": "P018",
+   "faces_src": 3184,
+   "faces": 3184,
+   "proxy": false
+  },
+  "lens": {
+   "source": "REF_CAMERA_200",
+   "faces_src": 192,
+   "faces": 192,
+   "proxy": true
+  },
+  "sbc": {
+   "source": "REF_RADXA_ZERO3W",
+   "faces_src": 12,
+   "faces": 12,
+   "proxy": true
+  },
+  "yaw_link_right": {
+   "source": "P008",
+   "faces_src": 4816,
+   "faces": 4500,
+   "proxy": false
+  },
+  "hip_cover_right": {
+   "source": "P011",
+   "faces_src": 20844,
+   "faces": 6194,
+   "proxy": false
+  },
+  "leg_plate_right": {
+   "source": "P010",
+   "faces_src": 2140,
+   "faces": 2140,
+   "proxy": false
+  },
+  "upper_leg_right": {
+   "source": "P014",
+   "faces_src": 13792,
+   "faces": 4000,
+   "proxy": false
+  },
+  "shin_right": {
+   "source": "P009",
+   "faces_src": 15702,
+   "faces": 4000,
+   "proxy": false
+  },
+  "ankle_bracket_b_right": {
+   "source": "P004",
+   "faces_src": 2266,
+   "faces": 2266,
+   "proxy": false
+  },
+  "ankle_bracket_a_right": {
+   "source": "P003",
+   "faces_src": 4290,
+   "faces": 4290,
+   "proxy": false
+  },
+  "foot_right": {
+   "source": "P021",
+   "faces_src": 8196,
+   "faces": 4000,
+   "proxy": false
+  },
+  "sole_pad": {
+   "source": "generated",
+   "faces_src": 140,
+   "faces": 140,
+   "proxy": true
+  },
+  "col_hip_cover_left": {
+   "source": "hip_cover_left",
+   "faces": 220,
+   "proxy": true,
+   "collision": true
+  },
+  "col_shin_left": {
+   "source": "shin_left",
+   "faces": 220,
+   "proxy": true,
+   "collision": true
+  },
+  "col_head_band": {
+   "source": "head_band",
+   "faces": 214,
+   "proxy": true,
+   "collision": true
+  },
+  "col_head_dome": {
+   "source": "head_dome",
+   "faces": 238,
+   "proxy": true,
+   "collision": true
+  },
+  "col_hip_cover_right": {
+   "source": "hip_cover_right",
+   "faces": 220,
+   "proxy": true,
+   "collision": true
+  },
+  "col_shin_right": {
+   "source": "shin_right",
+   "faces": 220,
+   "proxy": true,
+   "collision": true
+  }
+ },
+ "notes": [
+  "sole pad 2.86 mm, 13.2 g per foot (foot mass matched to the trained assembly)",
+  "REF_POLLEN_* electronics dropped; REF_* parts replaced by bounding-box proxies"
+ ],
+ "glb_faces": 149712
+}

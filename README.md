@@ -55,9 +55,12 @@ does not schedule another action policy while rollers are active.
 | Roller Crouch (bundled only) | `BEST_roller_crouch.onnx` | Official checkpoint retained in the catalogue; not scheduled in Roller mode |
 | Pose motions (legs) | `src/game/procedural-motions.js` | Generates four gentle 50 Hz joint-offset sequences over the stabilized Stand policy |
 
-Policies and MJCF model from
+Policies from
 [micro-zoo/microduck](https://github.com/micro-zoo/microduck)
-and [micro-zoo/microduck_rl](https://github.com/micro-zoo/microduck_rl).
+and [micro-zoo/microduck_rl](https://github.com/micro-zoo/microduck_rl). The
+robot model is MicroZoo's own `microduck_927` CAD, generated into
+`app/public/robot/microzoo/` by `tools/build_robot_model.py`; see
+[docs/robot-model.md](docs/robot-model.md).
 The four pose motions are project-authored procedural code. Their existing clip
 IDs and timings remain stable for saved selections and native diagnostics, but
 their joint trajectories do not depend on an external motion asset.
@@ -82,7 +85,7 @@ their joint trajectories do not depend on an external motion asset.
 ## Color Studio
 
 The title screen links to a dedicated browser-based Color Studio (`?studio=1`).
-It reuses the simulator's production Microduck geometry and visual language,
+It reuses the simulator's production robot geometry and visual language,
 while adding per-part color controls, full-robot colorways and a live orbit
 preview with direct part picking. Export produces a ZIP containing a
 standards-based complete-assembly `.3mf`, a CSV part manifest, and individually

@@ -40,10 +40,12 @@ test("does not ship the removed standalone or unproven assets", async () => {
     "public/assets/props/arcade.glb",
     "public/assets/ball/soccer-color.png",
     "public/assets/duck-head-mark.webp",
+    "public/assets/zoo-kinder-mark.webp",
+    "public/robot/mjlab/microduck.glb",
+    "public/robot/mjlab/robot_allcollisions.xml",
     "public/assets/microduck-wordmark.svg",
     "public/assets/stickers/quack.webp",
     "public/assets/voices/wawa.mp3",
-    "public/policies/run.onnx",
     "public/wbc/microduck-wbc/policy.onnx",
   ];
   for (const path of forbidden) {

@@ -181,64 +181,60 @@ export const randomVariantName = () =>
 export function meshMaterialsFor(v) {
   return {
     // Head: dome, band under it, face plate around the eye.
-    "top_head_shell.stl": v.headDome,
-    "bottom_head_shell.stl": v.trim,
-    "face_part.stl": v.facePlate,
+    "head_dome.stl": v.headDome,
+    "head_band.stl": v.trim,
+    "face_plate.stl": v.facePlate,
     // The eye: printed ring + camera lens behind it.
-    "noenoeil.stl": v.eyeRing,
+    "eye_ring.stl": v.eyeRing,
     "lens.stl": v.lens,
-    "m12_lens_holder.stl": v.mechDark,
-    // Beak: mouth-roof plate on top, rigid jaw below, soft pad (the
-    // tongue) riding on the jaw.
-    "soft_mouth_top.stl": v.beakUpper,
-    "jaw.stl": v.beakLower,
-    "jaw_soft.stl": v.tongue,
+    // Underside plate carries the accent colour; braces and the yoke stay gray.
+    "head_base.stl": v.beakLower,
+    "head_brace.stl": v.mechGray,
+    "head_yoke.stl": v.mechGray,
+    "sbc.stl": v.mechDark,
     // Body: trunk base + the two side shells (shared slot).
     "trunk_base.stl": v.bodyShell,
-    "left_shell.stl": v.sideShells,
-    "right_shell.stl": v.sideShells,
+    "body_shell_left.stl": v.sideShells,
+    "body_shell_right.stl": v.sideShells,
+    "trunk_plate.stl": v.mechGray,
     "upper_leg_left.stl": v.legShells,
     "upper_leg_right.stl": v.legShells,
-    "hip_l.stl": v.hips,
-    // Feet: foot block + ankle bracket, soft sole pad below.
+    "hip_cover_left.stl": v.hips,
+    "hip_cover_right.stl": v.hips,
+    // Feet: foot block + ankle brackets, soft sole pad below.
     "foot_left.stl": v.feet,
     "foot_right.stl": v.feet,
-    "ankle_left.stl": v.feet,
-    "ankle_right.stl": v.feet,
-    "sole_left.stl": v.soles,
-    "sole_right.stl": v.soles,
-    // Roller variant: the blade + ankle bracket take the shoe-upper slot,
-    // the rims take the sole accent, the tires are rubber-dark.
-    "ankle_l_v1.stl": v.feet,
-    "ankle_r_v1.stl": v.feet,
-    "roller_blade.stl": v.feet,
-    "rim.stl": v.soles,
-    "tire.stl": v.mechDark,
-    // Dark mechanics. leg.stl is the printed shin that wraps the ankle
-    // motor and its bearing ring: gray on the real robots, standing
-    // apart from the black motor it holds.
-    "xl330.stl": v.mechDark,
-    "leg.stl": v.mechGray,
-    "seeed_bearing__configuration_default.stl": v.mechDark,
-    // Hip yaw mechanism (ribbed ring + 4-screw plate): reads as the hip
-    // motor, so it goes dark too. The printed hip cover (hip_l.stl)
-    // keeps the dedicated `hips` slot. The neck bracket is gray on the
-    // real robots, standing apart from the motors it carries.
-    "yaw2roll.stl": v.mechDark,
-    "bearing_roll.stl": v.mechDark,
-    "neck.stl": v.mechGray,
-    "np_f970.stl": v.mechDark,
-    "pcb__raspberry_pi_zero_2_w.stl": v.mechDark,
-    "elec_rpi_robot_hat_pcb.stl": v.mechDark,
-    "banana_pcb_locker.stl": v.mechDark,
-    "speaker.stl": v.mechDark,
-    // Gray mechanics
-    "upper_leg_rigidity_plate.stl": v.mechGray,
-    "yaw_roll_motion.stl": v.mechGray,
-    "neck_pitch.stl": v.mechGray,
-    "motor_support.stl": v.mechGray,
-    "power_support.stl": v.mechGray,
-    "seeed_bearing__configuration__22x16x4.stl": v.mechGray,
+    "ankle_bracket_a_left.stl": v.feet,
+    "ankle_bracket_b_left.stl": v.feet,
+    "ankle_bracket_a_right.stl": v.feet,
+    "ankle_bracket_b_right.stl": v.feet,
+    "sole_pad.stl": v.soles,
+    // Roller variant: the side plates take the shoe-upper slot, the rims the
+    // sole accent, the tyres are rubber-dark.
+    "roller_plate_left.stl": v.feet,
+    "roller_plate_right.stl": v.feet,
+    "roller_rim.stl": v.soles,
+    "roller_tire.stl": v.mechDark,
+    "axle_cap.stl": v.mechGray,
+    // Dark mechanics: servos, boards, battery.
+    "servo_case.stl": v.mechDark,
+    "servo_horn.stl": v.mechGray,
+    "battery.stl": v.mechDark,
+    "pcb_main.stl": v.mechDark,
+    "P007__DETAIL_0.stl": v.mechDark,
+    "P007__DETAIL_1.stl": v.mechDark,
+    "P007__DETAIL_2.stl": v.mechDark,
+    "idler_bearing.stl": v.mechGray,
+    // Gray mechanics: printed links that stand apart from the servos they carry.
+    "shin_left.stl": v.mechGray,
+    "shin_right.stl": v.mechGray,
+    "leg_plate_left.stl": v.mechGray,
+    "leg_plate_right.stl": v.mechGray,
+    "yaw_link_left.stl": v.mechGray,
+    "yaw_link_right.stl": v.mechGray,
+    "neck_link.stl": v.mechGray,
+    "neck_pitch_link.stl": v.mechGray,
+    "spacer.stl": v.mechGray,
   };
 }
 

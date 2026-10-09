@@ -27,14 +27,18 @@ release, public binary distribution, or App Store submission**.
 
 ## Rights and release blockers
 
-### 1. Pollen robot model
+### 1. Robot model and policy provenance
 
-`app/public/robot/mjlab/**` remains `PENDING` in `ASSET_LICENSES.md`. Current
-evidence says only "Creative Commons BY-SA-NC" without an exact license version
-or a file-by-file derivation record. Obtain written permission or the exact
-source and terms before distribution. If the governing terms are noncommercial,
-the complete product cannot be represented as OSI open source and cannot be
-commercially distributed on that basis.
+The Pollen model (`robot/mjlab/**`) is replaced by MicroZoo's own CAD export
+(`robot/microzoo/**`, see `docs/robot-model.md`). Three items remain for the
+maintainers to close before release:
+
+- Confirm that the `microduck_927` CAD and every printed part in it are
+  MicroZoo's own work, and confirm the Apache-2.0 grant in `ASSET_LICENSES.md`.
+- Replace the roller ankle dynamic parameters (mass, inertia, wheel positions),
+  which were carried over from the former roller model, with values measured on
+  MicroZoo hardware.
+- Record the training provenance of `run.onnx` and `microduck_dance_4000.onnx`.
 
 ### 2. Existing public Git history
 

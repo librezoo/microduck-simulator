@@ -35,13 +35,20 @@ above.
 
 MICROZOO VISUAL IDENTITY
 
-The Zoo Kinder mark and application icon were created from scratch for
-MicroZoo on 2026-09-02 using OpenAI image generation through Codex. The
-instruction did not reference or request imitation of the former Pollen
-identity. MicroZoo makes the generated files available under Apache-2.0 to the
-extent it holds copyright or other licensable rights. This provenance record
-is not a warranty by OpenAI or MicroZoo that no independently created work is
-similar. Trademark use is governed separately.
+The MicroZoo mark, favicon and application icon are hand-authored SVG
+geometry designed from scratch for MicroZoo by Claude (Anthropic) on
+2026-10-10; no reference artwork or existing logo was used. MicroZoo makes the
+files available under Apache-2.0 to the extent it holds copyright or other
+licensable rights. This provenance record is not a warranty that no
+independently created work is similar. Trademark use is governed separately.
+
+ROBOT MODEL
+
+The 3D robot (robot/microzoo/**) is generated from MicroZoo's own microduck_927
+CAD export by tools/build_robot_model.py. Third-party reference parts are
+replaced by proxy solids; no Pollen 3D asset is shipped. The roller ankle mass
+and inertia parameters are carried over from the former roller model and are
+listed as an open item in ASSET_LICENSES.md.
 
 GENERATED VOICE ASSETS
 
@@ -55,15 +62,13 @@ licensable rights. The source distribution records exact seeds, variants, and
 commands in app/public/assets/voices/README.md. This provenance statement is
 not a warranty that no third-party rights exist.
 
-UNRESOLVED THIRD-PARTY EXCEPTIONS -- NOT APACHE-2.0
+OPEN ITEMS -- CONFIRM BEFORE DISTRIBUTING
 
-The following material is not cleared for public redistribution by this
-project's current evidence. Inclusion of a notice does not supply permission.
-Remove or separately license these items before distributing this build:
+- policies/run.onnx and policies/microduck_dance_4000.onnx: trained in the
+  MicroZoo workspace; training records are not part of this repository.
+- Roller ankle dynamic parameters (mass, inertia, wheel positions) were carried
+  over from the former roller model. Replace with measured values.
 
-- robot/mjlab/**: Pollen robot 3D/model-derived material. The upstream README
-  says "Creative Commons BY-SA-NC" but does not identify a version or map each
-  derivative file. Treat as a non-commercial exception pending exact terms.
 PROGRAMMATIC REPLACEMENTS
 
 The current Loft 13 and Vintage Room environments, arcade props, and football

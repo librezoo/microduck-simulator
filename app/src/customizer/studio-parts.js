@@ -2,54 +2,45 @@ import { meshInstanceKey } from "../game/mesh-selector.js";
 
 const target = (body, mesh, occurrence = 1) => ({ body, mesh, occurrence });
 
-// Print source of truth:
-// 1. Parts must be present in Pollen Robotics' current Microduck MJCF assembly.
-// 2. Their mesh must also be classified as a print in the reconstructed fabrication
-//    manifest (microduck-replica commit 6e41e2f, print/README.md).
-// Legacy aliases are normalized to the current mesh names and obsolete, unreferenced
-// trunk_shell_left/right files are omitted. Exact visual/collision duplicates count
-// once; mirrored or separately positioned instances count as distinct physical parts.
-// Purchased hardware stays out of the print package.
-// Assembly: https://github.com/pollen-robotics/microduck_rl
-// Fabrication manifest: https://github.com/fanhao375/microduck-replica/tree/master/print
+// Print source of truth: the MicroZoo microduck_927 assembly. A part is listed
+// here when its CAD solid is a printed part (amber in the CAD export) and it is
+// present in the browser model; servos, boards, bearings and the battery are
+// purchased and stay out of the print package. The sole pad is a separate TPU
+// print. Mirrored parts are separate solids and colour independently; the two
+// neck links are one solid used twice, so they are selected by occurrence.
+// Regenerate the model and this list together with tools/build_robot_model.py.
 export const PART_GROUPS = [
   {
     label: "Head",
     parts: [
-      { id: "head", label: "Upper head shell", targets: [target("jaw_soft", "top_head_shell.stl")], color: "#F2EFE8" },
-      { id: "headBand", label: "Lower head shell", targets: [target("jaw_soft", "bottom_head_shell.stl")], color: "#FF7A2F" },
-      { id: "face", label: "Face plate", targets: [target("jaw_soft", "face_part.stl")], color: "#9B9892" },
-      { id: "eye", label: "Eye ring", targets: [target("jaw_soft", "noenoeil.stl")], color: "#FFB52E" },
-      { id: "jaw", label: "Lower jaw", targets: [target("jaw_soft", "jaw.stl")], color: "#FF7A2F" },
-      { id: "upperBeakSoft", label: "Upper beak soft pad", targets: [target("jaw_soft", "soft_mouth_top.stl")], color: "#FFB52E" },
-      { id: "lowerJawSoft", label: "Lower jaw soft pad", targets: [target("jaw_soft", "jaw_soft.stl")], color: "#FFB52E" },
-      { id: "headMotorSupport", label: "Head motor support", targets: [target("jaw_soft", "motor_support.stl")], color: "#8B8B90" },
-      { id: "cameraLensHolder", label: "Camera lens holder", targets: [target("jaw_soft", "m12_lens_holder.stl")], color: "#1D1D1F" },
+      { id: "head", label: "Head dome", targets: [target("jaw_soft", "head_dome.stl")], color: "#F2EFE8" },
+      { id: "headBand", label: "Head band", targets: [target("jaw_soft", "head_band.stl")], color: "#FF7A2F" },
+      { id: "face", label: "Face plate", targets: [target("jaw_soft", "face_plate.stl")], color: "#9B9892" },
+      { id: "eye", label: "Eye ring", targets: [target("jaw_soft", "eye_ring.stl")], color: "#FFB52E" },
+      { id: "headBase", label: "Head base plate", targets: [target("jaw_soft", "head_base.stl")], color: "#FF7A2F" },
+      { id: "headBrace", label: "Head brace", targets: [target("jaw_soft", "head_brace.stl")], color: "#8B8B90" },
     ],
   },
   {
     label: "Body",
     parts: [
-      { id: "bodyLeft", label: "Left body shell", targets: [target("trunk_base", "left_shell.stl")], color: "#F2EFE8" },
-      { id: "bodyRight", label: "Right body shell", targets: [target("trunk_base", "right_shell.stl")], color: "#F2EFE8" },
+      { id: "bodyLeft", label: "Left body shell", targets: [target("trunk_base", "body_shell_left.stl")], color: "#F2EFE8" },
+      { id: "bodyRight", label: "Right body shell", targets: [target("trunk_base", "body_shell_right.stl")], color: "#F2EFE8" },
       { id: "bodyCore", label: "Trunk base", targets: [target("trunk_base", "trunk_base.stl")], color: "#F2EFE8" },
-      { id: "powerSupport", label: "Power support", targets: [target("trunk_base", "power_support.stl")], color: "#8B8B90" },
-      { id: "pcbLocker", label: "PCB locking clip", targets: [target("trunk_base", "banana_pcb_locker.stl")], color: "#1D1D1F" },
-      { id: "leftHip", label: "Left hip cover", targets: [target("hip_l", "hip_l.stl")], color: "#8B8B90" },
-      { id: "rightHip", label: "Right hip cover", targets: [target("hip_l_2", "hip_l.stl")], color: "#8B8B90" },
+      { id: "trunkPlate", label: "Trunk plate", targets: [target("trunk_base", "trunk_plate.stl")], color: "#8B8B90" },
+      { id: "leftHip", label: "Left hip cover", targets: [target("hip_l", "hip_cover_left.stl")], color: "#8B8B90" },
+      { id: "rightHip", label: "Right hip cover", targets: [target("hip_l_2", "hip_cover_right.stl")], color: "#8B8B90" },
     ],
   },
   {
     label: "Joints",
     parts: [
-      { id: "neckFront", label: "Front neck link", targets: [target("neck", "neck.stl", 1)], color: "#8B8B90" },
-      { id: "neckRear", label: "Rear neck link", targets: [target("neck", "neck.stl", 2)], color: "#8B8B90" },
-      { id: "neckPitch", label: "Neck pitch link", targets: [target("neck_pitch", "neck_pitch.stl")], color: "#8B8B90" },
-      { id: "headJoint", label: "Head joint link", targets: [target("yaw_roll_motion", "yaw_roll_motion.stl")], color: "#8B8B90" },
-      { id: "leftYawRoll", label: "Left yaw-roll link", targets: [target("yaw2roll", "yaw2roll.stl")], color: "#1D1D1F" },
-      { id: "rightYawRoll", label: "Right yaw-roll link", targets: [target("bearing_roll", "yaw2roll.stl")], color: "#1D1D1F" },
-      { id: "leftBearingRetainer", label: "Left bearing retainer", targets: [target("yaw2roll", "bearing_roll.stl")], color: "#1D1D1F" },
-      { id: "rightBearingRetainer", label: "Right bearing retainer", targets: [target("bearing_roll", "bearing_roll.stl")], color: "#1D1D1F" },
+      { id: "neckFront", label: "Front neck link", targets: [target("neck", "neck_link.stl", 1)], color: "#8B8B90" },
+      { id: "neckRear", label: "Rear neck link", targets: [target("neck", "neck_link.stl", 2)], color: "#8B8B90" },
+      { id: "neckPitch", label: "Neck pitch link", targets: [target("neck_pitch", "neck_pitch_link.stl")], color: "#8B8B90" },
+      { id: "headJoint", label: "Head yoke", targets: [target("yaw_roll_motion", "head_yoke.stl")], color: "#8B8B90" },
+      { id: "leftYawRoll", label: "Left yaw link", targets: [target("yaw2roll", "yaw_link_left.stl")], color: "#1D1D1F" },
+      { id: "rightYawRoll", label: "Right yaw link", targets: [target("bearing_roll", "yaw_link_right.stl")], color: "#1D1D1F" },
     ],
   },
   {
@@ -57,21 +48,23 @@ export const PART_GROUPS = [
     parts: [
       { id: "leftLeg", label: "Left upper leg", targets: [target("upper_leg_left", "upper_leg_left.stl")], color: "#F2EFE8" },
       { id: "rightLeg", label: "Right upper leg", targets: [target("upper_leg_right", "upper_leg_right.stl")], color: "#F2EFE8" },
-      { id: "leftRigidity", label: "Left reinforcement", targets: [target("upper_leg_left", "upper_leg_rigidity_plate.stl")], color: "#8B8B90" },
-      { id: "rightRigidity", label: "Right reinforcement", targets: [target("upper_leg_right", "upper_leg_rigidity_plate.stl")], color: "#8B8B90" },
-      { id: "leftShin", label: "Left shin shell", targets: [target("leg", "leg.stl")], color: "#8B8B90" },
-      { id: "rightShin", label: "Right shin shell", targets: [target("leg_2", "leg.stl")], color: "#8B8B90" },
+      { id: "leftRigidity", label: "Left leg plate", targets: [target("upper_leg_left", "leg_plate_left.stl")], color: "#8B8B90" },
+      { id: "rightRigidity", label: "Right leg plate", targets: [target("upper_leg_right", "leg_plate_right.stl")], color: "#8B8B90" },
+      { id: "leftShin", label: "Left shin shell", targets: [target("leg", "shin_left.stl")], color: "#8B8B90" },
+      { id: "rightShin", label: "Right shin shell", targets: [target("leg_2", "shin_right.stl")], color: "#8B8B90" },
     ],
   },
   {
     label: "Feet",
     parts: [
-      { id: "leftAnkle", label: "Left ankle joint", targets: [target("ankle_left", "ankle_left.stl")], color: "#FF7A2F" },
-      { id: "rightAnkle", label: "Right ankle joint", targets: [target("ankle_right", "ankle_right.stl")], color: "#FF7A2F" },
+      { id: "leftAnkle", label: "Left ankle bracket A", targets: [target("ankle_left", "ankle_bracket_a_left.stl")], color: "#FF7A2F" },
+      { id: "rightAnkle", label: "Right ankle bracket A", targets: [target("ankle_right", "ankle_bracket_a_right.stl")], color: "#FF7A2F" },
+      { id: "leftAnkleB", label: "Left ankle bracket B", targets: [target("ankle_left", "ankle_bracket_b_left.stl")], color: "#FF7A2F" },
+      { id: "rightAnkleB", label: "Right ankle bracket B", targets: [target("ankle_right", "ankle_bracket_b_right.stl")], color: "#FF7A2F" },
       { id: "leftFoot", label: "Left foot shell", targets: [target("ankle_left", "foot_left.stl")], color: "#FF7A2F" },
       { id: "rightFoot", label: "Right foot shell", targets: [target("ankle_right", "foot_right.stl")], color: "#FF7A2F" },
-      { id: "leftSole", label: "Left sole pad", targets: [target("ankle_left", "sole_left.stl")], color: "#FFD23F" },
-      { id: "rightSole", label: "Right sole pad", targets: [target("ankle_right", "sole_right.stl")], color: "#FFD23F" },
+      { id: "leftSole", label: "Left sole pad", targets: [target("ankle_left", "sole_pad.stl")], color: "#FFD23F" },
+      { id: "rightSole", label: "Right sole pad", targets: [target("ankle_right", "sole_pad.stl")], color: "#FFD23F" },
     ],
   },
 ];
