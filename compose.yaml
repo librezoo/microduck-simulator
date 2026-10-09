@@ -4,6 +4,7 @@ services:
   simulator:
     image: microduck-simulator
     container_name: microduck-simulator-local
+    restart: unless-stopped
     build:
       context: .
       pull: true
