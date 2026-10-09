@@ -532,7 +532,7 @@ export default function Customizer() {
 
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = "Microduck Color Studio";
+    document.title = "MicroZoo Color Studio";
     return () => { document.title = previousTitle; };
   }, []);
 
@@ -605,9 +605,9 @@ export default function Customizer() {
   return (
     <Box sx={{ height: "100dvh", overflow: "hidden", background: "#08080c", color: CREAM }}>
       <Box component="header" sx={{ position: "relative", zIndex: 10, height: { xs: 58, md: 66 }, display: "flex", alignItems: "center", gap: { xs: 0.75, sm: 2 }, px: { xs: 0.85, sm: 2.2 }, borderBottom: "1px solid rgba(255,255,255,0.1)", background: "#0b0b10" }}>
-        <Box component="a" href="./" aria-label="Back to Microduck simulator" sx={{ display: "flex", alignItems: "center", gap: 1, color: CREAM, textDecoration: "none" }}>
-          <Box component="img" src={signed("./assets/duck-head-mark.webp")} alt="" sx={{ width: { xs: 32, md: 38 }, height: { xs: 26, md: 30 }, objectFit: "contain", filter: "drop-shadow(2px 2px 0 rgba(0,0,0,.5))" }} />
-          <Typography sx={{ display: { xs: "none", sm: "block" }, fontFamily: ANTON, fontSize: "1.2rem", letterSpacing: "0.025em", textTransform: "uppercase" }}>Microduck</Typography>
+        <Box component="a" href="./" aria-label="Back to the MicroZoo simulator" sx={{ display: "flex", alignItems: "center", gap: 1, color: CREAM, textDecoration: "none" }}>
+          <Box component="img" src={signed("./assets/microzoo-mark-cream.svg")} alt="" sx={{ width: { xs: 32, md: 36 }, height: { xs: 32, md: 36 }, objectFit: "contain" }} />
+          <Typography sx={{ display: { xs: "none", sm: "block" }, fontFamily: ANTON, fontSize: "1.2rem", letterSpacing: "0.025em", textTransform: "uppercase" }}>MicroZoo</Typography>
         </Box>
         <Typography sx={{ fontFamily: MONO, fontSize: { xs: "0.66rem", sm: "0.72rem" }, fontWeight: 700, letterSpacing: "0.13em", textTransform: "uppercase", color: "rgba(255,255,255,0.58)" }}>Color Studio</Typography>
         <Typography sx={{ display: { xs: "none", lg: "block" }, ml: "auto", mr: "auto", fontSize: "0.78rem", color: "rgba(255,255,255,0.34)" }}>Make the hardware unmistakably yours.</Typography>

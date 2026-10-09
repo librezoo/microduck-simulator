@@ -292,7 +292,7 @@ export default function TitleMenu() {
               <Box
                 component="img"
                 alt=""
-                src={signed("./assets/zoo-kinder-mark.webp")}
+                src={signed("./assets/microzoo-mark.svg")}
                 sx={{
                   display: "block",
                   width: "100%",

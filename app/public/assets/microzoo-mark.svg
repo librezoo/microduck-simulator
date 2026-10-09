@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="MicroZoo">
+  <title>MicroZoo</title>
+  <g transform="translate(-8 2)">
+    <g fill="none" stroke="#0B0B10" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M70 28H44a20 20 0 0 0-20 20v36a20 20 0 0 0 20 20h40a20 20 0 0 0 20-20V68c0-14 4-24 14-34"/>
+    </g>
+    <g fill="#0B0B10"><circle cx="52" cy="82" r="11"/><circle cx="76" cy="62" r="6.5"/></g>
+    <circle cx="114" cy="26" r="12" fill="#FF7A2F"/>
+  </g>
+</svg>
