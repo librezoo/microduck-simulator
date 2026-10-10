@@ -66,6 +66,26 @@ export default function LegalDisclosure() {
       >
         Legal · Privacy · Credits
       </Box>
+      <Box
+        component="a"
+        href="https://github.com/pollen-robotics/microduck"
+        target="_blank"
+        rel="noopener noreferrer"
+        sx={{
+          maxWidth: "22rem",
+          px: "0.75rem",
+          color: "rgba(250, 248, 242, 0.42)",
+          fontFamily: MONO,
+          fontSize: "0.5rem",
+          letterSpacing: "0.06em",
+          lineHeight: 1.5,
+          textAlign: "center",
+          textDecoration: "none",
+          "&:hover, &:focus-visible": { color: "rgba(250, 248, 242, 0.7)", textDecoration: "underline" },
+        }}
+      >
+        Improves on the Apache-2.0 Microduck by Pollen Robotics
+      </Box>
 
       <Dialog
         open={open}
