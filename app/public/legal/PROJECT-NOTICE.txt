@@ -1,7 +1,7 @@
 microduck-simulator
-Copyright 2026 MicroZoo
+Copyright 2026 LibreZoo
 
-This product includes software developed by MicroZoo and by the contributors
+This product includes software developed by LibreZoo and by the contributors
 identified in the project history.
 
 The declared license for project-authored software is the Apache License,
@@ -10,6 +10,7 @@ that license. Third-party assets, trained models, fonts, and libraries are not
 relicensed by it. Their attribution and distribution terms are recorded in
 ASSET_LICENSES.md and THIRD_PARTY_NOTICES.md.
 
-Zoo Kinder and MicroZoo names and visual identity are subject to the trademark
-policy in TRADEMARKS.md. Microduck and Pollen Robotics are names of their
-respective owners; their mention does not imply sponsorship or endorsement.
+Zoo Kinder, LibreZoo and 狸波 names and visual identity are subject to the
+trademark policy in TRADEMARKS.md. Microduck and Pollen Robotics are names of
+their respective owners; their mention does not imply sponsorship or
+endorsement.

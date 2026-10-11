@@ -29,22 +29,22 @@ CREATIVE COMMONS ATTRIBUTION 4.0 ROOMS
    collision behavior adjusted. The historical import pipeline is not fully
    recorded; no byte-identity claim is made.
 
-No endorsement by the creators of MicroZoo, Zoo Kinder, or these adaptations
+No endorsement by the creators of LibreZoo, Zoo Kinder, or these adaptations
 is implied. CC BY 4.0 material is supplied as-is under the terms at the URL
 above.
 
-MICROZOO VISUAL IDENTITY
+LIBREZOO VISUAL IDENTITY
 
-The MicroZoo mark, favicon and application icon are hand-authored SVG
-geometry designed from scratch for MicroZoo by Claude (Anthropic) on
-2026-10-10; no reference artwork or existing logo was used. MicroZoo makes the
+The LibreZoo mark, favicon and application icon are hand-authored SVG
+geometry designed from scratch for LibreZoo by Claude (Anthropic) on
+2026-10-10; no reference artwork or existing logo was used. LibreZoo makes the
 files available under Apache-2.0 to the extent it holds copyright or other
 licensable rights. This provenance record is not a warranty that no
 independently created work is similar. Trademark use is governed separately.
 
 ROBOT MODEL
 
-The 3D robot (robot/microzoo/**) is generated from MicroZoo's own microduck_927
+The 3D robot (robot/librezoo/**) is generated from LibreZoo's own microduck_927
 CAD export by tools/build_robot_model.py. Third-party reference parts are
 replaced by proxy solids; no Pollen 3D asset is shipped. The roller ankle mass
 and inertia parameters are carried over from the former roller model and are
@@ -56,7 +56,7 @@ The current duck1 through duck4 chirp and wheee WAV files and wawa.wav were
 generated on 2026-09-03 as 48 kHz mono PCM from seeded oscillator/noise
 recipes. No input audio recording was supplied. The generator is the upstream
 sounds/ crate from the Apache-2.0 pollen-robotics/microduck revision
-590b986bd8c0d50ae02cb3ea2f59c463b6828168. MicroZoo makes the listed generated
+590b986bd8c0d50ae02cb3ea2f59c463b6828168. LibreZoo makes the listed generated
 files available under Apache-2.0 to the extent it holds copyright or other
 licensable rights. The source distribution records exact seeds, variants, and
 commands in app/public/assets/voices/README.md. This provenance statement is
@@ -65,7 +65,7 @@ not a warranty that no third-party rights exist.
 OPEN ITEMS -- CONFIRM BEFORE DISTRIBUTING
 
 - policies/run.onnx and policies/microduck_dance_4000.onnx: trained in the
-  MicroZoo workspace; training records are not part of this repository.
+  LibreZoo workspace; training records are not part of this repository.
 - Roller ankle dynamic parameters (mass, inertia, wheel positions) were carried
   over from the former roller model. Replace with measured values.
 

@@ -23,6 +23,6 @@ assets explicitly identified as Apache-2.0. It does not relicense third-party
 rooms, robot models, trained weights, audio, textures, or other assets.
 
 The complete source inventory is maintained in the repository root as
-ASSET_LICENSES.md. Zoo Kinder and MicroZoo marks are governed by
+ASSET_LICENSES.md. Zoo Kinder, LibreZoo and 狸波 marks are governed by
 TRADEMARKS.txt. This distribution is provided without warranty as described
 by the applicable licenses.

@@ -29,15 +29,15 @@ release, public binary distribution, or App Store submission**.
 
 ### 1. Robot model and policy provenance
 
-The Pollen model (`robot/mjlab/**`) is replaced by MicroZoo's own CAD export
-(`robot/microzoo/**`, see `docs/robot-model.md`). Three items remain for the
+The Pollen model (`robot/mjlab/**`) is replaced by LibreZoo's own CAD export
+(`robot/librezoo/**`, see `docs/robot-model.md`). Three items remain for the
 maintainers to close before release:
 
 - Confirm that the `microduck_927` CAD and every printed part in it are
-  MicroZoo's own work, and confirm the Apache-2.0 grant in `ASSET_LICENSES.md`.
+  LibreZoo's own work, and confirm the Apache-2.0 grant in `ASSET_LICENSES.md`.
 - Replace the roller ankle dynamic parameters (mass, inertia, wheel positions),
   which were carried over from the former roller model, with values measured on
-  MicroZoo hardware.
+  LibreZoo hardware.
 - Record the training provenance of `run.onnx` and `microduck_dance_4000.onnx`.
 
 ### 2. Existing public Git history
@@ -60,14 +60,24 @@ The DCO process in `CONTRIBUTING.md` addresses future submissions only.
 
 ### 4. Product and publisher names
 
-A preliminary registry screen found live `MICRO ZOO` registrations in relevant
-toy categories, including [US registration 5765694 / serial
+The publisher name changed from MicroZoo to LibreZoo (Chinese name 狸波) on
+2026-10-11. **The names `LibreZoo`, `LIBRE ZOO` and 狸波 have not been searched
+or cleared.** The maintainers still have to run a fresh registry screen for
+them, covering the Chinese-language name as well as the English one, and to
+obtain documented rights, permission, or jurisdiction-specific counsel
+clearance. Do not publish under `LibreZoo` or 狸波 until that is done.
+
+*Historical note.* The earlier preliminary registry screen was about the former
+name `MICRO ZOO`, not about LibreZoo, so it is historical and says nothing
+about the new names. It found live `MICRO ZOO` registrations in relevant toy
+categories, including [US registration 5765694 / serial
 88072647](https://tsdr.uspto.gov/statusview/sn88072647) and [EU trade mark
 018019871](https://euipo.europa.eu/eSearch/#details/trademarks/018019871).
-That is a release red flag, not a final infringement opinion. Do not publish
-under `MicroZoo` until the publisher has documented rights, permission, or
-jurisdiction-specific counsel clearance. `Zoo Kinder` also requires a proper
-clearance search; a preliminary no-exact-hit search is not legal clearance.
+That was a release red flag for that name, not a final infringement opinion.
+It is kept here as a record only; it is not a clearance of any kind.
+
+`Zoo Kinder` also requires a proper clearance search; a preliminary
+no-exact-hit search is not legal clearance.
 
 ### 5. Publisher operations and platform declarations
 
@@ -80,7 +90,8 @@ requires a new data-flow, privacy-manifest, and encryption review.
 
 ## Maintainer decision needed
 
-The next irreversible actions are intentionally not automated: selecting or
-clearing the publisher name, collecting contributor/model permissions, and
-rewriting or replacing public Git history. Those actions affect third parties
-and published clones and require an explicit maintainer decision.
+The next irreversible actions are intentionally not automated: clearing the
+publisher name (LibreZoo / 狸波, see section 4), collecting contributor/model
+permissions, and rewriting or replacing public Git history. Those actions
+affect third parties and published clones and require an explicit maintainer
+decision.

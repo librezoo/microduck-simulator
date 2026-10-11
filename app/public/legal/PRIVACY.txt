@@ -21,7 +21,7 @@ LOCAL STORAGE
 
 The multiplayer preference is stored on the device in browser local storage.
 It remains until the user changes it or clears the app/site data. The reference
-build does not transmit the preference to MicroZoo.
+build does not transmit the preference to LibreZoo.
 
 OPTIONAL PUBLIC MULTIPLAYER -- BROWSER BUILD ONLY
 

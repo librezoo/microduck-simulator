@@ -49,7 +49,7 @@ and attribution notices. The upstream project is available at:
 
 <https://github.com/pollen-robotics/microduck>
 
-No Pollen 3D assets are shipped: the robot model is MicroZoo's own CAD
+No Pollen 3D assets are shipped: the robot model is LibreZoo's own CAD
 (see `ASSET_LICENSES.md` and `docs/robot-model.md`).
 
 The newly generated voice assets use the Apache-2.0 upstream `sounds/` crate
