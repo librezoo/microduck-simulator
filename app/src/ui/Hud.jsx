@@ -18,6 +18,7 @@ import { useGame, gameApi } from "../store.js";
 import { VARIANT_LABELS, VARIANT_SWATCH_HEX } from "../game/variants.js";
 import { SCENE_ATTRIBUTIONS, SCENE_IDS, SCENES } from "../game/scenes.js";
 import { getPerformanceProfile } from "../native/runtime.js";
+import { studioUrl } from "../routes.js";
 import { ORANGE, MONO } from "../theme.js";
 import { ANTON, COMIC_INK, CREAM } from "./comic.jsx";
 import { readLayoutMap, resolveKeycaps } from "./keyboard-layout.js";
@@ -236,7 +237,7 @@ function NavigationButtons() {
       <HudPlate caption="Design" captionFill="orange">
         <Box
           component="a"
-          href="?studio=1"
+          href={studioUrl()}
           aria-label="Open LibreZoo Studio"
           sx={{
             ...hudHitSx,

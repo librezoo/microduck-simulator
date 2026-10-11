@@ -13,6 +13,7 @@ import Typography from "@mui/material/Typography";
 import { keyframes, styled } from "@mui/material/styles";
 import { useGame } from "../store.js";
 import { getPerformanceProfile } from "../native/runtime.js";
+import { studioUrl } from "../routes.js";
 import { signed } from "../game/signed.js";
 import { INK, ORANGE, MONO } from "../theme.js";
 import { ComicButton, ComicTitle, HalftoneRamp, ANTON, CREAM } from "./comic.jsx";
@@ -531,7 +532,7 @@ export default function TitleMenu() {
             {ctaLabel}
           </ComicButton>
           <ComicButton
-            href="?studio=1"
+            href={studioUrl()}
             scheme="paper"
             variant="outline"
             size="medium"

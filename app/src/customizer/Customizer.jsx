@@ -9,6 +9,7 @@ import { applyPose, buildRig, groundFullBody, loadKinematics, MODEL_DIR } from "
 import { DEFAULT_POSE, JOINT_NAMES } from "../game/constants.js";
 import { materialHookFor, VARIANTS } from "../game/variants.js";
 import { signed } from "../game/signed.js";
+import { simulatorUrl } from "../routes.js";
 import { ANTON, COMIC_INK, CREAM, HalftoneRamp } from "../ui/comic.jsx";
 import { MONO, ORANGE } from "../theme.js";
 import { createThreeMfBundle } from "./three-mf.js";
@@ -573,7 +574,7 @@ export default function Customizer() {
 
   const runInSimulator = () => {
     saveStudioDesign({ colors, meshColors });
-    location.href = "./?boot=1&design=custom";
+    location.href = simulatorUrl({ design: true });
   };
 
   const exportDesign = async () => {
@@ -605,7 +606,7 @@ export default function Customizer() {
   return (
     <Box sx={{ height: "100dvh", overflow: "hidden", background: "#08080c", color: CREAM }}>
       <Box component="header" sx={{ position: "relative", zIndex: 10, height: { xs: 58, md: 66 }, display: "flex", alignItems: "center", gap: { xs: 0.75, sm: 2 }, px: { xs: 0.85, sm: 2.2 }, borderBottom: "1px solid rgba(255,255,255,0.1)", background: "#0b0b10" }}>
-        <Box component="a" href="./" aria-label="Back to the LibreZoo simulator" sx={{ display: "flex", alignItems: "center", gap: 1, color: CREAM, textDecoration: "none" }}>
+        <Box component="a" href={simulatorUrl()} aria-label="Back to the LibreZoo simulator" sx={{ display: "flex", alignItems: "center", gap: 1, color: CREAM, textDecoration: "none" }}>
           <Box component="img" src={signed("./assets/librezoo-mark-cream.svg")} alt="" sx={{ width: { xs: 32, md: 36 }, height: { xs: 32, md: 36 }, objectFit: "contain" }} />
           <Typography sx={{ display: { xs: "none", sm: "block" }, fontFamily: ANTON, fontSize: "1.2rem", letterSpacing: "0.025em", textTransform: "uppercase" }}>LibreZoo</Typography>
         </Box>

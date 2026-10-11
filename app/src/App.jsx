@@ -15,6 +15,7 @@ import Preboot from "./ui/Preboot.jsx";
 import { useGame } from "./store.js";
 import { signed } from "./game/signed.js";
 import Customizer from "./customizer/Customizer.jsx";
+import { isStudioRoute } from "./routes.js";
 
 function SimulatorApp() {
   useEffect(() => {
@@ -92,6 +93,5 @@ function SimulatorApp() {
 }
 
 export default function App() {
-  const studio = new URLSearchParams(location.search).get("studio") === "1";
-  return studio ? <Customizer /> : <SimulatorApp />;
+  return isStudioRoute() ? <Customizer /> : <SimulatorApp />;
 }
