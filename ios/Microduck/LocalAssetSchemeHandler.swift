@@ -117,7 +117,7 @@ final class LocalAssetSchemeHandler: NSObject, WKURLSchemeHandler {
     private let root: URL
     private let loadingQueue: OperationQueue = {
         let queue = OperationQueue()
-        queue.name = "zoo.micro.microduck.assets"
+        queue.name = "com.librezoo.microduck.assets"
         queue.qualityOfService = .userInitiated
         queue.maxConcurrentOperationCount = 4
         return queue

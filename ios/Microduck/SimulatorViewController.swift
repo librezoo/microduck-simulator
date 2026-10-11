@@ -164,7 +164,7 @@ struct SimulatorRecoveryCoordinator {
 
 @MainActor
 final class SimulatorViewController: UIViewController {
-    private static let logger = Logger(subsystem: "zoo.micro.microduck", category: "simulator")
+    private static let logger = Logger(subsystem: "com.librezoo.microduck", category: "simulator")
     private let performance: PerformanceController
     private var webView: WKWebView!
     private var schemeHandler: LocalAssetSchemeHandler!
