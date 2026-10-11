@@ -8,9 +8,8 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { STLLoader } from "three/addons/loaders/STLLoader.js";
 import { mergeVertices, toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
 
-// Cache-busting version appended to the GLB / kinematics / leftover STL
-// fetches. Bump whenever microduck.glb is regenerated or moved.
-export const MESH_VERSION = "14";
+import { MESH_VERSION } from "./mesh-version.js";
+export { MESH_VERSION };
 
 // Default model directory: the LibreZoo microduck_927 body, generated from the
 // team's own CAD by tools/build_robot_model.py (see docs/robot-model.md).
@@ -47,12 +46,14 @@ export async function loadKinematics(url) {
 // facet normals are omitted on purpose: creased normals are rebuilt here.
 const GLB_URL = `${MODEL_DIR}/microduck.glb`;
 const CREASE = Math.PI / 5; // 36 deg
-let glbGeomsPromise = null;
+// One parse per GLB url: the simulator only ever asks for Duck's, the Studio
+// asks for whichever creature it is showing.
+const glbGeomsPromises = new Map();
 
-export function loadGlbGeometries() {
-  if (!glbGeomsPromise) {
-    glbGeomsPromise = new GLTFLoader()
-      .loadAsync(signed(`${GLB_URL}?v=${MESH_VERSION}`))
+export function loadGlbGeometries(url = GLB_URL) {
+  if (!glbGeomsPromises.has(url)) {
+    const promise = new GLTFLoader()
+      .loadAsync(signed(`${url}?v=${MESH_VERSION}`))
       .then((gltf) => {
         const map = new Map();
         gltf.scene.traverse((o) => {
@@ -73,8 +74,11 @@ export function loadGlbGeometries() {
         });
         return map;
       });
+    // a failed fetch must not poison the cache: the Studio offers "try again"
+    promise.catch(() => glbGeomsPromises.delete(url));
+    glbGeomsPromises.set(url, promise);
   }
-  return glbGeomsPromise;
+  return glbGeomsPromises.get(url);
 }
 
 // MuJoCo's WASM compiler still wants binary STL in its VFS. Rebuild from
@@ -133,7 +137,7 @@ export async function buildRig(k, opts = {}) {
 
   const bodies = new Map();
   const joints = new Map();
-  const geomByName = await loadGlbGeometries();
+  const geomByName = await loadGlbGeometries(opts.glbUrl);
   // Roller-only meshes (tire, rim, ...) are not in the shared landing GLB.
   const extraStlCache = new Map();
   const loadMesh = (name) => {

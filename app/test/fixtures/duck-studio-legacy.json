@@ -1,0 +1,636 @@
+{
+ "note": "Captured from the hard-coded studio-parts.js / Customizer.jsx before the studio manifest existed (git b3d4e81).",
+ "groups": [
+  {
+   "label": "Head",
+   "parts": [
+    {
+     "id": "head",
+     "label": "Head dome",
+     "targets": [
+      {
+       "body": "jaw_soft",
+       "mesh": "head_dome.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#F2EFE8"
+    },
+    {
+     "id": "headBand",
+     "label": "Head band",
+     "targets": [
+      {
+       "body": "jaw_soft",
+       "mesh": "head_band.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#FF7A2F"
+    },
+    {
+     "id": "face",
+     "label": "Face plate",
+     "targets": [
+      {
+       "body": "jaw_soft",
+       "mesh": "face_plate.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#9B9892"
+    },
+    {
+     "id": "eye",
+     "label": "Eye ring",
+     "targets": [
+      {
+       "body": "jaw_soft",
+       "mesh": "eye_ring.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#FFB52E"
+    },
+    {
+     "id": "headBase",
+     "label": "Head base plate",
+     "targets": [
+      {
+       "body": "jaw_soft",
+       "mesh": "head_base.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#FF7A2F"
+    },
+    {
+     "id": "headBrace",
+     "label": "Head brace",
+     "targets": [
+      {
+       "body": "jaw_soft",
+       "mesh": "head_brace.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#8B8B90"
+    }
+   ]
+  },
+  {
+   "label": "Body",
+   "parts": [
+    {
+     "id": "bodyLeft",
+     "label": "Left body shell",
+     "targets": [
+      {
+       "body": "trunk_base",
+       "mesh": "body_shell_left.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#F2EFE8"
+    },
+    {
+     "id": "bodyRight",
+     "label": "Right body shell",
+     "targets": [
+      {
+       "body": "trunk_base",
+       "mesh": "body_shell_right.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#F2EFE8"
+    },
+    {
+     "id": "bodyCore",
+     "label": "Trunk base",
+     "targets": [
+      {
+       "body": "trunk_base",
+       "mesh": "trunk_base.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#F2EFE8"
+    },
+    {
+     "id": "trunkPlate",
+     "label": "Trunk plate",
+     "targets": [
+      {
+       "body": "trunk_base",
+       "mesh": "trunk_plate.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#8B8B90"
+    },
+    {
+     "id": "leftHip",
+     "label": "Left hip cover",
+     "targets": [
+      {
+       "body": "hip_l",
+       "mesh": "hip_cover_left.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#8B8B90"
+    },
+    {
+     "id": "rightHip",
+     "label": "Right hip cover",
+     "targets": [
+      {
+       "body": "hip_l_2",
+       "mesh": "hip_cover_right.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#8B8B90"
+    }
+   ]
+  },
+  {
+   "label": "Joints",
+   "parts": [
+    {
+     "id": "neckFront",
+     "label": "Front neck link",
+     "targets": [
+      {
+       "body": "neck",
+       "mesh": "neck_link.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#8B8B90"
+    },
+    {
+     "id": "neckRear",
+     "label": "Rear neck link",
+     "targets": [
+      {
+       "body": "neck",
+       "mesh": "neck_link.stl",
+       "occurrence": 2
+      }
+     ],
+     "color": "#8B8B90"
+    },
+    {
+     "id": "neckPitch",
+     "label": "Neck pitch link",
+     "targets": [
+      {
+       "body": "neck_pitch",
+       "mesh": "neck_pitch_link.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#8B8B90"
+    },
+    {
+     "id": "headJoint",
+     "label": "Head yoke",
+     "targets": [
+      {
+       "body": "yaw_roll_motion",
+       "mesh": "head_yoke.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#8B8B90"
+    },
+    {
+     "id": "leftYawRoll",
+     "label": "Left yaw link",
+     "targets": [
+      {
+       "body": "yaw2roll",
+       "mesh": "yaw_link_left.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#1D1D1F"
+    },
+    {
+     "id": "rightYawRoll",
+     "label": "Right yaw link",
+     "targets": [
+      {
+       "body": "bearing_roll",
+       "mesh": "yaw_link_right.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#1D1D1F"
+    }
+   ]
+  },
+  {
+   "label": "Legs",
+   "parts": [
+    {
+     "id": "leftLeg",
+     "label": "Left upper leg",
+     "targets": [
+      {
+       "body": "upper_leg_left",
+       "mesh": "upper_leg_left.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#F2EFE8"
+    },
+    {
+     "id": "rightLeg",
+     "label": "Right upper leg",
+     "targets": [
+      {
+       "body": "upper_leg_right",
+       "mesh": "upper_leg_right.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#F2EFE8"
+    },
+    {
+     "id": "leftRigidity",
+     "label": "Left leg plate",
+     "targets": [
+      {
+       "body": "upper_leg_left",
+       "mesh": "leg_plate_left.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#8B8B90"
+    },
+    {
+     "id": "rightRigidity",
+     "label": "Right leg plate",
+     "targets": [
+      {
+       "body": "upper_leg_right",
+       "mesh": "leg_plate_right.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#8B8B90"
+    },
+    {
+     "id": "leftShin",
+     "label": "Left shin shell",
+     "targets": [
+      {
+       "body": "leg",
+       "mesh": "shin_left.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#8B8B90"
+    },
+    {
+     "id": "rightShin",
+     "label": "Right shin shell",
+     "targets": [
+      {
+       "body": "leg_2",
+       "mesh": "shin_right.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#8B8B90"
+    }
+   ]
+  },
+  {
+   "label": "Feet",
+   "parts": [
+    {
+     "id": "leftAnkle",
+     "label": "Left ankle bracket A",
+     "targets": [
+      {
+       "body": "ankle_left",
+       "mesh": "ankle_bracket_a_left.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#FF7A2F"
+    },
+    {
+     "id": "rightAnkle",
+     "label": "Right ankle bracket A",
+     "targets": [
+      {
+       "body": "ankle_right",
+       "mesh": "ankle_bracket_a_right.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#FF7A2F"
+    },
+    {
+     "id": "leftAnkleB",
+     "label": "Left ankle bracket B",
+     "targets": [
+      {
+       "body": "ankle_left",
+       "mesh": "ankle_bracket_b_left.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#FF7A2F"
+    },
+    {
+     "id": "rightAnkleB",
+     "label": "Right ankle bracket B",
+     "targets": [
+      {
+       "body": "ankle_right",
+       "mesh": "ankle_bracket_b_right.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#FF7A2F"
+    },
+    {
+     "id": "leftFoot",
+     "label": "Left foot shell",
+     "targets": [
+      {
+       "body": "ankle_left",
+       "mesh": "foot_left.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#FF7A2F"
+    },
+    {
+     "id": "rightFoot",
+     "label": "Right foot shell",
+     "targets": [
+      {
+       "body": "ankle_right",
+       "mesh": "foot_right.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#FF7A2F"
+    },
+    {
+     "id": "leftSole",
+     "label": "Left sole pad",
+     "targets": [
+      {
+       "body": "ankle_left",
+       "mesh": "sole_pad.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#FFD23F"
+    },
+    {
+     "id": "rightSole",
+     "label": "Right sole pad",
+     "targets": [
+      {
+       "body": "ankle_right",
+       "mesh": "sole_pad.stl",
+       "occurrence": 1
+      }
+     ],
+     "color": "#FFD23F"
+    }
+   ]
+  }
+ ],
+ "printMeshOrder": [
+  "jaw_soft::head_dome.stl::1",
+  "jaw_soft::head_band.stl::1",
+  "jaw_soft::face_plate.stl::1",
+  "jaw_soft::eye_ring.stl::1",
+  "jaw_soft::head_base.stl::1",
+  "jaw_soft::head_brace.stl::1",
+  "trunk_base::body_shell_left.stl::1",
+  "trunk_base::body_shell_right.stl::1",
+  "trunk_base::trunk_base.stl::1",
+  "trunk_base::trunk_plate.stl::1",
+  "hip_l::hip_cover_left.stl::1",
+  "hip_l_2::hip_cover_right.stl::1",
+  "neck::neck_link.stl::1",
+  "neck::neck_link.stl::2",
+  "neck_pitch::neck_pitch_link.stl::1",
+  "yaw_roll_motion::head_yoke.stl::1",
+  "yaw2roll::yaw_link_left.stl::1",
+  "bearing_roll::yaw_link_right.stl::1",
+  "upper_leg_left::upper_leg_left.stl::1",
+  "upper_leg_right::upper_leg_right.stl::1",
+  "upper_leg_left::leg_plate_left.stl::1",
+  "upper_leg_right::leg_plate_right.stl::1",
+  "leg::shin_left.stl::1",
+  "leg_2::shin_right.stl::1",
+  "ankle_left::ankle_bracket_a_left.stl::1",
+  "ankle_right::ankle_bracket_a_right.stl::1",
+  "ankle_left::ankle_bracket_b_left.stl::1",
+  "ankle_right::ankle_bracket_b_right.stl::1",
+  "ankle_left::foot_left.stl::1",
+  "ankle_right::foot_right.stl::1",
+  "ankle_left::sole_pad.stl::1",
+  "ankle_right::sole_pad.stl::1"
+ ],
+ "colorways": [
+  {
+   "id": "classic",
+   "label": "Creamsicle",
+   "stripe": [
+    "#F2EFE8",
+    "#FF7A2F",
+    "#FFD23F"
+   ],
+   "colors": {
+    "head": "#F2EFE8",
+    "headBand": "#FF7A2F",
+    "face": "#9B9892",
+    "eye": "#FFB52E",
+    "headBase": "#FF7A2F",
+    "headBrace": "#8B8B90",
+    "bodyLeft": "#F2EFE8",
+    "bodyRight": "#F2EFE8",
+    "bodyCore": "#F2EFE8",
+    "trunkPlate": "#8B8B90",
+    "leftHip": "#8B8B90",
+    "rightHip": "#8B8B90",
+    "neckFront": "#8B8B90",
+    "neckRear": "#8B8B90",
+    "neckPitch": "#8B8B90",
+    "headJoint": "#8B8B90",
+    "leftYawRoll": "#1D1D1F",
+    "rightYawRoll": "#1D1D1F",
+    "leftLeg": "#F2EFE8",
+    "rightLeg": "#F2EFE8",
+    "leftRigidity": "#8B8B90",
+    "rightRigidity": "#8B8B90",
+    "leftShin": "#8B8B90",
+    "rightShin": "#8B8B90",
+    "leftAnkle": "#FF7A2F",
+    "rightAnkle": "#FF7A2F",
+    "leftAnkleB": "#FF7A2F",
+    "rightAnkleB": "#FF7A2F",
+    "leftFoot": "#FF7A2F",
+    "rightFoot": "#FF7A2F",
+    "leftSole": "#FFD23F",
+    "rightSole": "#FFD23F"
+   }
+  },
+  {
+   "id": "graphite",
+   "label": "After hours",
+   "stripe": [
+    "#2F2F33",
+    "#FFD23F",
+    "#BFA9CF"
+   ],
+   "colors": {
+    "head": "#2F2F33",
+    "headBand": "#FFD23F",
+    "face": "#9B9892",
+    "eye": "#BFA9CF",
+    "headBase": "#FF7A2F",
+    "headBrace": "#8B8B90",
+    "bodyLeft": "#232326",
+    "bodyRight": "#232326",
+    "bodyCore": "#232326",
+    "trunkPlate": "#8B8B90",
+    "leftHip": "#8B8B90",
+    "rightHip": "#8B8B90",
+    "neckFront": "#8B8B90",
+    "neckRear": "#8B8B90",
+    "neckPitch": "#8B8B90",
+    "headJoint": "#8B8B90",
+    "leftYawRoll": "#1D1D1F",
+    "rightYawRoll": "#1D1D1F",
+    "leftLeg": "#232326",
+    "rightLeg": "#232326",
+    "leftRigidity": "#8B8B90",
+    "rightRigidity": "#8B8B90",
+    "leftShin": "#8B8B90",
+    "rightShin": "#8B8B90",
+    "leftAnkle": "#FFD23F",
+    "rightAnkle": "#FFD23F",
+    "leftAnkleB": "#FF7A2F",
+    "rightAnkleB": "#FF7A2F",
+    "leftFoot": "#FFD23F",
+    "rightFoot": "#FFD23F",
+    "leftSole": "#8068B0",
+    "rightSole": "#8068B0",
+    "jaw": "#FFD23F"
+   }
+  },
+  {
+   "id": "lavender",
+   "label": "Ultraviolet",
+   "stripe": [
+    "#B4A4D4",
+    "#FFD23F",
+    "#8068B0"
+   ],
+   "colors": {
+    "head": "#B4A4D4",
+    "headBand": "#FFD23F",
+    "face": "#9B9892",
+    "eye": "#A8DCE8",
+    "headBase": "#FF7A2F",
+    "headBrace": "#8B8B90",
+    "bodyLeft": "#B4A4D4",
+    "bodyRight": "#B4A4D4",
+    "bodyCore": "#B4A4D4",
+    "trunkPlate": "#8B8B90",
+    "leftHip": "#8B8B90",
+    "rightHip": "#8B8B90",
+    "neckFront": "#8B8B90",
+    "neckRear": "#8B8B90",
+    "neckPitch": "#8B8B90",
+    "headJoint": "#8B8B90",
+    "leftYawRoll": "#1D1D1F",
+    "rightYawRoll": "#1D1D1F",
+    "leftLeg": "#B4A4D4",
+    "rightLeg": "#B4A4D4",
+    "leftRigidity": "#8B8B90",
+    "rightRigidity": "#8B8B90",
+    "leftShin": "#8B8B90",
+    "rightShin": "#8B8B90",
+    "leftAnkle": "#FFD23F",
+    "rightAnkle": "#FFD23F",
+    "leftAnkleB": "#FF7A2F",
+    "rightAnkleB": "#FF7A2F",
+    "leftFoot": "#FFD23F",
+    "rightFoot": "#FFD23F",
+    "leftSole": "#8068B0",
+    "rightSole": "#8068B0",
+    "jaw": "#FFD23F"
+   }
+  },
+  {
+   "id": "sky",
+   "label": "Poolside",
+   "stripe": [
+    "#A8DCE8",
+    "#FF7A2F",
+    "#FFD23F"
+   ],
+   "colors": {
+    "head": "#A8DCE8",
+    "headBand": "#FF7A2F",
+    "face": "#9B9892",
+    "eye": "#FFB52E",
+    "headBase": "#FF7A2F",
+    "headBrace": "#8B8B90",
+    "bodyLeft": "#A8DCE8",
+    "bodyRight": "#A8DCE8",
+    "bodyCore": "#A8DCE8",
+    "trunkPlate": "#8B8B90",
+    "leftHip": "#8B8B90",
+    "rightHip": "#8B8B90",
+    "neckFront": "#8B8B90",
+    "neckRear": "#8B8B90",
+    "neckPitch": "#8B8B90",
+    "headJoint": "#8B8B90",
+    "leftYawRoll": "#1D1D1F",
+    "rightYawRoll": "#1D1D1F",
+    "leftLeg": "#A8DCE8",
+    "rightLeg": "#A8DCE8",
+    "leftRigidity": "#8B8B90",
+    "rightRigidity": "#8B8B90",
+    "leftShin": "#8B8B90",
+    "rightShin": "#8B8B90",
+    "leftAnkle": "#FF7A2F",
+    "rightAnkle": "#FF7A2F",
+    "leftAnkleB": "#FF7A2F",
+    "rightAnkleB": "#FF7A2F",
+    "leftFoot": "#FF7A2F",
+    "rightFoot": "#FF7A2F",
+    "leftSole": "#FFD23F",
+    "rightSole": "#FFD23F"
+   }
+  }
+ ],
+ "exportGolden": {
+  "colors": {
+   "leftSole": "#FF6A13",
+   "head": "#123456",
+   "eye": "#00AE42"
+  },
+  "selectedPart": "Head dome",
+  "bytes": 169792,
+  "sha256": "23151626439929bf7d71e3e48313e850a0d6eb15c03a1b9d92b6103adc8d964f",
+  "partCount": 32,
+  "colorCount": 7
+ }
+}

@@ -1,19 +1,21 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { materialHookForMap, materialMapForHexOverrides } from "../src/game/variants.js";
 import { meshInstanceKey, meshNameFromSelector } from "../src/game/mesh-selector.js";
-import {
-  colorOverridesForParts,
-  DEFAULT_COLORS,
-  PARTS,
-  partForMeshInstance,
-  PRINT_MESH_ORDER,
-} from "../src/customizer/studio-parts.js";
+import { duckKinematics, duckStudio } from "./helpers/duck-studio.js";
 
-test("every LibreZoo Studio print target exists once in the walking model", async () => {
-  const source = new URL("../public/robot/librezoo/kinematics.json", import.meta.url);
-  const kinematics = JSON.parse(await readFile(source, "utf8"));
+// The print list now comes from the generated studio manifest
+// (public/robot/librezoo/studio.json) instead of a hand-written module.
+const {
+  colorOverridesForParts,
+  defaultColors: DEFAULT_COLORS,
+  parts: PARTS,
+  partForMeshInstance,
+  printMeshOrder: PRINT_MESH_ORDER,
+} = duckStudio();
+
+test("every LibreZoo Studio print target exists once in the walking model", () => {
+  const kinematics = duckKinematics();
   const available = new Map();
   const seenGeoms = new Set();
   const occurrences = new Map();

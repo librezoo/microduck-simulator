@@ -4,6 +4,15 @@ import { meshInstanceKey, meshNameFromSelector } from "../game/mesh-selector.js"
 
 const encoder = new TextEncoder();
 
+// What the package says about itself. Duck's values are the defaults, so an
+// export of the same design is byte-for-byte what it has always been; another
+// creature passes its own through the studio manifest's "export" block.
+export const DEFAULT_EXPORT_INFO = Object.freeze({
+  filePrefix: "duck",
+  title: "Microduck custom colorway",
+  description: "Full Microduck assembly with per-part colors",
+});
+
 function escapeXml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -64,7 +73,7 @@ function geometryRecord(mesh, { textured = false, forceOpaque = false } = {}) {
   };
 }
 
-function modelXml({ root, decal, selectedPart, includeMeshes = null }) {
+function modelXml({ root, decal, selectedPart, includeMeshes = null, title, description }) {
   root.updateWorldMatrix(true, true);
   const records = [];
   root.traverse((object) => {
@@ -131,9 +140,9 @@ function modelXml({ root, decal, selectedPart, includeMeshes = null }) {
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:m="http://schemas.microsoft.com/3dmanufacturing/material/2015/02" requiredextensions="m">
-  <metadata name="Title">Microduck custom colorway</metadata>
+  <metadata name="Title">${escapeXml(title)}</metadata>
   <metadata name="Designer">LibreZoo Studio</metadata>
-  <metadata name="Description">Full Microduck assembly with per-part colors${hasTexture ? " and a custom texture decal" : ""}.</metadata>
+  <metadata name="Description">${escapeXml(description)}${hasTexture ? " and a custom texture decal" : ""}.</metadata>
   <metadata name="microduck:selected-part">${escapeXml(selectedPart)}</metadata>
   <resources>${resources.join("")}${objects.join("")}</resources>
   <build>${build.join("")}</build>
@@ -251,13 +260,21 @@ function makeZip(entries) {
   return output;
 }
 
-export function createThreeMf({ root, decal = null, patternBytes = null, selectedPart = "", includeMeshes = null }) {
+export function createThreeMf({
+  root,
+  decal = null,
+  patternBytes = null,
+  selectedPart = "",
+  includeMeshes = null,
+  title = DEFAULT_EXPORT_INFO.title,
+  description = DEFAULT_EXPORT_INFO.description,
+}) {
   if (!root) throw new Error("The model is still loading.");
   const hasTexture = !!(decal && patternBytes?.length);
   const files = [
     ["[Content_Types].xml", contentTypesXml(hasTexture)],
     ["_rels/.rels", rootRelationships],
-    ["3D/3dmodel.model", modelXml({ root, decal: hasTexture ? decal : null, selectedPart, includeMeshes })],
+    ["3D/3dmodel.model", modelXml({ root, decal: hasTexture ? decal : null, selectedPart, includeMeshes, title, description })],
   ];
   if (hasTexture) {
     files.push(["3D/_rels/3dmodel.model.rels", textureRelationships]);
@@ -305,6 +322,9 @@ export function createThreeMfBundle({
   patternBytes = null,
   selectedPart = "",
   meshOrder = [],
+  filePrefix = DEFAULT_EXPORT_INFO.filePrefix,
+  title = DEFAULT_EXPORT_INFO.title,
+  description = DEFAULT_EXPORT_INFO.description,
 }) {
   if (!root) throw new Error("The model is still loading.");
   if (!meshOrder.length) throw new Error("No printable-part order was supplied.");
@@ -319,8 +339,10 @@ export function createThreeMfBundle({
     patternBytes,
     selectedPart,
     includeMeshes: printableSet,
+    title,
+    description,
   });
-  const files = [["duck-complete.3mf", complete]];
+  const files = [[`${filePrefix}-complete.3mf`, complete]];
   const manifest = [];
   const width = Math.max(2, String(printable.length).length);
 
@@ -329,7 +351,7 @@ export function createThreeMfBundle({
     const hex = colorHex(mesh.material, 1).slice(0, 7);
     const filament = exactBambuColor(hex) ?? closestBambuColor(hex);
     const colorCode = filament.code;
-    const filename = `duck-${absoluteNumber}-${colorCode}.3mf`;
+    const filename = `${filePrefix}-${absoluteNumber}-${colorCode}.3mf`;
     const path = `parts/${colorCode}/${filename}`;
     const ownsDecal = decal?.userData?.targetMesh === mesh;
     files.push([
@@ -340,6 +362,8 @@ export function createThreeMfBundle({
         patternBytes: ownsDecal ? patternBytes : null,
         selectedPart: mesh.userData.partLabel || meshName,
         includeMeshes: new Set([mesh]),
+        title,
+        description,
       }),
     ]);
     manifest.push({

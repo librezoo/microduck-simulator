@@ -10,12 +10,25 @@
 //                  scripts of the brand, creature names are free to be Latin)
 //   modelDir       directory of the generated model, relative to the page
 //   studioManifest URL of the generated studio manifest
+//   credit         optional lineage line, shown quietly wherever the creature
+//                  is presented (Duck improves on Pollen Robotics' Microduck)
 export const CREATURES = Object.freeze([
   Object.freeze({
     id: "duck",
     name: Object.freeze({ en: "Duck", zh: "Duck" }),
     modelDir: "./robot/librezoo",
     studioManifest: "./robot/librezoo/studio.json",
+    credit: Object.freeze({
+      url: "https://github.com/pollen-robotics/microduck",
+      text: Object.freeze({
+        en: "Improves on the Apache-2.0 Microduck by Pollen Robotics.",
+        zh: "在 Pollen Robotics 的 Apache-2.0 开源项目 Microduck 基础上改进。",
+      }),
+      notEndorsed: Object.freeze({
+        en: "LibreZoo is not endorsed by Pollen Robotics.",
+        zh: "LibreZoo 狸波 未获 Pollen Robotics 背书。",
+      }),
+    }),
   }),
 ]);
 
@@ -35,4 +48,16 @@ export function creatureFromSearch(search = "") {
   const id = requested ?? DEFAULT_CREATURE_ID;
   const creature = getCreature(id);
   return { requested, id, creature, known: !!creature };
+}
+
+const joinUrl = (dir, file) => `${dir.replace(/\/+$/, "")}/${file.replace(/^\.?\/+/, "")}`;
+
+// Where a creature's model files are, from its registry entry and the studio
+// manifest that names them (manifest.model.glb / .kinematics are relative to
+// the model directory).
+export function creatureModelUrls(creature, manifest) {
+  return {
+    kinematics: joinUrl(creature.modelDir, manifest.model.kinematics),
+    glb: joinUrl(creature.modelDir, manifest.model.glb),
+  };
 }
