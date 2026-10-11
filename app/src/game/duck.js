@@ -9,12 +9,12 @@ import { STLLoader } from "three/addons/loaders/STLLoader.js";
 import { mergeVertices, toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
 
 // Cache-busting version appended to the GLB / kinematics / leftover STL
-// fetches. Bump whenever microduck.glb is regenerated.
-export const MESH_VERSION = "13";
+// fetches. Bump whenever microduck.glb is regenerated or moved.
+export const MESH_VERSION = "14";
 
-// Default model directory: the MicroZoo microduck_927 body, generated from the
+// Default model directory: the LibreZoo microduck_927 body, generated from the
 // team's own CAD by tools/build_robot_model.py (see docs/robot-model.md).
-export const MODEL_DIR = "./robot/microzoo";
+export const MODEL_DIR = "./robot/librezoo";
 
 // On a private HF Space, asset requests carry the ?__sign JWT (auth
 // cookies may be blocked in the hub iframe). Identity everywhere else.

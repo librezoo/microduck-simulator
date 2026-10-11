@@ -12,7 +12,7 @@ import {
 } from "../src/customizer/studio-parts.js";
 
 test("every Color Studio print target exists once in the walking model", async () => {
-  const source = new URL("../public/robot/microzoo/kinematics.json", import.meta.url);
+  const source = new URL("../public/robot/librezoo/kinematics.json", import.meta.url);
   const kinematics = JSON.parse(await readFile(source, "utf8"));
   const available = new Map();
   const seenGeoms = new Set();

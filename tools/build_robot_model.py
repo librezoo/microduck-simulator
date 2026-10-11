@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Build the browser robot model from the MicroZoo "microduck_927" CAD export.
+"""Build the browser robot model from the LibreZoo "microduck_927" CAD export.
 
 Inputs
   --src   directory holding microduck_927.xml and meshes/*.stl (the team's own
           CAD export: the body that is actually printed and assembled)
-  --out   app/public/robot/microzoo
+  --out   app/public/robot/librezoo
 
 Outputs (consumed by app/src/game/duck.js and game.js)
   microduck.glb                    welded, decimated visual + collision meshes
@@ -587,7 +587,7 @@ class Builder:
         out = self.out
         (out / "meshes").mkdir(parents=True, exist_ok=True)
         kin_legs = {"bodies": self.body_list, "actuated_joints": [a.get("joint") for a in self.root.iter("position")],
-                    "mesh_dir": "./robot/microzoo/meshes"}  # fmt: skip
+                    "mesh_dir": "./robot/librezoo/meshes"}  # fmt: skip
         rollers, extra = self.roller_bodies()
         kin_rollers = {"bodies": rollers, "actuated_joints": kin_legs["actuated_joints"], "mesh_dir": kin_legs["mesh_dir"]}
         (out / "kinematics.json").write_text(json.dumps(kin_legs, indent=1))

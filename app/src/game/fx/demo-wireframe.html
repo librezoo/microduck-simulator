@@ -79,7 +79,7 @@
     resize();
 
     // Isolated duck rig, classic colourway.
-    const k = await loadKinematics("/robot/microzoo/kinematics.json");
+    const k = await loadKinematics("/robot/librezoo/kinematics.json");
     const rig = await buildRig(k, { materialForMesh: materialHookFor(VARIANTS.classic) });
     groundFullBody(rig);
     scene.add(rig.placer);

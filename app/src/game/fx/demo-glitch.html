@@ -101,9 +101,9 @@
       resize();
 
       // ── Isolated duck rig (classic variant, standing pose) ────────────
-      // MODEL_DIR is page-relative ("./robot/microzoo") and resolves wrong from
+      // MODEL_DIR is page-relative ("./robot/librezoo") and resolves wrong from
       // /fx/; mesh_dir inside the JSON is root-absolute so only this differs.
-      const k = await loadKinematics("../robot/microzoo/kinematics.json");
+      const k = await loadKinematics("../robot/librezoo/kinematics.json");
       const rig = await buildRig(k, { materialForMesh: materialHookFor(VARIANTS.classic) });
       groundFullBody(rig, 0);
       scene.add(rig.placer);

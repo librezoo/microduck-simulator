@@ -1,15 +1,15 @@
 # Robot model
 
-The simulator renders and simulates MicroZoo's own body, the `microduck_927` CAD
+The simulator renders and simulates LibreZoo's own body, the `microduck_927` CAD
 export (the robot that is printed and assembled), not a third-party model.
-Everything under `app/public/robot/microzoo/` is generated; do not edit it by
+Everything under `app/public/robot/librezoo/` is generated; do not edit it by
 hand.
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install numpy trimesh shapely mapbox_earcut lxml \
     fast-simplification mujoco
 .venv/bin/python tools/build_robot_model.py --src /path/to/microduck_927 \
-    --out app/public/robot/microzoo
+    --out app/public/robot/librezoo
 ```
 
 `--src` is the directory holding `microduck_927.xml` and `meshes/*.stl`.
@@ -46,7 +46,7 @@ changing all three.
   and axle caps are generated from primitives. The assembly's mass, inertia and
   wheel positions are carried over from the previous roller model so the Drive
   policy keeps the dynamics it was trained on. This is an open item in
-  `ASSET_LICENSES.md`: replace it with values measured on MicroZoo hardware.
+  `ASSET_LICENSES.md`: replace it with values measured on LibreZoo hardware.
 - **No beak.** The 927 head is a closed visor with one camera eye, so the quack
   animation (`setJawOpen` in `duck.js`) pulses the eye ring and lens instead of
   swinging a jaw.
