@@ -14,6 +14,10 @@ Real trained RL policies compatible with the Microduck robot, running fully in t
 browser: MuJoCo compiled to WebAssembly steps the physics, onnxruntime-web
 runs the policy network at 50 Hz. No server, no backend.
 
+The simulator is served at https://duck.librezoo.com/sim/. The LibreZoo web
+sites (https://librezoo.com and https://duck.librezoo.com) live in the
+`librezoo_web` repository, not in this one.
+
 Two locomotion variants of the same robot are included: **legs** (walking,
 the default) and **rollers** (the wheeled skating variant). Press `M` (or
 hold D-pad up ~1 s on a gamepad) to switch; the roller model, meshes and
@@ -58,8 +62,8 @@ does not schedule another action policy while rollers are active.
 Policies from
 [micro-zoo/microduck](https://github.com/micro-zoo/microduck)
 and [micro-zoo/microduck_rl](https://github.com/micro-zoo/microduck_rl). The
-robot model is MicroZoo's own `microduck_927` CAD, generated into
-`app/public/robot/microzoo/` by `tools/build_robot_model.py`; see
+robot model is LibreZoo's own `microduck_927` CAD, generated into
+`app/public/robot/librezoo/` by `tools/build_robot_model.py`; see
 [docs/robot-model.md](docs/robot-model.md).
 The four pose motions are project-authored procedural code. Their existing clip
 IDs and timings remain stable for saved selections and native diagnostics, but
@@ -187,7 +191,7 @@ UI intents in).
 
 ## Zoo Kinder iOS app
 
-`ios/Microduck.xcodeproj` builds **Zoo Kinder**, published under the MicroZoo
+`ios/Microduck.xcodeproj` builds **Zoo Kinder**, published under the LibreZoo
 brand. It is a native SwiftUI app that hosts the same simulator in one
 long-lived `WKWebView`. The Vite bundle, MuJoCo and ONNX Runtime WASM, fonts,
 policies, scenes, meshes and audio are copied into the `.app`; simulation is
@@ -239,8 +243,8 @@ texture, or brand asset in `app/public/`.
   material.
 - [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) contains software, font, and
   Creative Commons attribution notices.
-- [TRADEMARKS.md](TRADEMARKS.md) explains the separate Zoo Kinder and MicroZoo
-  brand-use boundary.
+- [TRADEMARKS.md](TRADEMARKS.md) explains the separate Zoo Kinder and LibreZoo
+  brand-use boundary, and that the LibreZoo / 狸波 names are not yet cleared.
 - [PRIVACY.md](PRIVACY.md) describes the default-off public multiplayer data
   flow and the additional review required for child-directed distribution.
 - `app/public/legal/` is copied into web and iOS builds so the applicable

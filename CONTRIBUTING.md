@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for contributing to the MicroZoo simulator.
+Thank you for contributing to the LibreZoo simulator.
 
 ## Development workflow
 
