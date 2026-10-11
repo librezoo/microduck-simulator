@@ -24,10 +24,6 @@ export const CREATURES = Object.freeze([
         en: "Improves on the Apache-2.0 Microduck by Pollen Robotics.",
         zh: "在 Pollen Robotics 的 Apache-2.0 开源项目 Microduck 基础上改进。",
       }),
-      notEndorsed: Object.freeze({
-        en: "LibreZoo is not endorsed by Pollen Robotics.",
-        zh: "LibreZoo 狸波 未获 Pollen Robotics 背书。",
-      }),
     }),
   }),
 ]);

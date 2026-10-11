@@ -18,8 +18,7 @@ export function Credit({ creatureId }) {
   if (!credit) return null;
   return (
     <p className="lz-credit">
-      <a href={credit.url} target="_blank" rel="noopener noreferrer">{pick(credit.text, lang)}</a>{" "}
-      <span>{pick(credit.notEndorsed, lang)}</span>
+      <a href={credit.url} target="_blank" rel="noopener noreferrer">{pick(credit.text, lang)}</a>
     </p>
   );
 }
