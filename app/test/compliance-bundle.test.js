@@ -42,6 +42,8 @@ test("does not ship the removed standalone or unproven assets", async () => {
     "public/assets/duck-head-mark.webp",
     "public/assets/zoo-kinder-mark.webp",
     "public/robot/mjlab/microduck.glb",
+    "public/robot/microzoo/microduck.glb",
+    "public/assets/microzoo-mark.svg",
     "public/robot/mjlab/robot_allcollisions.xml",
     "public/assets/microduck-wordmark.svg",
     "public/assets/stickers/quack.webp",
@@ -59,5 +61,13 @@ test("records every retained Creative Commons room in code and notices", async (
   for (const marker of ["ChristyHsu", "crispimrafael", "carlcapu9", "CC BY 4.0"]) {
     assert.match(scenes, new RegExp(marker));
     assert.match(notices, new RegExp(marker));
+  }
+});
+
+test("trademark notices never claim the publisher names are cleared", async () => {
+  for (const file of [rootFile("TRADEMARKS.md"), appFile("public/legal/TRADEMARKS.txt")]) {
+    const text = await readFile(file, "utf8");
+    assert.match(text, /no (trademark )?(search|clearance)/i);
+    assert.doesNotMatch(text, /LibreZoo[^.]*\b(is|are) (cleared|registered)/i);
   }
 });

@@ -14,7 +14,9 @@ Real trained RL policies compatible with the Microduck robot, running fully in t
 browser: MuJoCo compiled to WebAssembly steps the physics, onnxruntime-web
 runs the policy network at 50 Hz. No server, no backend.
 
-The simulator is served at https://duck.librezoo.com/sim/. The LibreZoo web
+The simulator is served at https://duck.librezoo.com/sim/ (a live deployment, not a
+cleared release; see docs/legal/release-readiness.md for the open name and
+rights items). The LibreZoo web
 sites (https://librezoo.com and https://duck.librezoo.com) live in the
 `librezoo_web` repository, not in this one.
 

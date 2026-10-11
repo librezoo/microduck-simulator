@@ -102,7 +102,6 @@ jobs:
             assets/stickers/wave.webp
             assets/stickers/ziouuu.webp
             assets/voices/wawa.mp3
-            policies/run.onnx
             wbc/microduck-wbc/config.yaml
             wbc/microduck-wbc/policy.onnx
             wbc/microduck-wbc/reference/index.json

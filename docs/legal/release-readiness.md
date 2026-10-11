@@ -1,6 +1,6 @@
 # Release readiness and unresolved rights
 
-Last reviewed: 2026-09-03
+Last reviewed: 2026-10-11 (robot model and publisher-name sections; the other sections were last reviewed on 2026-09-03)
 
 This is a current evidence record, not legal advice. It separates engineering
 remediation from rights or platform decisions that cannot be created by a code
@@ -65,16 +65,22 @@ The publisher name changed from MicroZoo to LibreZoo (Chinese name 狸波) on
 or cleared.** The maintainers still have to run a fresh registry screen for
 them, covering the Chinese-language name as well as the English one, and to
 obtain documented rights, permission, or jurisdiction-specific counsel
-clearance. Do not publish under `LibreZoo` or 狸波 until that is done.
+clearance. The simulator is already served at https://duck.librezoo.com/sim/ under these
+names. That deployment is not a clearance and carries the same unresolved risk.
+Do not make a public source release, App Store build or other binary
+distribution under `LibreZoo` or 狸波 until that is done.
 
-*Historical note.* The earlier preliminary registry screen was about the former
+*Historical note.* The earlier preliminary registry screen (run on or before the 2026-09-03
+review) was about the former
 name `MICRO ZOO`, not about LibreZoo, so it is historical and says nothing
 about the new names. It found live `MICRO ZOO` registrations in relevant toy
 categories, including [US registration 5765694 / serial
 88072647](https://tsdr.uspto.gov/statusview/sn88072647) and [EU trade mark
 018019871](https://euipo.europa.eu/eSearch/#details/trademarks/018019871).
 That was a release red flag for that name, not a final infringement opinion.
-It is kept here as a record only; it is not a clearance of any kind.
+It is kept here as a record only; it is not a clearance of any kind. The fresh
+screen should still cover ZOO-formative marks in the same toy classes,
+including the registrations named above.
 
 `Zoo Kinder` also requires a proper clearance search; a preliminary
 no-exact-hit search is not legal clearance.

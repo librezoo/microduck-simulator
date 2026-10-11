@@ -1,5 +1,5 @@
 ZOO KINDER ASSET ATTRIBUTIONS
-Prepared 2026-09-03
+Prepared 2026-09-03; updated 2026-10-11
 
 CREATIVE COMMONS ATTRIBUTION 4.0 ROOMS
 
@@ -36,10 +36,13 @@ above.
 LIBREZOO VISUAL IDENTITY
 
 The LibreZoo mark, favicon and application icon are hand-authored SVG
-geometry designed from scratch for LibreZoo by Claude (Anthropic) on
-2026-10-10; no reference artwork or existing logo was used. LibreZoo makes the
-files available under Apache-2.0 to the extent it holds copyright or other
-licensable rights. This provenance record is not a warranty that no
+geometry designed from scratch by Claude (Anthropic) on 2026-10-10, when the
+project was still named MicroZoo. The name changed to LibreZoo (狸波) on
+2026-10-11; the geometry did not change. No reference artwork or existing logo
+was used. LibreZoo makes the files available under Apache-2.0 to the extent it
+holds copyright or other licensable rights. LibreZoo is the same project under
+its new name; works recorded in this file that predate 2026-10-11 were created
+under the former name. This provenance record is not a warranty that no
 independently created work is similar. Trademark use is governed separately.
 
 ROBOT MODEL
@@ -84,8 +87,9 @@ The nine other deployment policy files are redistributed from the
 Apache-2.0-licensed pollen-robotics/microduck project, as detailed in the
 source repository's ASSET_LICENSES.md and THIRD_PARTY_NOTICES.md.
 
-The former experimental policies/run.onnx and Sprint UI are absent from this
-build because the project did not have a sufficient redistribution record.
+The earlier experimental policies/run.onnx and Sprint UI, which had no
+redistribution record, are not the files shipped today; the current
+policies/run.onnx is listed under the open items above.
 The former wbc/microduck-wbc policy and CSV bundle is likewise absent. Four
 project-authored 50 Hz pose motions are generated directly by
 src/game/procedural-motions.js under the project source license.

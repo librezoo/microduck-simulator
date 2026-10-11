@@ -18,16 +18,21 @@ distribution. A free or non-commercial release is still a distribution.
 
 | Files | Owner/source record | License | Status |
 |---|---|---|---|
-| `app/public/assets/librezoo-mark.svg`, `librezoo-mark-cream.svg`, `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | Hand-authored SVG geometry (one stroked path and three circles) designed from scratch for LibreZoo by Claude (Anthropic) on 2026-10-10; no reference artwork or existing logo was used. Raster files are exports of the same SVG | Apache-2.0, to the extent LibreZoo holds copyright or other licensable rights | Cleared |
+| `app/public/assets/librezoo-mark.svg`, `librezoo-mark-cream.svg`, `favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | Hand-authored SVG geometry (one stroked path and three circles) designed from scratch for the project (then named MicroZoo) by Claude (Anthropic) on 2026-10-10; no reference artwork or existing logo was used. Raster files are exports of the same SVG | Apache-2.0, to the extent LibreZoo holds copyright or other licensable rights | Cleared |
 | `ios/Microduck/Assets.xcassets/AppIcon.appiconset/AppIcon.png` | Export of the same SVG as a full-bleed ink tile | Apache-2.0, to the extent LibreZoo holds copyright or other licensable rights | Cleared |
 
 The design rationale and the exact geometry are recorded in
 `docs/brand/librezoo-identity.md`. The names and source-identifying use of the
-artwork remain subject to `TRADEMARKS.md`. LibreZoo was named MicroZoo until
-2026-10-11; the mark and the robot CAD export recorded in this file were
-created under that earlier name. The earlier generated Zoo Kinder
+artwork remain subject to `TRADEMARKS.md`. The project was named MicroZoo
+until 2026-10-11, when it became LibreZoo (狸波); it is the same project under a
+new name. The mark (2026-10-10) and the robot CAD export (2026-10-05, see
+below) were created under the former name. The earlier generated Zoo Kinder
 raster mark and its provenance record were removed when the vector identity
 replaced them.
+
+"Cleared" in this inventory means copyright and provenance only. It is not a
+trademark clearance: no search has been made for LibreZoo, LIBRE ZOO or 狸波
+(see `docs/legal/release-readiness.md`, section 4).
 
 ## Generated voice assets
 
@@ -201,6 +206,9 @@ Before publishing any revision or app build:
    transformation record for third-party assets in the private release record.
 7. Review App Store privacy disclosures and multiplayer consent separately;
    copyright clearance does not satisfy privacy or child-directed-app rules.
+8. Confirm that a fresh trademark screen for LibreZoo, LIBRE ZOO, 狸波 and
+   Zoo Kinder has been run and its outcome recorded in
+   `docs/legal/release-readiness.md`, section 4.
 
 This inventory records project evidence; it is not legal advice and does not
 replace review for the jurisdictions in which a release is offered.
