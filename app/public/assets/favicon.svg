@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="MicroZoo">
-  <title>MicroZoo</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="LibreZoo">
+  <title>LibreZoo</title>
   <rect width="128" height="128" rx="30" fill="#0B0B10"/>
   <g transform="translate(64 64) scale(0.68) translate(-64 -64) translate(-8 2)">
     <g fill="none" stroke="#F6F2E8" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">

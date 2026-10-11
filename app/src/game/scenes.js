@@ -72,7 +72,7 @@ export const SCENE_ATTRIBUTIONS = Object.freeze({
     sourceUrl: "https://sketchfab.com/3d-models/dining-room-kichen-baked-4831c2ce6a0044d9bee9eacefcc0f2bd",
     license: "CC BY 4.0",
     licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
-    changes: "Converted to GLB, optimized, repositioned, and paired with simplified collision geometry by MicroZoo.",
+    changes: "Converted to GLB, optimized, repositioned, and paired with simplified collision geometry by LibreZoo.",
   }),
   apartment: Object.freeze({
     title: "Appartement",

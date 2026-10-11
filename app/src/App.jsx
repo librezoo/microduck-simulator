@@ -52,7 +52,7 @@ function SimulatorApp() {
       useGame.setState({ prebootDone: true, entered: true, menuOpen: false });
     } else {
       const img = new Image();
-      img.src = signed("./assets/microzoo-mark.svg");
+      img.src = signed("./assets/librezoo-mark.svg");
       const imgReady = new Promise((res) => {
         if (img.complete && img.naturalWidth) res();
         else {

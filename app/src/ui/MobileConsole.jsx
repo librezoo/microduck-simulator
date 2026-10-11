@@ -233,7 +233,7 @@ export default function MobileConsole() {
                 Zoo Kinder
               </Box>
               <Box sx={{ mt: "0.12rem", fontFamily: MONO, fontSize: "0.55rem", letterSpacing: "0.12em", color: "rgba(250, 248, 242, 0.6)", textTransform: "uppercase" }}>
-                {nativeApp ? "By MicroZoo" : "Independent · Microduck compatible"}
+                {nativeApp ? "By LibreZoo" : "Independent · Microduck compatible"}
               </Box>
             </Box>
             <Box sx={{ fontFamily: MONO, fontSize: "0.6rem", letterSpacing: "0.1em", color: "rgba(250, 248, 242, 0.62)", textTransform: "uppercase", textAlign: "right" }}>

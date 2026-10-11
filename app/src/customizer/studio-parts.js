@@ -2,7 +2,7 @@ import { meshInstanceKey } from "../game/mesh-selector.js";
 
 const target = (body, mesh, occurrence = 1) => ({ body, mesh, occurrence });
 
-// Print source of truth: the MicroZoo microduck_927 assembly. A part is listed
+// Print source of truth: the LibreZoo microduck_927 assembly. A part is listed
 // here when its CAD solid is a printed part (amber in the CAD export) and it is
 // present in the browser model; servos, boards, bearings and the battery are
 // purchased and stay out of the print package. The sole pad is a separate TPU

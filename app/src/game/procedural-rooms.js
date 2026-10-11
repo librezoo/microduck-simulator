@@ -59,7 +59,7 @@ function markOriginal(root, roomId) {
     roomId,
     procedural: true,
     externalAssets: [],
-    designOrigin: "MicroZoo original geometry",
+    designOrigin: "LibreZoo original geometry",
   };
   return root;
 }

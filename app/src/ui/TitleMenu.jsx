@@ -122,7 +122,7 @@ function closeMenu() {
 export default function TitleMenu() {
   const nativeApp = getPerformanceProfile().native;
   const productName = "Zoo Kinder";
-  const publisherLine = "By MicroZoo";
+  const publisherLine = "By LibreZoo";
   const menuOpen = useGame((s) => s.menuOpen);
   const entered = useGame((s) => s.entered);
   const padConnected = useGame((s) => s.padConnected);
@@ -250,7 +250,7 @@ export default function TitleMenu() {
             },
           }}
         >
-          {/* Independent MicroZoo mark: an abstract postmodern zoo portal.
+          {/* Independent LibreZoo mark: an abstract postmodern zoo portal.
               It deliberately shares no artwork with the robot brand. */}
           <Box
             aria-hidden
@@ -292,7 +292,7 @@ export default function TitleMenu() {
               <Box
                 component="img"
                 alt=""
-                src={signed("./assets/microzoo-mark.svg")}
+                src={signed("./assets/librezoo-mark.svg")}
                 sx={{
                   display: "block",
                   width: "100%",
@@ -343,7 +343,7 @@ export default function TitleMenu() {
             }}
           >
             {nativeApp
-              ? "MicroZoo's animal kindergarten, powered by the same trained policies that drive the real robot."
+              ? "LibreZoo's animal kindergarten, powered by the same trained policies that drive the real robot."
               : "The exact same trained policies that drive the real robot, live in your browser."}
           </Typography>
         </Box>

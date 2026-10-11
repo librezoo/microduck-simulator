@@ -45,7 +45,7 @@ export function initializeNativeRuntime() {
   document.documentElement.dataset.performanceProfile = profile.name;
   if (!native) return;
 
-  document.title = "Zoo Kinder — by MicroZoo";
+  document.title = "Zoo Kinder — by LibreZoo";
   window.__microduckNativeUpdate = (next = {}) => publish(next);
   postNative({
     type: "ready",

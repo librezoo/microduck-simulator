@@ -1,4 +1,4 @@
-export const STUDIO_DESIGN_KEY = "microzoo.color-studio.v2";
+export const STUDIO_DESIGN_KEY = "librezoo.color-studio.v2";
 
 const validHex = (value) => typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value);
 
