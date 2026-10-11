@@ -1,7 +1,8 @@
-// App shell: layers in z order - scene canvas (1), halftone (2), CRT (5),
-// HUD + touch overlay (9-12), BIOS readout (20), title menu (30), preboot
-// veil (40). Also owns the pre-game device detection (gamepad, touch) and
-// the preboot -> title -> enter flow.
+// Simulator shell (LibreZoo Studio has its own entry, see main.jsx). Layers in
+// z order: scene canvas (1), halftone (2), CRT (5), HUD + touch overlay
+// (9-12), BIOS readout (20), title menu (30), preboot veil (40). Also owns the
+// pre-game device detection (gamepad, touch) and the preboot -> title ->
+// enter flow.
 import { useEffect } from "react";
 import GameCanvas from "./scene/GameCanvas.jsx";
 import { Halftone, CrtOverlay } from "./ui/Overlays.jsx";
@@ -14,10 +15,8 @@ import TitleMenu from "./ui/TitleMenu.jsx";
 import Preboot from "./ui/Preboot.jsx";
 import { useGame } from "./store.js";
 import { signed } from "./game/signed.js";
-import Customizer from "./customizer/Customizer.jsx";
-import { isStudioRoute } from "./routes.js";
 
-function SimulatorApp() {
+export default function App() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
 
@@ -92,6 +91,3 @@ function SimulatorApp() {
   );
 }
 
-export default function App() {
-  return isStudioRoute() ? <Customizer /> : <SimulatorApp />;
-}

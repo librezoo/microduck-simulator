@@ -1,22 +1,7 @@
-import { createRoot } from "react-dom/client";
-import "@fontsource/anton/400.css";
-import { ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import { theme } from "./theme.js";
-import App from "./App.jsx";
-import { initializeNativeRuntime } from "./native/runtime.js";
+// Entry. The page is either the simulator or LibreZoo Studio; deciding before
+// loading either keeps each from paying for the other (the Studio needs none
+// of MuJoCo, ONNX or MUI, and the simulator none of the Studio).
+import { isStudioRoute } from "./routes.js";
 
-// Build tag: bump to change the bundle's content hash, e.g. to bust a stale
-// edge-cached asset URL on the HF Space.
-const BUILD_TAG = "2026-09-20";
-console.info(`Microduck build ${BUILD_TAG}`);
-initializeNativeRuntime();
-
-// No StrictMode: the game core is a heavyweight singleton (MuJoCo WASM,
-// ONNX sessions, WebRTC room) and dev double-mounting would double-boot it.
-createRoot(document.getElementById("root")).render(
-  <ThemeProvider theme={theme}>
-    <CssBaseline />
-    <App />
-  </ThemeProvider>,
-);
+if (isStudioRoute()) import("./studio-main.jsx");
+else import("./sim-main.jsx");
