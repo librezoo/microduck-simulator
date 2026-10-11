@@ -350,7 +350,7 @@ async function boot({ scene, camera, renderer }) {
   doneMeshes(`${meshFiles.length} FILES`);
 
   const sessions = {};
-  // A Color Studio launch keeps the saved per-mesh palette through the full
+  // A LibreZoo Studio launch keeps the saved per-mesh palette through the full
   // physics simulator. Standard launches retain the classic orange robot.
   let currentVariant = customDesignRequested && customMaterialMap ? "custom" : DEFAULT_VARIANT;
   const currentMaterialHook = () => currentVariant === "custom"

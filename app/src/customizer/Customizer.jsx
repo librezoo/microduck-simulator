@@ -532,7 +532,7 @@ export default function Customizer() {
 
   useEffect(() => {
     const previousTitle = document.title;
-    document.title = "LibreZoo Color Studio";
+    document.title = "LibreZoo Studio";
     return () => { document.title = previousTitle; };
   }, []);
 
@@ -609,7 +609,7 @@ export default function Customizer() {
           <Box component="img" src={signed("./assets/librezoo-mark-cream.svg")} alt="" sx={{ width: { xs: 32, md: 36 }, height: { xs: 32, md: 36 }, objectFit: "contain" }} />
           <Typography sx={{ display: { xs: "none", sm: "block" }, fontFamily: ANTON, fontSize: "1.2rem", letterSpacing: "0.025em", textTransform: "uppercase" }}>LibreZoo</Typography>
         </Box>
-        <Typography sx={{ fontFamily: MONO, fontSize: { xs: "0.66rem", sm: "0.72rem" }, fontWeight: 700, letterSpacing: "0.13em", textTransform: "uppercase", color: "rgba(255,255,255,0.58)" }}>Color Studio</Typography>
+        <Typography sx={{ fontFamily: MONO, fontSize: { xs: "0.66rem", sm: "0.72rem" }, fontWeight: 700, letterSpacing: "0.13em", textTransform: "uppercase", color: "rgba(255,255,255,0.58)" }}>Studio</Typography>
         <Typography sx={{ display: { xs: "none", lg: "block" }, ml: "auto", mr: "auto", fontSize: "0.78rem", color: "rgba(255,255,255,0.34)" }}>Make the hardware unmistakably yours.</Typography>
         <Box component="button" type="button" aria-label="Run this design in the simulator" disabled={!ready} onClick={runInSimulator} sx={{ ml: { xs: "auto", lg: 0 }, ...smallButtonSx, minHeight: { xs: 36, md: 42 }, px: { xs: 0.65, md: 0.9 }, display: "flex", alignItems: "center", gap: "0.45rem", background: CREAM, boxShadow: `4px 4px 0 ${ORANGE}`, opacity: !ready ? 0.55 : 1 }}>
           <Icon type="play" />

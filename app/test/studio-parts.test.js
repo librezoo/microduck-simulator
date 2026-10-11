@@ -11,7 +11,7 @@ import {
   PRINT_MESH_ORDER,
 } from "../src/customizer/studio-parts.js";
 
-test("every Color Studio print target exists once in the walking model", async () => {
+test("every LibreZoo Studio print target exists once in the walking model", async () => {
   const source = new URL("../public/robot/librezoo/kinematics.json", import.meta.url);
   const kinematics = JSON.parse(await readFile(source, "utf8"));
   const available = new Map();

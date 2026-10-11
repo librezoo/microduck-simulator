@@ -237,7 +237,7 @@ function NavigationButtons() {
         <Box
           component="a"
           href="?studio=1"
-          aria-label="Open Color Studio"
+          aria-label="Open LibreZoo Studio"
           sx={{
             ...hudHitSx,
             background: ORANGE,
@@ -353,7 +353,7 @@ function Quickbar() {
             ...Object.entries(VARIANT_SWATCH_HEX),
           ].map(([name, hex]) => {
             const selected = name === variant;
-            const label = name === "custom" ? "Color Studio design" : (VARIANT_LABELS[name] ?? name);
+            const label = name === "custom" ? "Studio design" : (VARIANT_LABELS[name] ?? name);
             return (
               <Box
                 key={name}

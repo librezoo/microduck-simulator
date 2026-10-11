@@ -88,9 +88,9 @@ their joint trajectories do not depend on an external motion asset.
 - Pose Motion: switching styles starts the new motion at frame 0 without
   resetting physics
 
-## Color Studio
+## LibreZoo Studio
 
-The title screen links to a dedicated browser-based Color Studio (`?studio=1`).
+The title screen links to a dedicated browser-based LibreZoo Studio (`?studio=1`).
 It reuses the simulator's production robot geometry and visual language,
 while adding per-part color controls, full-robot colorways and a live orbit
 preview with direct part picking. Export produces a ZIP containing a

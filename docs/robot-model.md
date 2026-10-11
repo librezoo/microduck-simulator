@@ -26,7 +26,7 @@ python3 -m venv .venv && .venv/bin/pip install numpy trimesh shapely mapbox_earc
 
 Parts get readable names (`head_dome`, `shin_left`, ...) through `ALIASES` and
 `SIDE_ALIASES` in the tool; left and right are resolved from the geometry. The
-Color Studio part list (`app/src/customizer/studio-parts.js`) and the colour
+LibreZoo Studio part list (`app/src/customizer/studio-parts.js`) and the colour
 slots (`app/src/game/variants.js`) use those names, so renaming a part means
 changing all three.
 

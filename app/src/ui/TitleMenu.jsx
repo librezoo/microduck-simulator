@@ -537,7 +537,7 @@ export default function TitleMenu() {
             size="medium"
             onDark
           >
-            Color Studio
+            LibreZoo Studio
           </ComicButton>
           <LegalDisclosure />
         </Box>

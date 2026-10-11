@@ -132,7 +132,7 @@ function modelXml({ root, decal, selectedPart, includeMeshes = null }) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:m="http://schemas.microsoft.com/3dmanufacturing/material/2015/02" requiredextensions="m">
   <metadata name="Title">Microduck custom colorway</metadata>
-  <metadata name="Designer">LibreZoo Color Studio</metadata>
+  <metadata name="Designer">LibreZoo Studio</metadata>
   <metadata name="Description">Full Microduck assembly with per-part colors${hasTexture ? " and a custom texture decal" : ""}.</metadata>
   <metadata name="microduck:selected-part">${escapeXml(selectedPart)}</metadata>
   <resources>${resources.join("")}${objects.join("")}</resources>
