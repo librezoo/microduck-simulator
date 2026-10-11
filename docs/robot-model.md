@@ -26,9 +26,9 @@ python3 -m venv .venv && .venv/bin/pip install numpy trimesh shapely mapbox_earc
 
 Parts get readable names (`head_dome`, `shin_left`, ...) through `ALIASES` and
 `SIDE_ALIASES` in the tool; left and right are resolved from the geometry. The
-LibreZoo Studio part list (`app/src/customizer/studio-parts.js`) and the colour
+LibreZoo Studio part list (`STUDIO_GROUPS` in the tool, written to `studio.json`) and the colour
 slots (`app/src/game/variants.js`) use those names, so renaming a part means
-changing all three.
+changing all three; `--manifest-only` rewrites just `studio.json`.
 
 ## What is generated, not copied
 
@@ -58,5 +58,5 @@ cd app && npm test                      # part lists resolve exactly once
 npm run dev                             # walk, Shift+W sprint, M for rollers, ?studio=1
 ```
 
-The studio test (`test/studio-parts.test.js`) fails if a printed part is added
-to or removed from the model without updating `studio-parts.js`.
+The studio tests (`test/studio-parts.test.js`, `test/studio-manifest.test.js`) fail if a
+printed part is added to or removed from the model without regenerating `studio.json`.

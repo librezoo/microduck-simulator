@@ -24,7 +24,6 @@ export const STRINGS = {
   parts: { en: "Parts", zh: "零件" },
   partsCount: { en: (n) => `${n} printed parts`, zh: (n) => `${n} 个打印件` },
   partsOf: { en: (i, n) => `Part ${i} of ${n}`, zh: (i, n) => `第 ${i} / ${n} 个` },
-  groupToggle: { en: (name) => `${name}, show or hide parts`, zh: (name) => `${name}，展开或收起零件` },
   partRowAria: { en: (name, code) => `${name}, filament ${code}`, zh: (name, code) => `${name}，耗材 ${code}` },
   nearest: { en: "nearest Bambu colour", zh: "最接近的 Bambu 颜色" },
   partGroups: { en: "Part groups", zh: "零件分组" },
@@ -40,14 +39,9 @@ export const STRINGS = {
   exactMatch: { en: "Exact match", zh: "完全匹配" },
   closestMatch: { en: "Closest match", zh: "最接近" },
   useBambu: { en: (label) => `Use Bambu ${label}`, zh: (label) => `使用 Bambu ${label}` },
-  bambuNote: {
-    en: "Catalogue numbers go into the 3MF names and the parts list.",
-    zh: "目录编号会写入 3MF 文件名和零件清单。",
-  },
 
   // colourways
   colourways: { en: "Colourways", zh: "配色方案" },
-  applyAll: { en: "Applies to every part", zh: "应用到全部零件" },
   allParts: { en: "all parts", zh: "全部零件" },
   applyColourway: { en: (name) => `Apply the ${name} colourway`, zh: (name) => `应用配色方案「${name}」` },
   shuffle: { en: "Shuffle", zh: "随机配色" },
@@ -88,6 +82,7 @@ export const STRINGS = {
   loadingModel: { en: "Loading print geometry", zh: "正在载入打印几何体" },
   errorTitle: { en: "The model didn't load", zh: "模型未能加载" },
   errorBody: { en: "Check your connection and try again.", zh: "请检查网络连接后重试。" },
+  backHome: { en: "Back to LibreZoo", zh: "返回 LibreZoo 狸波" },
   retry: { en: "Try again", zh: "重试" },
   webglTitle: { en: "3D isn't available here", zh: "此处无法使用 3D" },
   webglBody: {
@@ -110,7 +105,6 @@ export const STRINGS = {
     zh: (parts, colours, mb) => `${parts} 个零件 · ${colours} 种颜色 · ${mb} MB`,
   },
   exportFailed: { en: "Export failed", zh: "导出失败" },
-  modelLoading: { en: "The model is still loading.", zh: "模型仍在加载。" },
 
   // mobile sheet
   tabParts: { en: "Parts", zh: "零件" },

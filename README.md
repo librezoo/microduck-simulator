@@ -90,17 +90,17 @@ their joint trajectories do not depend on an external motion asset.
 
 ## LibreZoo Studio
 
-The title screen links to a dedicated browser-based LibreZoo Studio (`?studio=1`).
-It reuses the simulator's production robot geometry and visual language,
-while adding per-part color controls, full-robot colorways and a live orbit
-preview with direct part picking. Export produces a ZIP containing a
-standards-based complete-assembly `.3mf`, a CSV part manifest, and individually
-numbered `.3mf` files grouped by five-digit Bambu colour code. The picker
-includes the 30 Bambu PLA Basic display colours and catalogue colour numbers;
-exact matches are named in the 3MF material table. Designs are saved locally,
-and **Run design**
-opens the real simulator with the same per-part palette on both feet and roller
-models.
+LibreZoo Studio is a separate browser tool (`?studio=1` locally, `studio.librezoo.com`
+deployed, `?creature=<id>` picks the creature, Duck by default). A full-bleed 3D stage with
+floating panels: parts grouped from the creature's studio manifest, per-part colour with a
+code field and the 30 Bambu PLA Basic colours (closest catalogue number shown), colourways
+that repaint every part, undo and resets, direct part picking on the model, English and
+简体中文. Phones get a bottom sheet with Parts, Colour and Colourways tabs. Export produces a
+ZIP with a complete-assembly `.3mf`, a CSV part manifest and numbered `.3mf` files grouped by
+five-digit Bambu colour code. Designs are saved on the device and "Run design" opens the
+simulator with them. The Studio is data-driven: a new creature needs a model, a generated
+`studio.json` and a registry entry, see [docs/adding-a-creature.md](docs/adding-a-creature.md).
+Routes: `/` simulator (local), `/<creature>/sim/` simulator (deployed), `studio.<host>/` Studio.
 
 Roller mode only runs its Drive skill. Roll, ground pick, kicks, sit/stand
 and head-mode inputs are ignored until you switch back to Feet.

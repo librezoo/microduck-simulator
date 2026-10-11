@@ -44,7 +44,7 @@ export function ErrorCard({ title, body, detail, onRetry, retry = true }) {
         {retry ? (
           <button type="button" className="lz-btn lz-btn--primary" onClick={onRetry}>{t("retry")}</button>
         ) : null}
-        <a className="lz-btn lz-btn--ghost" href={homeUrl()}>LibreZoo</a>
+        <a className="lz-btn lz-btn--ghost" href={homeUrl()}>{t("backHome")}</a>
       </div>
     </div>
   );

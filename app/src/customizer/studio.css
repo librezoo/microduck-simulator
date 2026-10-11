@@ -1298,6 +1298,7 @@ html[lang="zh"] .lz-hint {
   box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.9);
 }
 .lz-card-title {
+  text-wrap: balance;
   margin: 0 0 10px;
   font-size: clamp(1.5rem, 5vw, 2rem);
   font-weight: 700;
