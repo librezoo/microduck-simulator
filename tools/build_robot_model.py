@@ -14,6 +14,14 @@ Outputs (consumed by app/src/game/duck.js and game.js)
   robot_allcollisions_rollers.xml  physics MJCF (rollers)
   meshes/*.stl                     roller-only meshes (lazy-loaded)
   model-report.json                provenance and per-part statistics
+  studio.json                      LibreZoo Studio manifest: printed parts,
+                                   groups, labels, default colours, print
+                                   order, colourways, hardware look and the
+                                   display pose (see docs/adding-a-creature.md)
+
+`--manifest-only` writes studio.json and nothing else (the GLB, kinematics and
+MJCF files are left untouched). The tool still reads the CAD, so a part that no
+longer exists, or a mesh the manifest does not classify, fails the run.
 
 What is regenerated rather than copied
   * Third-party reference parts (battery, SBC, camera, idler bearing) become
@@ -160,6 +168,117 @@ ROLLER = {
 WHEEL_INERTIAL = ("-0 0 0", "0.00447401", "2.8556e-07 2.8556e-07 5.3687e-07 -0 -6e-12 0")
 WHEEL_RADIUS = 0.015
 WHEEL_HALF_WIDTH = 0.00395
+
+
+# ── LibreZoo Studio manifest ───────────────────────────────────────────────
+# Print source of truth: the LibreZoo microduck_927 assembly. A part is listed
+# when its CAD solid is a printed part (amber in the CAD export) and it is
+# present in the browser model; servos, boards, bearings and the battery are
+# purchased and stay out of the print package (STUDIO_HARDWARE). The sole pad is
+# a separate TPU print. Mirrored parts are separate solids and colour
+# independently; the two neck links are one solid used twice, so they are
+# selected by occurrence. Targets are (body, mesh, occurrence) exactly as
+# app/src/game/duck.js numbers them; the print order is the order below.
+STUDIO_SCHEMA = "librezoo.studio/1"
+CREATURE_ID = "duck"
+PART_CREAM, PART_ORANGE, PART_GRAY, PART_DARK = "#F2EFE8", "#FF7A2F", "#8B8B90", "#1D1D1F"
+
+
+def _t(body, mesh, occurrence=1):
+    return {"body": body, "mesh": mesh, "occurrence": occurrence}
+
+
+# (group id, {en, zh}, [(part id, {en, zh}, default colour, [targets])])
+STUDIO_GROUPS = [
+    ("head", ("Head", "头部"), [
+        ("head", ("Head dome", "头部圆顶"), PART_CREAM, [_t("jaw_soft", "head_dome.stl")]),
+        ("headBand", ("Head band", "头带"), PART_ORANGE, [_t("jaw_soft", "head_band.stl")]),
+        ("face", ("Face plate", "面板"), "#9B9892", [_t("jaw_soft", "face_plate.stl")]),
+        ("eye", ("Eye ring", "眼圈"), "#FFB52E", [_t("jaw_soft", "eye_ring.stl")]),
+        ("headBase", ("Head base plate", "头部底板"), PART_ORANGE, [_t("jaw_soft", "head_base.stl")]),
+        ("headBrace", ("Head brace", "头部支架"), PART_GRAY, [_t("jaw_soft", "head_brace.stl")]),
+    ]),
+    ("body", ("Body", "机身"), [
+        ("bodyLeft", ("Left body shell", "左侧机身壳"), PART_CREAM, [_t("trunk_base", "body_shell_left.stl")]),
+        ("bodyRight", ("Right body shell", "右侧机身壳"), PART_CREAM, [_t("trunk_base", "body_shell_right.stl")]),
+        ("bodyCore", ("Trunk base", "躯干底座"), PART_CREAM, [_t("trunk_base", "trunk_base.stl")]),
+        ("trunkPlate", ("Trunk plate", "躯干盖板"), PART_GRAY, [_t("trunk_base", "trunk_plate.stl")]),
+        ("leftHip", ("Left hip cover", "左髋盖"), PART_GRAY, [_t("hip_l", "hip_cover_left.stl")]),
+        ("rightHip", ("Right hip cover", "右髋盖"), PART_GRAY, [_t("hip_l_2", "hip_cover_right.stl")]),
+    ]),
+    ("joints", ("Joints", "关节"), [
+        ("neckFront", ("Front neck link", "前颈连杆"), PART_GRAY, [_t("neck", "neck_link.stl", 1)]),
+        ("neckRear", ("Rear neck link", "后颈连杆"), PART_GRAY, [_t("neck", "neck_link.stl", 2)]),
+        ("neckPitch", ("Neck pitch link", "颈部俯仰连杆"), PART_GRAY, [_t("neck_pitch", "neck_pitch_link.stl")]),
+        ("headJoint", ("Head yoke", "头部轭架"), PART_GRAY, [_t("yaw_roll_motion", "head_yoke.stl")]),
+        ("leftYawRoll", ("Left yaw link", "左偏航连杆"), PART_DARK, [_t("yaw2roll", "yaw_link_left.stl")]),
+        ("rightYawRoll", ("Right yaw link", "右偏航连杆"), PART_DARK, [_t("bearing_roll", "yaw_link_right.stl")]),
+    ]),
+    ("legs", ("Legs", "腿部"), [
+        ("leftLeg", ("Left upper leg", "左大腿"), PART_CREAM, [_t("upper_leg_left", "upper_leg_left.stl")]),
+        ("rightLeg", ("Right upper leg", "右大腿"), PART_CREAM, [_t("upper_leg_right", "upper_leg_right.stl")]),
+        ("leftRigidity", ("Left leg plate", "左腿加强板"), PART_GRAY, [_t("upper_leg_left", "leg_plate_left.stl")]),
+        ("rightRigidity", ("Right leg plate", "右腿加强板"), PART_GRAY, [_t("upper_leg_right", "leg_plate_right.stl")]),
+        ("leftShin", ("Left shin shell", "左小腿壳"), PART_GRAY, [_t("leg", "shin_left.stl")]),
+        ("rightShin", ("Right shin shell", "右小腿壳"), PART_GRAY, [_t("leg_2", "shin_right.stl")]),
+    ]),
+    ("feet", ("Feet", "足部"), [
+        ("leftAnkle", ("Left ankle bracket A", "左踝支架 A"), PART_ORANGE, [_t("ankle_left", "ankle_bracket_a_left.stl")]),
+        ("rightAnkle", ("Right ankle bracket A", "右踝支架 A"), PART_ORANGE, [_t("ankle_right", "ankle_bracket_a_right.stl")]),
+        ("leftAnkleB", ("Left ankle bracket B", "左踝支架 B"), PART_ORANGE, [_t("ankle_left", "ankle_bracket_b_left.stl")]),
+        ("rightAnkleB", ("Right ankle bracket B", "右踝支架 B"), PART_ORANGE, [_t("ankle_right", "ankle_bracket_b_right.stl")]),
+        ("leftFoot", ("Left foot shell", "左足壳"), PART_ORANGE, [_t("ankle_left", "foot_left.stl")]),
+        ("rightFoot", ("Right foot shell", "右足壳"), PART_ORANGE, [_t("ankle_right", "foot_right.stl")]),
+        ("leftSole", ("Left sole pad", "左鞋底垫"), "#FFD23F", [_t("ankle_left", "sole_pad.stl")]),
+        ("rightSole", ("Right sole pad", "右鞋底垫"), "#FFD23F", [_t("ankle_right", "sole_pad.stl")]),
+    ]),
+]
+
+# Colourways override the defaults above. `stripe` is the three-colour chip.
+_SHELLS = ("head", "bodyCore", "bodyLeft", "bodyRight", "leftLeg", "rightLeg")
+_TRIM = ("headBand", "headBase", "leftAnkle", "rightAnkle", "leftFoot", "rightFoot")
+_SOLES = ("leftSole", "rightSole")
+
+
+def _paint(parts, color):
+    return {part: color for part in parts}
+
+
+STUDIO_COLORWAYS = [
+    {"id": "classic", "name": ("Creamsicle", "奶油橙"), "stripe": ["#F2EFE8", "#FF7A2F", "#FFD23F"],
+     "colors": {}},
+    {"id": "graphite", "name": ("After hours", "下班后"), "stripe": ["#2F2F33", "#FFD23F", "#BFA9CF"],
+     "colors": {**_paint(_SHELLS, "#232326"), "head": "#2F2F33", **_paint(_TRIM, "#FFD23F"),
+                "eye": "#BFA9CF", **_paint(_SOLES, "#8068B0")}},
+    {"id": "lavender", "name": ("Ultraviolet", "紫外"), "stripe": ["#B4A4D4", "#FFD23F", "#8068B0"],
+     "colors": {**_paint(_SHELLS, "#B4A4D4"), **_paint(_TRIM, "#FFD23F"),
+                "eye": "#A8DCE8", **_paint(_SOLES, "#8068B0")}},
+    {"id": "sky", "name": ("Poolside", "泳池边"), "stripe": ["#A8DCE8", "#FF7A2F", "#FFD23F"],
+     "colors": _paint(_SHELLS, "#A8DCE8")},
+]
+
+# What the Studio shows for everything that is not a printed part: bought
+# hardware. Same family of looks as the simulator's "classic" colourway.
+STUDIO_HARDWARE = {
+    "default": {"color": "#8B8B90", "roughness": 0.5, "metalness": 0.35},
+    "meshes": {
+        **{m: {"color": "#1D1D1F", "roughness": 0.55, "metalness": 0.3}
+           for m in ("servo_case.stl", "battery.stl", "pcb_main.stl", "sbc.stl",
+                     "P007__DETAIL_0.stl", "P007__DETAIL_1.stl", "P007__DETAIL_2.stl")},
+        "lens.stl": {"color": "#191C27", "roughness": 0.05, "metalness": 0.0},
+        "servo_horn.stl": {"color": "#8B8B90", "roughness": 0.5, "metalness": 0.35},
+        "idler_bearing.stl": {"color": "#8B8B90", "roughness": 0.5, "metalness": 0.35},
+        "spacer.stl": {"color": "#8B8B90", "roughness": 0.5, "metalness": 0.35},
+    },
+}
+
+STUDIO_EXPORT = {
+    "filePrefix": "duck",  # duck-complete.3mf, parts/<code>/duck-<n>-<code>.3mf
+    "zipPrefix": "microduck",  # microduck-<date>.zip
+    "title": "Microduck custom colorway",
+    "description": "Full Microduck assembly with per-part colors",
+}
+STUDIO_VIEW = {"fov": 34, "camera": [0.5, 0.31, 0.52], "target": [0, 0.13, 0], "yaw": -0.24}
 
 
 # ── Math helpers ───────────────────────────────────────────────────────────
@@ -582,6 +701,67 @@ class Builder:
         pts = [(0.0, -hw), (0.0098, -hw), (0.0106, -hw + 0.0006), (0.0106, hw - 0.0006), (0.0098, hw), (0.0, hw)]
         return lathe(pts, 48)
 
+    # ── LibreZoo Studio manifest ──────────────────────────────────────────
+    def model_instances(self):
+        """(body, mesh, occurrence) of every visual instance, numbered like duck.js does."""
+        seen, counts, instances = set(), {}, []
+        for body in self.body_list:
+            for g in body["geoms"]:
+                key = (body["name"], g["mesh"], tuple(g["pos"]), tuple(g["quat"]))
+                if key in seen:
+                    continue
+                seen.add(key)
+                n = counts[(body["name"], g["mesh"])] = counts.get((body["name"], g["mesh"]), 0) + 1
+                instances.append((body["name"], g["mesh"], n))
+        return instances
+
+    def studio_manifest(self):
+        instances = set(self.model_instances())
+        targets = [(t["body"], t["mesh"], t["occurrence"]) for _, _, parts in STUDIO_GROUPS for *_, ts in parts for t in ts]
+        missing = [t for t in targets if t not in instances]
+        if missing:
+            raise SystemExit(f"studio manifest: targets missing from the model: {missing}")
+        if len(set(targets)) != len(targets):
+            raise SystemExit("studio manifest: a mesh instance belongs to two parts")
+        # every instance is either printed or listed as hardware, so a new CAD part cannot slip by
+        loose = sorted({m for b, m, o in instances if (b, m, o) not in set(targets)} - set(STUDIO_HARDWARE["meshes"]))
+        if loose:
+            raise SystemExit(f"studio manifest: meshes that are neither a printed part nor hardware: {loose}")
+
+        ids = [pid for _, _, parts in STUDIO_GROUPS for pid, *_ in parts]
+        assert len(set(ids)) == len(ids), "duplicate part id"
+        defaults = {pid: color for _, _, parts in STUDIO_GROUPS for pid, _, color, _ in parts}
+        joints = [j for j in (a.get("joint") for a in self.root.iter("position")) if j]
+        assert len(joints) == len(DEFAULT_POSE), "display pose does not match the actuators"
+        loc = lambda pair: {"en": pair[0], "zh": pair[1]}  # noqa: E731
+        return {
+            "schema": STUDIO_SCHEMA,
+            "generator": "tools/build_robot_model.py",
+            "creature": CREATURE_ID,
+            "model": {"kinematics": "kinematics.json", "glb": "microduck.glb"},
+            "export": STUDIO_EXPORT,
+            "view": STUDIO_VIEW,
+            "pose": {j: round(float(v), 9) for j, v in zip(joints, DEFAULT_POSE)},
+            "hardware": STUDIO_HARDWARE,
+            "groups": [
+                {"id": gid, "label": loc(label), "parts": [
+                    {"id": pid, "label": loc(plabel), "color": color, "targets": ts}
+                    for pid, plabel, color, ts in parts]}
+                for gid, label, parts in STUDIO_GROUPS],
+            "printOrder": ids,
+            "colorways": [
+                {"id": c["id"], "name": loc(c["name"]), "stripe": c["stripe"], "colors": {**defaults, **c["colors"]}}
+                for c in STUDIO_COLORWAYS],
+        }
+
+    def write_studio(self):
+        self.out.mkdir(parents=True, exist_ok=True)
+        path = self.out / "studio.json"
+        manifest = self.studio_manifest()
+        path.write_text(json.dumps(manifest, indent=1, ensure_ascii=False) + "\n")
+        n = sum(len(g["parts"]) for g in manifest["groups"])
+        print(f"wrote {path} | {n} printed parts in {len(manifest['groups'])} groups, {len(manifest['colorways'])} colourways")
+
     # ── outputs ───────────────────────────────────────────────────────────
     def write(self):
         out = self.out
@@ -603,6 +783,7 @@ class Builder:
         self.report["notes"].append("REF_POLLEN_* electronics dropped; REF_* parts replaced by bounding-box proxies")
         (out / "model-report.json").write_text(json.dumps(self.report, indent=1))
         print(f"wrote {out} | glb {Path(out / 'microduck.glb').stat().st_size / 1e6:.2f} MB, {total} faces")
+        self.write_studio()
 
 
 def lathe(profile, sections):
@@ -652,13 +833,18 @@ def main():
     ap.add_argument("--src", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--pad-mass", type=float, default=PAD_MASS, help="sole pad mass per foot, kg")
+    ap.add_argument("--manifest-only", action="store_true",
+                    help="write only studio.json; leave the GLB, kinematics and MJCF files untouched")
     args = ap.parse_args()
     PAD_MASS = args.pad_mass
     b = Builder(Path(args.src), Path(args.out))
     b.build_bodies()
     b.make_pads()
     b.add_pad_visuals()
-    b.write()
+    if args.manifest_only:
+        b.write_studio()
+    else:
+        b.write()
 
 
 if __name__ == "__main__":

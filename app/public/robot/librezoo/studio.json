@@ -1,0 +1,856 @@
+{
+ "schema": "librezoo.studio/1",
+ "generator": "tools/build_robot_model.py",
+ "creature": "duck",
+ "model": {
+  "kinematics": "kinematics.json",
+  "glb": "microduck.glb"
+ },
+ "export": {
+  "filePrefix": "duck",
+  "zipPrefix": "microduck",
+  "title": "Microduck custom colorway",
+  "description": "Full Microduck assembly with per-part colors"
+ },
+ "view": {
+  "fov": 34,
+  "camera": [
+   0.5,
+   0.31,
+   0.52
+  ],
+  "target": [
+   0,
+   0.13,
+   0
+  ],
+  "yaw": -0.24
+ },
+ "pose": {
+  "left_hip_yaw": 0.0,
+  "left_hip_roll": -0.087266463,
+  "left_hip_pitch": -0.457924,
+  "left_knee": -0.00494,
+  "left_ankle": 0.452984,
+  "neck_pitch": 0.34906585,
+  "head_pitch": 0.34906585,
+  "head_yaw": 0.0,
+  "head_roll": 0.0,
+  "right_hip_yaw": 0.0,
+  "right_hip_roll": 0.087266463,
+  "right_hip_pitch": 0.457924,
+  "right_knee": 0.00494,
+  "right_ankle": -0.452984
+ },
+ "hardware": {
+  "default": {
+   "color": "#8B8B90",
+   "roughness": 0.5,
+   "metalness": 0.35
+  },
+  "meshes": {
+   "servo_case.stl": {
+    "color": "#1D1D1F",
+    "roughness": 0.55,
+    "metalness": 0.3
+   },
+   "battery.stl": {
+    "color": "#1D1D1F",
+    "roughness": 0.55,
+    "metalness": 0.3
+   },
+   "pcb_main.stl": {
+    "color": "#1D1D1F",
+    "roughness": 0.55,
+    "metalness": 0.3
+   },
+   "sbc.stl": {
+    "color": "#1D1D1F",
+    "roughness": 0.55,
+    "metalness": 0.3
+   },
+   "P007__DETAIL_0.stl": {
+    "color": "#1D1D1F",
+    "roughness": 0.55,
+    "metalness": 0.3
+   },
+   "P007__DETAIL_1.stl": {
+    "color": "#1D1D1F",
+    "roughness": 0.55,
+    "metalness": 0.3
+   },
+   "P007__DETAIL_2.stl": {
+    "color": "#1D1D1F",
+    "roughness": 0.55,
+    "metalness": 0.3
+   },
+   "lens.stl": {
+    "color": "#191C27",
+    "roughness": 0.05,
+    "metalness": 0.0
+   },
+   "servo_horn.stl": {
+    "color": "#8B8B90",
+    "roughness": 0.5,
+    "metalness": 0.35
+   },
+   "idler_bearing.stl": {
+    "color": "#8B8B90",
+    "roughness": 0.5,
+    "metalness": 0.35
+   },
+   "spacer.stl": {
+    "color": "#8B8B90",
+    "roughness": 0.5,
+    "metalness": 0.35
+   }
+  }
+ },
+ "groups": [
+  {
+   "id": "head",
+   "label": {
+    "en": "Head",
+    "zh": "头部"
+   },
+   "parts": [
+    {
+     "id": "head",
+     "label": {
+      "en": "Head dome",
+      "zh": "头部圆顶"
+     },
+     "color": "#F2EFE8",
+     "targets": [
+      {
+       "body": "jaw_soft",
+       "mesh": "head_dome.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "headBand",
+     "label": {
+      "en": "Head band",
+      "zh": "头带"
+     },
+     "color": "#FF7A2F",
+     "targets": [
+      {
+       "body": "jaw_soft",
+       "mesh": "head_band.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "face",
+     "label": {
+      "en": "Face plate",
+      "zh": "面板"
+     },
+     "color": "#9B9892",
+     "targets": [
+      {
+       "body": "jaw_soft",
+       "mesh": "face_plate.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "eye",
+     "label": {
+      "en": "Eye ring",
+      "zh": "眼圈"
+     },
+     "color": "#FFB52E",
+     "targets": [
+      {
+       "body": "jaw_soft",
+       "mesh": "eye_ring.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "headBase",
+     "label": {
+      "en": "Head base plate",
+      "zh": "头部底板"
+     },
+     "color": "#FF7A2F",
+     "targets": [
+      {
+       "body": "jaw_soft",
+       "mesh": "head_base.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "headBrace",
+     "label": {
+      "en": "Head brace",
+      "zh": "头部支架"
+     },
+     "color": "#8B8B90",
+     "targets": [
+      {
+       "body": "jaw_soft",
+       "mesh": "head_brace.stl",
+       "occurrence": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "body",
+   "label": {
+    "en": "Body",
+    "zh": "机身"
+   },
+   "parts": [
+    {
+     "id": "bodyLeft",
+     "label": {
+      "en": "Left body shell",
+      "zh": "左侧机身壳"
+     },
+     "color": "#F2EFE8",
+     "targets": [
+      {
+       "body": "trunk_base",
+       "mesh": "body_shell_left.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "bodyRight",
+     "label": {
+      "en": "Right body shell",
+      "zh": "右侧机身壳"
+     },
+     "color": "#F2EFE8",
+     "targets": [
+      {
+       "body": "trunk_base",
+       "mesh": "body_shell_right.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "bodyCore",
+     "label": {
+      "en": "Trunk base",
+      "zh": "躯干底座"
+     },
+     "color": "#F2EFE8",
+     "targets": [
+      {
+       "body": "trunk_base",
+       "mesh": "trunk_base.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "trunkPlate",
+     "label": {
+      "en": "Trunk plate",
+      "zh": "躯干盖板"
+     },
+     "color": "#8B8B90",
+     "targets": [
+      {
+       "body": "trunk_base",
+       "mesh": "trunk_plate.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "leftHip",
+     "label": {
+      "en": "Left hip cover",
+      "zh": "左髋盖"
+     },
+     "color": "#8B8B90",
+     "targets": [
+      {
+       "body": "hip_l",
+       "mesh": "hip_cover_left.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "rightHip",
+     "label": {
+      "en": "Right hip cover",
+      "zh": "右髋盖"
+     },
+     "color": "#8B8B90",
+     "targets": [
+      {
+       "body": "hip_l_2",
+       "mesh": "hip_cover_right.stl",
+       "occurrence": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "joints",
+   "label": {
+    "en": "Joints",
+    "zh": "关节"
+   },
+   "parts": [
+    {
+     "id": "neckFront",
+     "label": {
+      "en": "Front neck link",
+      "zh": "前颈连杆"
+     },
+     "color": "#8B8B90",
+     "targets": [
+      {
+       "body": "neck",
+       "mesh": "neck_link.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "neckRear",
+     "label": {
+      "en": "Rear neck link",
+      "zh": "后颈连杆"
+     },
+     "color": "#8B8B90",
+     "targets": [
+      {
+       "body": "neck",
+       "mesh": "neck_link.stl",
+       "occurrence": 2
+      }
+     ]
+    },
+    {
+     "id": "neckPitch",
+     "label": {
+      "en": "Neck pitch link",
+      "zh": "颈部俯仰连杆"
+     },
+     "color": "#8B8B90",
+     "targets": [
+      {
+       "body": "neck_pitch",
+       "mesh": "neck_pitch_link.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "headJoint",
+     "label": {
+      "en": "Head yoke",
+      "zh": "头部轭架"
+     },
+     "color": "#8B8B90",
+     "targets": [
+      {
+       "body": "yaw_roll_motion",
+       "mesh": "head_yoke.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "leftYawRoll",
+     "label": {
+      "en": "Left yaw link",
+      "zh": "左偏航连杆"
+     },
+     "color": "#1D1D1F",
+     "targets": [
+      {
+       "body": "yaw2roll",
+       "mesh": "yaw_link_left.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "rightYawRoll",
+     "label": {
+      "en": "Right yaw link",
+      "zh": "右偏航连杆"
+     },
+     "color": "#1D1D1F",
+     "targets": [
+      {
+       "body": "bearing_roll",
+       "mesh": "yaw_link_right.stl",
+       "occurrence": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "legs",
+   "label": {
+    "en": "Legs",
+    "zh": "腿部"
+   },
+   "parts": [
+    {
+     "id": "leftLeg",
+     "label": {
+      "en": "Left upper leg",
+      "zh": "左大腿"
+     },
+     "color": "#F2EFE8",
+     "targets": [
+      {
+       "body": "upper_leg_left",
+       "mesh": "upper_leg_left.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "rightLeg",
+     "label": {
+      "en": "Right upper leg",
+      "zh": "右大腿"
+     },
+     "color": "#F2EFE8",
+     "targets": [
+      {
+       "body": "upper_leg_right",
+       "mesh": "upper_leg_right.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "leftRigidity",
+     "label": {
+      "en": "Left leg plate",
+      "zh": "左腿加强板"
+     },
+     "color": "#8B8B90",
+     "targets": [
+      {
+       "body": "upper_leg_left",
+       "mesh": "leg_plate_left.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "rightRigidity",
+     "label": {
+      "en": "Right leg plate",
+      "zh": "右腿加强板"
+     },
+     "color": "#8B8B90",
+     "targets": [
+      {
+       "body": "upper_leg_right",
+       "mesh": "leg_plate_right.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "leftShin",
+     "label": {
+      "en": "Left shin shell",
+      "zh": "左小腿壳"
+     },
+     "color": "#8B8B90",
+     "targets": [
+      {
+       "body": "leg",
+       "mesh": "shin_left.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "rightShin",
+     "label": {
+      "en": "Right shin shell",
+      "zh": "右小腿壳"
+     },
+     "color": "#8B8B90",
+     "targets": [
+      {
+       "body": "leg_2",
+       "mesh": "shin_right.stl",
+       "occurrence": 1
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "feet",
+   "label": {
+    "en": "Feet",
+    "zh": "足部"
+   },
+   "parts": [
+    {
+     "id": "leftAnkle",
+     "label": {
+      "en": "Left ankle bracket A",
+      "zh": "左踝支架 A"
+     },
+     "color": "#FF7A2F",
+     "targets": [
+      {
+       "body": "ankle_left",
+       "mesh": "ankle_bracket_a_left.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "rightAnkle",
+     "label": {
+      "en": "Right ankle bracket A",
+      "zh": "右踝支架 A"
+     },
+     "color": "#FF7A2F",
+     "targets": [
+      {
+       "body": "ankle_right",
+       "mesh": "ankle_bracket_a_right.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "leftAnkleB",
+     "label": {
+      "en": "Left ankle bracket B",
+      "zh": "左踝支架 B"
+     },
+     "color": "#FF7A2F",
+     "targets": [
+      {
+       "body": "ankle_left",
+       "mesh": "ankle_bracket_b_left.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "rightAnkleB",
+     "label": {
+      "en": "Right ankle bracket B",
+      "zh": "右踝支架 B"
+     },
+     "color": "#FF7A2F",
+     "targets": [
+      {
+       "body": "ankle_right",
+       "mesh": "ankle_bracket_b_right.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "leftFoot",
+     "label": {
+      "en": "Left foot shell",
+      "zh": "左足壳"
+     },
+     "color": "#FF7A2F",
+     "targets": [
+      {
+       "body": "ankle_left",
+       "mesh": "foot_left.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "rightFoot",
+     "label": {
+      "en": "Right foot shell",
+      "zh": "右足壳"
+     },
+     "color": "#FF7A2F",
+     "targets": [
+      {
+       "body": "ankle_right",
+       "mesh": "foot_right.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "leftSole",
+     "label": {
+      "en": "Left sole pad",
+      "zh": "左鞋底垫"
+     },
+     "color": "#FFD23F",
+     "targets": [
+      {
+       "body": "ankle_left",
+       "mesh": "sole_pad.stl",
+       "occurrence": 1
+      }
+     ]
+    },
+    {
+     "id": "rightSole",
+     "label": {
+      "en": "Right sole pad",
+      "zh": "右鞋底垫"
+     },
+     "color": "#FFD23F",
+     "targets": [
+      {
+       "body": "ankle_right",
+       "mesh": "sole_pad.stl",
+       "occurrence": 1
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "printOrder": [
+  "head",
+  "headBand",
+  "face",
+  "eye",
+  "headBase",
+  "headBrace",
+  "bodyLeft",
+  "bodyRight",
+  "bodyCore",
+  "trunkPlate",
+  "leftHip",
+  "rightHip",
+  "neckFront",
+  "neckRear",
+  "neckPitch",
+  "headJoint",
+  "leftYawRoll",
+  "rightYawRoll",
+  "leftLeg",
+  "rightLeg",
+  "leftRigidity",
+  "rightRigidity",
+  "leftShin",
+  "rightShin",
+  "leftAnkle",
+  "rightAnkle",
+  "leftAnkleB",
+  "rightAnkleB",
+  "leftFoot",
+  "rightFoot",
+  "leftSole",
+  "rightSole"
+ ],
+ "colorways": [
+  {
+   "id": "classic",
+   "name": {
+    "en": "Creamsicle",
+    "zh": "奶油橙"
+   },
+   "stripe": [
+    "#F2EFE8",
+    "#FF7A2F",
+    "#FFD23F"
+   ],
+   "colors": {
+    "head": "#F2EFE8",
+    "headBand": "#FF7A2F",
+    "face": "#9B9892",
+    "eye": "#FFB52E",
+    "headBase": "#FF7A2F",
+    "headBrace": "#8B8B90",
+    "bodyLeft": "#F2EFE8",
+    "bodyRight": "#F2EFE8",
+    "bodyCore": "#F2EFE8",
+    "trunkPlate": "#8B8B90",
+    "leftHip": "#8B8B90",
+    "rightHip": "#8B8B90",
+    "neckFront": "#8B8B90",
+    "neckRear": "#8B8B90",
+    "neckPitch": "#8B8B90",
+    "headJoint": "#8B8B90",
+    "leftYawRoll": "#1D1D1F",
+    "rightYawRoll": "#1D1D1F",
+    "leftLeg": "#F2EFE8",
+    "rightLeg": "#F2EFE8",
+    "leftRigidity": "#8B8B90",
+    "rightRigidity": "#8B8B90",
+    "leftShin": "#8B8B90",
+    "rightShin": "#8B8B90",
+    "leftAnkle": "#FF7A2F",
+    "rightAnkle": "#FF7A2F",
+    "leftAnkleB": "#FF7A2F",
+    "rightAnkleB": "#FF7A2F",
+    "leftFoot": "#FF7A2F",
+    "rightFoot": "#FF7A2F",
+    "leftSole": "#FFD23F",
+    "rightSole": "#FFD23F"
+   }
+  },
+  {
+   "id": "graphite",
+   "name": {
+    "en": "After hours",
+    "zh": "下班后"
+   },
+   "stripe": [
+    "#2F2F33",
+    "#FFD23F",
+    "#BFA9CF"
+   ],
+   "colors": {
+    "head": "#2F2F33",
+    "headBand": "#FFD23F",
+    "face": "#9B9892",
+    "eye": "#BFA9CF",
+    "headBase": "#FFD23F",
+    "headBrace": "#8B8B90",
+    "bodyLeft": "#232326",
+    "bodyRight": "#232326",
+    "bodyCore": "#232326",
+    "trunkPlate": "#8B8B90",
+    "leftHip": "#8B8B90",
+    "rightHip": "#8B8B90",
+    "neckFront": "#8B8B90",
+    "neckRear": "#8B8B90",
+    "neckPitch": "#8B8B90",
+    "headJoint": "#8B8B90",
+    "leftYawRoll": "#1D1D1F",
+    "rightYawRoll": "#1D1D1F",
+    "leftLeg": "#232326",
+    "rightLeg": "#232326",
+    "leftRigidity": "#8B8B90",
+    "rightRigidity": "#8B8B90",
+    "leftShin": "#8B8B90",
+    "rightShin": "#8B8B90",
+    "leftAnkle": "#FFD23F",
+    "rightAnkle": "#FFD23F",
+    "leftAnkleB": "#FF7A2F",
+    "rightAnkleB": "#FF7A2F",
+    "leftFoot": "#FFD23F",
+    "rightFoot": "#FFD23F",
+    "leftSole": "#8068B0",
+    "rightSole": "#8068B0"
+   }
+  },
+  {
+   "id": "lavender",
+   "name": {
+    "en": "Ultraviolet",
+    "zh": "紫外"
+   },
+   "stripe": [
+    "#B4A4D4",
+    "#FFD23F",
+    "#8068B0"
+   ],
+   "colors": {
+    "head": "#B4A4D4",
+    "headBand": "#FFD23F",
+    "face": "#9B9892",
+    "eye": "#A8DCE8",
+    "headBase": "#FFD23F",
+    "headBrace": "#8B8B90",
+    "bodyLeft": "#B4A4D4",
+    "bodyRight": "#B4A4D4",
+    "bodyCore": "#B4A4D4",
+    "trunkPlate": "#8B8B90",
+    "leftHip": "#8B8B90",
+    "rightHip": "#8B8B90",
+    "neckFront": "#8B8B90",
+    "neckRear": "#8B8B90",
+    "neckPitch": "#8B8B90",
+    "headJoint": "#8B8B90",
+    "leftYawRoll": "#1D1D1F",
+    "rightYawRoll": "#1D1D1F",
+    "leftLeg": "#B4A4D4",
+    "rightLeg": "#B4A4D4",
+    "leftRigidity": "#8B8B90",
+    "rightRigidity": "#8B8B90",
+    "leftShin": "#8B8B90",
+    "rightShin": "#8B8B90",
+    "leftAnkle": "#FFD23F",
+    "rightAnkle": "#FFD23F",
+    "leftAnkleB": "#FF7A2F",
+    "rightAnkleB": "#FF7A2F",
+    "leftFoot": "#FFD23F",
+    "rightFoot": "#FFD23F",
+    "leftSole": "#8068B0",
+    "rightSole": "#8068B0"
+   }
+  },
+  {
+   "id": "sky",
+   "name": {
+    "en": "Poolside",
+    "zh": "泳池边"
+   },
+   "stripe": [
+    "#A8DCE8",
+    "#FF7A2F",
+    "#FFD23F"
+   ],
+   "colors": {
+    "head": "#A8DCE8",
+    "headBand": "#FF7A2F",
+    "face": "#9B9892",
+    "eye": "#FFB52E",
+    "headBase": "#FF7A2F",
+    "headBrace": "#8B8B90",
+    "bodyLeft": "#A8DCE8",
+    "bodyRight": "#A8DCE8",
+    "bodyCore": "#A8DCE8",
+    "trunkPlate": "#8B8B90",
+    "leftHip": "#8B8B90",
+    "rightHip": "#8B8B90",
+    "neckFront": "#8B8B90",
+    "neckRear": "#8B8B90",
+    "neckPitch": "#8B8B90",
+    "headJoint": "#8B8B90",
+    "leftYawRoll": "#1D1D1F",
+    "rightYawRoll": "#1D1D1F",
+    "leftLeg": "#A8DCE8",
+    "rightLeg": "#A8DCE8",
+    "leftRigidity": "#8B8B90",
+    "rightRigidity": "#8B8B90",
+    "leftShin": "#8B8B90",
+    "rightShin": "#8B8B90",
+    "leftAnkle": "#FF7A2F",
+    "rightAnkle": "#FF7A2F",
+    "leftAnkleB": "#FF7A2F",
+    "rightAnkleB": "#FF7A2F",
+    "leftFoot": "#FF7A2F",
+    "rightFoot": "#FF7A2F",
+    "leftSole": "#FFD23F",
+    "rightSole": "#FFD23F"
+   }
+  }
+ ]
+}
