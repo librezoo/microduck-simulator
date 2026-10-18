@@ -19,7 +19,7 @@
     "onnxruntime-web": "1.27.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "three": "^0.164.1",
+    "three": "^0.186.1",
     "trystero": "0.25.3",
     "zustand": "^5.0.15"
   },
