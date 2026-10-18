@@ -80,7 +80,7 @@ export function UnknownCreature({ requested }) {
         </ul>
         <p className="lz-card-body lz-card-body--dim">{t("bringBody")}</p>
         <div className="lz-card-actions">
-          <a className="lz-btn lz-btn--ghost" href="https://github.com/micro-zoo/microduck-simulator" target="_blank" rel="noopener noreferrer">
+          <a className="lz-btn lz-btn--ghost" href="https://github.com/librezoo/microduck-simulator" target="_blank" rel="noopener noreferrer">
             {t("bringLink")} <Icon name="external" size={15} />
           </a>
         </div>

@@ -101,7 +101,7 @@ export function CreatureSwitcher({ creatureId, onSwitch }) {
           <a
             className="lz-menu-item lz-menu-item--invite"
             role="menuitem"
-            href="https://github.com/micro-zoo/microduck-simulator"
+            href="https://github.com/librezoo/microduck-simulator"
             target="_blank"
             rel="noopener noreferrer"
           >

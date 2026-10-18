@@ -62,7 +62,7 @@ does not schedule another action policy while rollers are active.
 | Pose motions (legs) | `src/game/procedural-motions.js` | Generates four gentle 50 Hz joint-offset sequences over the stabilized Stand policy |
 
 Policies from
-[micro-zoo/microduck](https://github.com/micro-zoo/microduck)
+[librezoo/microduck](https://github.com/librezoo/microduck)
 and [micro-zoo/microduck_rl](https://github.com/micro-zoo/microduck_rl). The
 robot model is LibreZoo's own `microduck_927` CAD, generated into
 `app/public/robot/librezoo/` by `tools/build_robot_model.py`; see
